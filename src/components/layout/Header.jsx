@@ -6,8 +6,23 @@ import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import { useNavigate } from "react-router-dom";
 
 const Header = () => {
+  const navigate = useNavigate();
+
+  const categories = [
+    { name: "MEN", value: "Men" },
+    { name: "WOMEN", value: "Women" },
+    { name: "KIDS", value: "Kids" },
+    { name: "BEAUTY", value: "Beauty" },
+    { name: "AJIO LUXE", value: "AJIO Luxe" },
+  ];
+
+  const handleCategoryClick = (category) => {
+    navigate(`/products?category=${encodeURIComponent(category)}`);
+  };
+
   return (
     <AppBar
       position="static"
@@ -24,10 +39,12 @@ const Header = () => {
         {/* Logo */}
         <Typography
           variant="h5"
+          onClick={() => navigate("/")}
           sx={{
             fontWeight: 800,
             letterSpacing: "1px",
             mr: { xs: 1, md: 4 },
+            cursor: "pointer",
           }}
         >
           AJIO
@@ -41,25 +58,21 @@ const Header = () => {
             flex: 1,
           }}
         >
-          <Typography sx={{ cursor: "pointer" }}>
-            MEN
-          </Typography>
-
-          <Typography sx={{ cursor: "pointer" }}>
-            WOMEN
-          </Typography>
-
-          <Typography sx={{ cursor: "pointer" }}>
-            KIDS
-          </Typography>
-
-          <Typography sx={{ cursor: "pointer" }}>
-            BEAUTY
-          </Typography>
-
-          <Typography sx={{ cursor: "pointer" }}>
-            AJIO LUXE
-          </Typography>
+          {categories.map((category) => (
+            <Typography
+              key={category.value}
+              onClick={() => handleCategoryClick(category.value)}
+              sx={{
+                cursor: "pointer",
+                fontWeight: 500,
+                "&:hover": {
+                  opacity: 0.7,
+                },
+              }}
+            >
+              {category.name}
+            </Typography>
+          ))}
         </Box>
 
         {/* Search */}

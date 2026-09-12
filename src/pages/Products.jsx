@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -69,7 +69,6 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1542272604-787c3835535d?auto=format&fit=crop&w=600&q=80",
   },
- 
   {
     id: 8,
     brand: "DAILY STYLE",
@@ -79,95 +78,93 @@ const products = [
     image:
       "https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=600&q=80",
   },
-
   {
-  id: 9,
-  brand: "KIDS WORLD",
-  name: "Boys Casual T-Shirt & Shorts Set",
-  price: 899,
-  category: "Kids",
-  image:
-    "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=600&q=80",
-},
-{
-  id: 10,
-  brand: "LITTLE STYLE",
-  name: "Girls Floral Party Dress",
-  price: 1299,
-  category: "Kids",
-  image:
-    "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=600&q=80",
-},
-{
-  id: 11,
-  brand: "MINI TREND",
-  name: "Kids Denim Jacket & Jeans Set",
-  price: 1499,
-  category: "Kids",
-  image:
-    "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80",
-},
-
-{
-  id: 12,
-  brand: "MINIMALIST",
-  name: "Niacinamide 5% Face Serum",
-  price: 599,
-  category: "Beauty",
-  image:
-    "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80",
-},
-{
-  id: 13,
-  brand: "LAKME",
-  name: "Matte Liquid Lipstick",
-  price: 499,
-  category: "Beauty",
-  image:
-    "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=600&q=80",
-},
-{
-  id: 14,
-  brand: "L'OREAL PARIS",
-  name: "Moisturizing Shampoo",
-  price: 699,
-  category: "Beauty",
-  image:
-    "https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=600&q=80",
-},
-{
-  id: 15,
-  brand: "DIESEL",
-  name: "Only The Brave Eau De Toilette",
-  price: 5368,
-  category: "AJIO Luxe",
-  image:
-    "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",
-},
-{
-  id: 16,
-  brand: "EMPORIO ARMANI",
-  name: "Luxury Eau De Parfum",
-  price: 9800,
-  category: "AJIO Luxe",
-  image:
-    "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80",
-},
-{
-  id: 17,
-  brand: "JUICY COUTURE",
-  name: "Viva La Rose Eau De Parfum",
-  price: 3570,
-  category: "AJIO Luxe",
-  image:
-    "https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=600&q=80",
-},
-
+    id: 9,
+    brand: "KIDS WORLD",
+    name: "Boys Casual T-Shirt & Shorts Set",
+    price: 899,
+    category: "Kids",
+    image:
+      "https://images.unsplash.com/photo-1622290291468-a28f7a7dc6a8?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 10,
+    brand: "LITTLE STYLE",
+    name: "Girls Floral Party Dress",
+    price: 1299,
+    category: "Kids",
+    image:
+      "https://images.unsplash.com/photo-1518831959646-742c3a14ebf7?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 11,
+    brand: "MINI TREND",
+    name: "Kids Denim Jacket & Jeans Set",
+    price: 1499,
+    category: "Kids",
+    image:
+      "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 12,
+    brand: "MINIMALIST",
+    name: "Niacinamide 5% Face Serum",
+    price: 599,
+    category: "Beauty",
+    image:
+      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 13,
+    brand: "LAKME",
+    name: "Matte Liquid Lipstick",
+    price: 499,
+    category: "Beauty",
+    image:
+      "https://images.unsplash.com/photo-1586495777744-4413f21062fa?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 14,
+    brand: "L'OREAL PARIS",
+    name: "Moisturizing Shampoo",
+    price: 699,
+    category: "Beauty",
+    image:
+      "https://images.unsplash.com/photo-1556228578-8c89e6adf883?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 15,
+    brand: "DIESEL",
+    name: "Only The Brave Eau De Toilette",
+    price: 5368,
+    category: "AJIO Luxe",
+    image:
+      "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 16,
+    brand: "EMPORIO ARMANI",
+    name: "Luxury Eau De Parfum",
+    price: 9800,
+    category: "AJIO Luxe",
+    image:
+      "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 17,
+    brand: "JUICY COUTURE",
+    name: "Viva La Rose Eau De Parfum",
+    price: 3570,
+    category: "AJIO Luxe",
+    image:
+      "https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=600&q=80",
+  },
 ];
 
 const Products = () => {
+  const navigate = useNavigate();
   const [sort, setSort] = useState("");
-   const [searchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   const selectedCategory = searchParams.get("category");
 
@@ -176,12 +173,12 @@ const Products = () => {
         (product) => product.category === selectedCategory
       )
     : products;
-    
+
   const handleSortChange = (event) => {
     setSort(event.target.value);
   };
 
- const sortedProducts = [...filteredProducts].sort((a, b) => {
+  const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sort === "low") {
       return a.price - b.price;
     }
@@ -209,14 +206,14 @@ const Products = () => {
         }}
       >
         <Typography
-  variant="h4"
-  sx={{
-    fontWeight: 700,
-    mb: 1,
-  }}
->
-  {selectedCategory || "Fashion"}
-</Typography>
+          variant="h4"
+          sx={{
+            fontWeight: 700,
+            mb: 1,
+          }}
+        >
+          {selectedCategory || "Fashion"}
+        </Typography>
 
         <Typography color="text.secondary">
           Discover the latest styles and trends
@@ -236,10 +233,7 @@ const Products = () => {
           flexWrap: "wrap",
         }}
       >
-        <Typography
-          variant="body2"
-          color="text.secondary"
-        >
+        <Typography variant="body2" color="text.secondary">
           {sortedProducts.length} Products
         </Typography>
 
@@ -252,12 +246,15 @@ const Products = () => {
             onChange={handleSortChange}
           >
             <MenuItem value="">Recommended</MenuItem>
+
             <MenuItem value="low">
               Price: Low to High
             </MenuItem>
+
             <MenuItem value="high">
               Price: High to Low
             </MenuItem>
+
             <MenuItem value="name">
               Name: A to Z
             </MenuItem>
@@ -285,10 +282,16 @@ const Products = () => {
             >
               <Card
                 elevation={0}
+                onClick={() =>
+                  navigate("/product-details", {
+                    state: { product },
+                  })
+                }
                 sx={{
                   height: "100%",
                   border: "1px solid #e5e5e5",
                   borderRadius: 0,
+                  cursor: "pointer",
                   transition: "0.3s",
                   "&:hover": {
                     transform: "translateY(-5px)",
@@ -342,6 +345,9 @@ const Products = () => {
                   <Button
                     fullWidth
                     variant="contained"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                    }}
                     sx={{
                       backgroundColor: "#111",
                       color: "#fff",

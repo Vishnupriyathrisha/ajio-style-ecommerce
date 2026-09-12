@@ -5,12 +5,15 @@ import { ThemeProvider } from "@mui/material/styles";
 
 import App from "./App";
 import theme from "./theme";
+import { CartProvider } from "./context/CartContext";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <BrowserRouter>
-        <App />
+        <CartProvider>
+          <App />
+        </CartProvider>
       </BrowserRouter>
     </ThemeProvider>
   </React.StrictMode>

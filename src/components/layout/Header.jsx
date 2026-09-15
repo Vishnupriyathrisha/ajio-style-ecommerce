@@ -104,9 +104,12 @@ const Header = () => {
 
         {/* Icons */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
-          <IconButton sx={{ color: "#fff" }}>
-            <FavoriteBorderIcon />
-          </IconButton>
+          <IconButton
+  onClick={() => navigate("/wishlist")}
+  sx={{ color: "#fff" }}
+>
+  <FavoriteBorderIcon />
+</IconButton>
 
           <IconButton sx={{ color: "#fff" }}>
             <ShoppingBagOutlinedIcon />

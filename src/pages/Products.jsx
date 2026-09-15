@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useCart } from "../context/CartContext";
 import {
   Box,
   Typography,
@@ -14,7 +16,7 @@ import {
   InputLabel,
 } from "@mui/material";
 
-const products = [
+const mockProducts = [
   {
     id: 1,
     brand: "TRENDY WEAR",
@@ -163,10 +165,47 @@ const products = [
 
 const Products = () => {
   const navigate = useNavigate();
+
+  const [products, setProducts] = useState(mockProducts);
+  const [loading, setLoading] = useState(true);
+
   const [sort, setSort] = useState("");
   const [searchParams] = useSearchParams();
 
   const selectedCategory = searchParams.get("category");
+
+  // Fetch products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/api/products"
+        );
+
+        const backendProducts = response.data.products || [];
+
+        // Use backend products when available.
+        // Keep mock products as fallback while database is empty.
+        if (backendProducts.length > 0) {
+          setProducts(backendProducts);
+        } else {
+          setProducts(mockProducts);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to fetch products:",
+          error.response?.data || error.message
+        );
+
+        // Keep existing mock products if backend is unavailable
+        setProducts(mockProducts);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const filteredProducts = selectedCategory
     ? products.filter(
@@ -177,7 +216,7 @@ const Products = () => {
   const handleSortChange = (event) => {
     setSort(event.target.value);
   };
-
+  const { addToCart } = useCart();
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sort === "low") {
       return a.price - b.price;
@@ -234,7 +273,9 @@ const Products = () => {
         }}
       >
         <Typography variant="body2" color="text.secondary">
-          {sortedProducts.length} Products
+          {loading
+            ? "Loading..."
+            : `${sortedProducts.length} Products`}
         </Typography>
 
         <FormControl size="small" sx={{ minWidth: 180 }}>
@@ -272,7 +313,7 @@ const Products = () => {
         <Grid container spacing={3}>
           {sortedProducts.map((product) => (
             <Grid
-              key={product.id}
+              key={product._id || product.id}
               size={{
                 xs: 12,
                 sm: 6,
@@ -343,12 +384,14 @@ const Products = () => {
                   </Typography>
 
                   <Button
-                    fullWidth
-                    variant="contained"
-                    onClick={(event) => {
-                      event.stopPropagation();
-                    }}
-                    sx={{
+                      fullWidth
+                      variant="contained"
+                      onClick={(event) => {
+  event.stopPropagation();
+  console.log("ADD TO BAG CLICKED:", product);
+  addToCart(product, 1);
+}}
+                     sx={{
                       backgroundColor: "#111",
                       color: "#fff",
                       textTransform: "none",

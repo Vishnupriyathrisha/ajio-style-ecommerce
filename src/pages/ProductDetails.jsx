@@ -9,11 +9,13 @@ import RemoveIcon from "@mui/icons-material/Remove";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import CustomButton from "../components/common/CustomButton";
 import { useCart } from "../context/CartContext";
+import { useWishlist } from "../context/WishlistContext";
 
 const ProductDetails = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { addToCart } = useCart();
+  const { addToWishlist, isInWishlist } = useWishlist();
 
   const product = location.state?.product;
   const [quantity, setQuantity] = useState(1);
@@ -131,13 +133,18 @@ const ProductDetails = () => {
             </CustomButton>
 
             <IconButton
-              sx={{
-                border: "1px solid #ddd",
-                borderRadius: "6px",
-              }}
-            >
-              <FavoriteBorderIcon />
-            </IconButton>
+  onClick={() => addToWishlist(product)}
+  sx={{
+    border: "1px solid #ddd",
+    borderRadius: "6px",
+  }}
+>
+  <FavoriteBorderIcon
+    sx={{
+      color: isInWishlist(product.id) ? "red" : "#111",
+    }}
+  />
+</IconButton>
           </Box>
         </Grid>
       </Grid>

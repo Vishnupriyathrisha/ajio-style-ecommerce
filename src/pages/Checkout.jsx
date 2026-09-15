@@ -10,7 +10,7 @@ import {
   FormControlLabel,
   FormControl,
 } from "@mui/material";
-
+import axios from "axios";
 import { useCart } from "../context/CartContext";
 import CustomInput from "../components/common/CustomInput";
 import CustomButton from "../components/common/CustomButton";
@@ -18,7 +18,7 @@ import CustomButton from "../components/common/CustomButton";
 const Checkout = () => {
   const navigate = useNavigate();
 
-  const { cartItems, cartTotal } = useCart();
+const { cartItems, cartTotal, clearCart,} = useCart();
 
   const [address, setAddress] = useState({
     fullName: "",
@@ -28,7 +28,7 @@ const Checkout = () => {
     state: "",
     pincode: "",
   });
-
+  const [loading, setLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("cod");
   const [errors, setErrors] = useState({});
 
@@ -46,49 +46,188 @@ const Checkout = () => {
     }));
   };
 
-  const handlePlaceOrder = () => {
-    const newErrors = {};
+  const validateForm = () => {
+  if (!address.fullName.trim()) {
+    alert("Please enter your full name");
+    return false;
+  }
 
-    if (!address.fullName.trim()) {
-      newErrors.fullName = "Full name is required";
-    }
+  if (!/^[6-9]\d{9}$/.test(address.phone)) {
+    alert("Please enter a valid 10-digit phone number");
+    return false;
+  }
 
-    if (!address.phone.trim()) {
-      newErrors.phone = "Phone number is required";
-    } else if (!/^[6-9]\d{9}$/.test(address.phone)) {
-      newErrors.phone = "Enter a valid 10-digit phone number";
-    }
+  if (!address.address.trim()) {
+    alert("Please enter your address");
+    return false;
+  }
 
-    if (!address.address.trim()) {
-      newErrors.address = "Address is required";
-    }
+  if (!address.city.trim()) {
+    alert("Please enter your city");
+    return false;
+  }
 
-    if (!address.city.trim()) {
-      newErrors.city = "City is required";
-    }
+  if (!address.state.trim()) {
+    alert("Please enter your state");
+    return false;
+  }
 
-    if (!address.state.trim()) {
-      newErrors.state = "State is required";
-    }
+  if (!/^\d{6}$/.test(address.pincode)) {
+    alert("Please enter a valid 6-digit pincode");
+    return false;
+  }
 
-    if (!address.pincode.trim()) {
-      newErrors.pincode = "Pincode is required";
-    } else if (!/^\d{6}$/.test(address.pincode)) {
-      newErrors.pincode = "Enter a valid 6-digit pincode";
-    }
+  return true;
+};
 
-    setErrors(newErrors);
+const handlePlaceOrder = async () => {
+  if (!validateForm()) {
+    return;
+  }
 
-    if (Object.keys(newErrors).length > 0) {
+  try {
+    console.log("Selected Payment Method:", paymentMethod);
+    setLoading(true);
+
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      navigate("/login");
       return;
     }
 
-    console.log("Address:", address);
-    console.log("Payment Method:", paymentMethod);
+    const orderItems = cartItems.map((item) => ({
+      product: item._id || item.id,
+      name: item.name,
+      image: item.image,
+      price: item.price,
+      quantity: item.quantity,
+    }));
 
-    // Payment/order API will be connected in the next step.
-  };
+    const orderData = {
+      items: orderItems,
+      shippingAddress: address,
+      paymentMethod:
+        paymentMethod === "cod" ? "COD" : "ONLINE",
+      subtotal: cartTotal,
+      deliveryCharge: 0,
+      totalAmount: cartTotal,
+    };
 
+    // COD
+    if (paymentMethod === "cod") {
+      await axios.post(
+        "http://localhost:5000/api/orders",
+        orderData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      alert("Order placed successfully!");
+      clearCart();
+      navigate("/orders");
+      return;
+    }
+
+    // ONLINE PAYMENT
+    const response = await axios.post(
+      "http://localhost:5000/api/payment/create-order",
+      {
+        amount: cartTotal,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const razorpayOrder = response.data.order;
+
+const options = {
+  key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+  amount: razorpayOrder.amount,
+  currency: razorpayOrder.currency,
+  name: "AJIO Style",
+  description: "Fashion Order",
+  order_id: razorpayOrder.id,
+
+  handler: async function (paymentResponse) {
+  try {
+    const token = localStorage.getItem("token");
+
+    const verifyResponse = await axios.post(
+      "http://localhost:5000/api/payment/verify-payment",
+      {
+        razorpay_order_id:
+          paymentResponse.razorpay_order_id,
+
+        razorpay_payment_id:
+          paymentResponse.razorpay_payment_id,
+
+        razorpay_signature:
+          paymentResponse.razorpay_signature,
+
+        orderData,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    if (verifyResponse.data.success) {
+      alert("Payment successful! Order placed successfully.");
+
+      clearCart();
+
+      navigate("/orders");
+    }
+  } catch (error) {
+    console.error(
+      "Payment verification failed:",
+      error.response?.data || error.message
+    );
+
+    alert(
+      error.response?.data?.message ||
+        "Payment verification failed. Please contact support."
+    );
+  }
+},
+
+  prefill: {
+    name: address.fullName,
+    contact: address.phone,
+  },
+
+  theme: {
+    color: "#111111",
+  },
+};
+
+const razorpay = new window.Razorpay(options);
+
+razorpay.open();
+
+  } catch (error) {
+    console.error(
+      "Failed to place order:",
+      error.response?.data || error.message
+    );
+
+    alert(
+      error.response?.data?.message ||
+        "Failed to place order. Please try again."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
   if (cartItems.length === 0) {
     return (
       <Box

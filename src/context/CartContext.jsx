@@ -5,36 +5,51 @@ const CartContext = createContext();
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
 
-  const addToCart = (product, quantity = 1) => {
-    setCartItems((prev) => {
-      const existingProduct = prev.find(
-        (item) => item.id === product.id
-      );
-
-      if (existingProduct) {
-        return prev.map((item) =>
-          item.id === product.id
-            ? {
-                ...item,
-                quantity: item.quantity + quantity,
-              }
-            : item
-        );
-      }
-
-      return [
-        ...prev,
-        {
-          ...product,
-          quantity,
-        },
-      ];
-    });
+  const getProductId = (product) => {
+    return product._id || product.id;
   };
 
+  const addToCart = (product, quantity = 1) => {
+  console.log("CART CONTEXT PRODUCT:", product);
+
+  const productId = product._id || product.id;
+
+  console.log("PRODUCT ID:", productId);
+
+  setCartItems((prev) => {
+    console.log("BEFORE CART ITEMS:", prev);
+
+    const existingProduct = prev.find(
+      (item) => (item._id || item.id) === productId
+    );
+
+    if (existingProduct) {
+      return prev.map((item) =>
+        (item._id || item.id) === productId
+          ? {
+              ...item,
+              quantity: item.quantity + quantity,
+            }
+          : item
+      );
+    }
+
+    const newItems = [
+      ...prev,
+      {
+        ...product,
+        quantity,
+      },
+    ];
+
+    console.log("AFTER CART ITEMS:", newItems);
+
+    return newItems;
+  });
+};
   const removeFromCart = (id) => {
     setCartItems((prev) =>
-      prev.filter((item) => item.id !== id)
+      prev.filter((item) => getProductId(item) !== id)
     );
   };
 
@@ -43,7 +58,7 @@ export const CartProvider = ({ children }) => {
 
     setCartItems((prev) =>
       prev.map((item) =>
-        item.id === id
+        getProductId(item) === id
           ? { ...item, quantity }
           : item
       )
@@ -60,8 +75,7 @@ export const CartProvider = ({ children }) => {
   );
 
   const cartTotal = cartItems.reduce(
-    (total, item) =>
-      total + item.price * item.quantity,
+    (total, item) => total + item.price * item.quantity,
     0
   );
 

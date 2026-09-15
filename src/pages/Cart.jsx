@@ -80,7 +80,7 @@ const Cart = () => {
         {/* Cart Items */}
         <Grid size={{ xs: 12, md: 8 }}>
           {cartItems.map((item) => (
-            <Box key={item.id} sx={{ mb: 3 }}>
+           <Box key={item._id || item.id} sx={{ mb: 3 }}>
               <Box
                 sx={{
                   display: "flex",
@@ -146,9 +146,9 @@ const Cart = () => {
                       size="small"
                       onClick={() =>
                         updateQuantity(
-                          item.id,
-                          item.quantity - 1
-                        )
+                           item._id || item.id,
+                           item.quantity - 1
+                           )
                       }
                       disabled={item.quantity === 1}
                     >
@@ -168,9 +168,9 @@ const Cart = () => {
                       size="small"
                       onClick={() =>
                         updateQuantity(
-                          item.id,
+                          item._id || item.id,
                           item.quantity + 1
-                        )
+                         )
                       }
                     >
                       <AddIcon fontSize="small" />
@@ -180,7 +180,9 @@ const Cart = () => {
 
                 {/* Remove */}
                 <IconButton
-                  onClick={() => removeFromCart(item.id)}
+                 onClick={() =>
+  removeFromCart(item._id || item.id)
+}
                   sx={{
                     alignSelf: "flex-start",
                   }}

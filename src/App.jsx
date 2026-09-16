@@ -13,6 +13,9 @@ import Checkout from "./pages/Checkout";
 import Wishlist from "./pages/Wishlist";
 import Orders from "./pages/Orders";
 import OrderDetails from "./pages/OrderDetails";
+import Profile from "./pages/Profile";
+import Support from "./pages/Support";
+import SupportDetails from "./pages/SupportDetails";
 
 const Layout = () => {
   return (
@@ -42,17 +45,15 @@ const App = () => {
         <Route path="/login" element={<Login />} />
         <Route path="/" element={<Home />} />
         <Route path="/products" element={<Products />} />
-
-        <Route
-          path="/product-details"
-          element={<ProductDetails />}
-        />
-
+        <Route path="/product-details" element={<ProductDetails />}/>
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/orders/:id" element={<OrderDetails />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/support" element={<Support />} />
+        <Route path="/support/:id" element={<SupportDetails />} />
       </Route>
     </Routes>
   );

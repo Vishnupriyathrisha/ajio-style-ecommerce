@@ -6,6 +6,8 @@ const authRoutes = require("./routes/authRoutes");
 const productRoutes = require("./routes/productRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const paymentRoutes = require("./routes/paymentRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const supportTicketRoutes = require("./routes/supportTicketRoutes");
 
 dotenv.config();
 console.log("Razorpay Key Loaded:", !!process.env.RAZORPAY_KEY_ID);
@@ -24,6 +26,8 @@ app.use("/api/auth", authRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/payment", paymentRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/support-tickets", supportTicketRoutes);
 
 app.get("/", (req, res) => {
   res.json({

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { useCart } from "../context/CartContext";
+
 import {
   Box,
   Typography,
@@ -15,6 +16,9 @@ import {
   FormControl,
   InputLabel,
 } from "@mui/material";
+
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 
 const mockProducts = [
   {
@@ -168,11 +172,14 @@ const Products = () => {
 
   const [products, setProducts] = useState(mockProducts);
   const [loading, setLoading] = useState(true);
-
   const [sort, setSort] = useState("");
+  const [wishlistItems, setWishlistItems] = useState([]);
+
   const [searchParams] = useSearchParams();
 
   const selectedCategory = searchParams.get("category");
+
+  const { addToCart } = useCart();
 
   // Fetch products from backend
   useEffect(() => {
@@ -184,8 +191,6 @@ const Products = () => {
 
         const backendProducts = response.data.products || [];
 
-        // Use backend products when available.
-        // Keep mock products as fallback while database is empty.
         if (backendProducts.length > 0) {
           setProducts(backendProducts);
         } else {
@@ -197,7 +202,6 @@ const Products = () => {
           error.response?.data || error.message
         );
 
-        // Keep existing mock products if backend is unavailable
         setProducts(mockProducts);
       } finally {
         setLoading(false);
@@ -207,16 +211,18 @@ const Products = () => {
     fetchProducts();
   }, []);
 
+  // Filter products by category
   const filteredProducts = selectedCategory
     ? products.filter(
         (product) => product.category === selectedCategory
       )
     : products;
 
+  // Sort products
   const handleSortChange = (event) => {
     setSort(event.target.value);
   };
-  const { addToCart } = useCart();
+
   const sortedProducts = [...filteredProducts].sort((a, b) => {
     if (sort === "low") {
       return a.price - b.price;
@@ -233,30 +239,110 @@ const Products = () => {
     return 0;
   });
 
+  // Wishlist toggle
+  const handleWishlistToggle = (event, product) => {
+    event.stopPropagation();
+
+    const productId = product._id || product.id;
+
+    setWishlistItems((prev) =>
+      prev.includes(productId)
+        ? prev.filter((id) => id !== productId)
+        : [...prev, productId]
+    );
+  };
+
   return (
-    <Box sx={{ backgroundColor: "#fff", minHeight: "100vh" }}>
-      {/* Page Header */}
+    <Box
+      sx={{
+        backgroundColor: "#F9F2FA",
+        minHeight: "100vh",
+      }}
+    >
+      {/* Page Header + Style Spotlight */}
       <Box
         sx={{
-          px: { xs: 2, md: 6 },
-          pt: 5,
-          pb: 3,
-          borderBottom: "1px solid #e5e5e5",
+          background:
+            "linear-gradient(135deg, #F9F2FA 0%, #F3E3F6 100%)",
+          px: { xs: 3, md: 7 },
+          py: { xs: 4, md: 5 },
+          borderBottom: "1px solid #E8DCEB",
         }}
       >
-        <Typography
-          variant="h4"
+        <Box
           sx={{
-            fontWeight: 700,
-            mb: 1,
+            maxWidth: 1400,
+            mx: "auto",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 4,
+            flexWrap: "wrap",
           }}
         >
-          {selectedCategory || "Fashion"}
-        </Typography>
+          {/* Left Section */}
+          <Box>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 800,
+                color: "#171717",
+                mb: 1,
+              }}
+            >
+              {selectedCategory || "Fashion"}
+            </Typography>
 
-        <Typography color="text.secondary">
-          Discover the latest styles and trends
-        </Typography>
+            <Typography
+              sx={{
+                color: "#6B6B6B",
+                fontSize: 16,
+              }}
+            >
+              Discover the latest styles and trends
+            </Typography>
+          </Box>
+
+          {/* Right Section */}
+          <Box
+            sx={{
+              minWidth: { xs: "100%", md: 420 },
+              textAlign: { xs: "left", md: "right" },
+            }}
+          >
+            <Typography
+              sx={{
+                color: "#B61ECA",
+                fontSize: 12,
+                fontWeight: 800,
+                letterSpacing: "2px",
+                mb: 0.5,
+              }}
+            >
+              STYLE SPOTLIGHT
+            </Typography>
+
+            <Typography
+              sx={{
+                fontSize: { xs: 22, md: 28 },
+                fontWeight: 700,
+                color: "#171717",
+                mb: 0.5,
+              }}
+            >
+              Curated looks for every mood
+            </Typography>
+
+            <Typography
+              sx={{
+                color: "#6B6B6B",
+                fontSize: 14,
+              }}
+            >
+              Explore styles made for your everyday moments.
+            </Typography>
+          </Box>
+        </Box>
       </Box>
 
       {/* Filter / Sort Bar */}
@@ -267,12 +353,16 @@ const Products = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
-          borderBottom: "1px solid #e5e5e5",
+          borderBottom: "1px solid #E8DCEB",
           gap: 2,
           flexWrap: "wrap",
+          backgroundColor: "#FFFFFF",
         }}
       >
-        <Typography variant="body2" color="text.secondary">
+        <Typography
+          variant="body2"
+          color="text.secondary"
+        >
           {loading
             ? "Loading..."
             : `${sortedProducts.length} Products`}
@@ -311,104 +401,194 @@ const Products = () => {
         }}
       >
         <Grid container spacing={3}>
-          {sortedProducts.map((product) => (
-            <Grid
-              key={product._id || product.id}
-              size={{
-                xs: 12,
-                sm: 6,
-                md: 4,
-                lg: 3,
-              }}
-            >
-              <Card
-                elevation={0}
-                onClick={() =>
-                  navigate("/product-details", {
-                    state: { product },
-                  })
-                }
-                sx={{
-                  height: "100%",
-                  border: "1px solid #e5e5e5",
-                  borderRadius: 0,
-                  cursor: "pointer",
-                  transition: "0.3s",
-                  "&:hover": {
-                    transform: "translateY(-5px)",
-                    boxShadow:
-                      "0 8px 25px rgba(0,0,0,0.08)",
-                  },
+          {sortedProducts.map((product) => {
+            const productId = product._id || product.id;
+
+            const isWishlisted =
+              wishlistItems.includes(productId);
+
+            return (
+              <Grid
+                key={productId}
+                size={{
+                  xs: 12,
+                  sm: 6,
+                  md: 4,
+                  lg: 3,
                 }}
               >
-                <CardMedia
-                  component="img"
-                  height="320"
-                  image={product.image}
-                  alt={product.name}
+                <Card
+                  elevation={0}
+                  onClick={() =>
+                    navigate("/product-details", {
+                      state: { product },
+                    })
+                  }
                   sx={{
-                    objectFit: "cover",
+                    height: "100%",
+                    border: "1px solid #E8DCEB",
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    cursor: "pointer",
+                    backgroundColor: "#FFFFFF",
+                    transition: "0.3s ease",
+                    position: "relative",
+
+                    "&:hover": {
+                      transform: "translateY(-6px)",
+                      boxShadow:
+                        "0 12px 30px rgba(182,30,202,0.15)",
+                    },
                   }}
-                />
-
-                <CardContent sx={{ p: 2.5 }}>
-                  <Typography
-                    variant="body2"
+                >
+                  {/* Product Image */}
+                  <Box
                     sx={{
-                      fontWeight: 700,
-                      color: "#555",
-                      mb: 0.5,
+                      position: "relative",
+                      overflow: "hidden",
                     }}
                   >
-                    {product.brand}
-                  </Typography>
+                    <CardMedia
+                      component="img"
+                      height="320"
+                      image={product.image}
+                      alt={product.name}
+                      sx={{
+                        objectFit: "cover",
+                        transition: "0.4s ease",
 
-                  <Typography
-                    variant="body1"
-                    sx={{
-                      fontWeight: 500,
-                      mb: 1.5,
-                    }}
-                  >
-                    {product.name}
-                  </Typography>
+                        "&:hover": {
+                          transform: "scale(1.04)",
+                        },
+                      }}
+                    />
 
-                  <Typography
-                    variant="h6"
-                    sx={{
-                      fontWeight: 700,
-                      mb: 2,
-                    }}
-                  >
-                    ₹{product.price.toLocaleString("en-IN")}
-                  </Typography>
+                    {/* Trending Badge */}
+                    <Box
+                      sx={{
+                        position: "absolute",
+                        top: 12,
+                        left: 12,
+                        backgroundColor: "#B61ECA",
+                        color: "#FFFFFF",
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: "20px",
+                        fontSize: 11,
+                        fontWeight: 700,
+                        letterSpacing: "0.8px",
+                      }}
+                    >
+                      TRENDING
+                    </Box>
 
-                  <Button
+                    {/* Wishlist Button */}
+                    <Box
+                      onClick={(event) =>
+                        handleWishlistToggle(event, product)
+                      }
+                      sx={{
+                        position: "absolute",
+                        top: 10,
+                        right: 10,
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        backgroundColor:
+                          "rgba(255,255,255,0.95)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        transition: "0.2s",
+
+                        "&:hover": {
+                          backgroundColor: "#B61ECA",
+                          color: "#FFFFFF",
+                        },
+                      }}
+                    >
+                      {isWishlisted ? (
+                        <FavoriteIcon
+                          sx={{
+                            color: "#B61ECA",
+                            fontSize: 22,
+                          }}
+                        />
+                      ) : (
+                        <FavoriteBorderIcon
+                          sx={{
+                            fontSize: 22,
+                          }}
+                        />
+                      )}
+                    </Box>
+                  </Box>
+
+                  {/* Product Details */}
+                  <CardContent sx={{ p: 2.5 }}>
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 700,
+                        color: "#B61ECA",
+                        mb: 0.5,
+                        fontSize: 12,
+                        letterSpacing: "0.5px",
+                      }}
+                    >
+                      {product.brand}
+                    </Typography>
+
+                    <Typography
+                      variant="body1"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1.5,
+                        color: "#171717",
+                      }}
+                    >
+                      {product.name}
+                    </Typography>
+
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        fontWeight: 800,
+                        mb: 2,
+                        color: "#171717",
+                      }}
+                    >
+                      ₹{product.price.toLocaleString("en-IN")}
+                    </Typography>
+
+                    <Button
                       fullWidth
                       variant="contained"
                       onClick={(event) => {
-  event.stopPropagation();
-  console.log("ADD TO BAG CLICKED:", product);
-  addToCart(product, 1);
-}}
-                     sx={{
-                      backgroundColor: "#111",
-                      color: "#fff",
-                      textTransform: "none",
-                      fontWeight: 600,
-                      py: 1.1,
-                      borderRadius: "4px",
-                      "&:hover": {
-                        backgroundColor: "#333",
-                      },
-                    }}
-                  >
-                    Add to Bag
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
+                        event.stopPropagation();
+                        addToCart(product, 1);
+                      }}
+                      sx={{
+                        backgroundColor: "#B61ECA",
+                        color: "#FFFFFF",
+                        textTransform: "none",
+                        fontWeight: 600,
+                        py: 1.1,
+                        borderRadius: "6px",
+
+                        "&:hover": {
+                          backgroundColor: "#9615A8",
+                        },
+                      }}
+                    >
+                      Add to Bag
+                    </Button>
+                  </CardContent>
+                </Card>
+              </Grid>
+            );
+          })}
         </Grid>
       </Box>
     </Box>

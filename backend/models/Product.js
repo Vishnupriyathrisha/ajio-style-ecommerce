@@ -56,6 +56,12 @@ const productSchema = new mongoose.Schema(
       default: "",
     },
 
+    seller: {
+  type: mongoose.Schema.Types.ObjectId,
+  ref: "Seller",
+  default: null,
+},
+
     isActive: {
       type: Boolean,
       default: true,

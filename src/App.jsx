@@ -16,6 +16,8 @@ import OrderDetails from "./pages/OrderDetails";
 import Profile from "./pages/Profile";
 import Support from "./pages/Support";
 import SupportDetails from "./pages/SupportDetails";
+import SellerRegister from "./pages/SellerRegister";
+import SellerLogin from "./pages/SellerLogin";
 
 const Layout = () => {
   return (
@@ -54,6 +56,8 @@ const App = () => {
         <Route path="/profile" element={<Profile />} />
         <Route path="/support" element={<Support />} />
         <Route path="/support/:id" element={<SupportDetails />} />
+        <Route path="/seller/register" element={<SellerRegister />} />
+        <Route path="/seller/login" element={<SellerLogin />} />
       </Route>
     </Routes>
   );

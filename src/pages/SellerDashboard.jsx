@@ -11,7 +11,7 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 import RemoveShoppingCartOutlinedIcon from "@mui/icons-material/RemoveShoppingCartOutlined";
 
-import api from "../services/api";
+import axios from "axios";
 
 const SellerDashboard = () => {
   const navigate = useNavigate();
@@ -30,16 +30,19 @@ const SellerDashboard = () => {
           return;
         }
 
-        const response = await api.get("/seller/dashboard", {
-          headers: {
-            Authorization: `Bearer ${sellerToken}`,
-          },
-        });
+        const response = await axios.get(
+  "http://localhost:5000/api/seller/dashboard",
+  {
+    headers: {
+      Authorization: `Bearer ${sellerToken}`,
+    },
+  }
+);
 
         setDashboard(response.data.dashboard);
       } catch (error) {
         console.error("Seller dashboard error:", error);
-
+          console.log("SELLER AUTH ERROR RESPONSE:", error.response?.data);
         if (error.response?.status === 401) {
           localStorage.removeItem("sellerToken");
           localStorage.removeItem("seller");
@@ -153,3 +156,71 @@ const SellerDashboard = () => {
         </Grid>
 
         {/* Low Stock */}
+         <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              border: "1px solid #E8DCEB",
+              boxShadow: "0 8px 25px rgba(0,0,0,0.06)",
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <WarningAmberOutlinedIcon
+                sx={{
+                  fontSize: 40,
+                  color: "#ED6C02",
+                  mb: 1,
+                }}
+              />
+
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 800 }}
+              >
+                {dashboard?.lowStockProducts || 0}
+              </Typography>
+
+              <Typography color="text.secondary">
+                Low Stock Products
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Out of Stock */}
+        <Grid size={{ xs: 12, sm: 6, md: 4 }}>
+          <Card
+            sx={{
+              borderRadius: 3,
+              border: "1px solid #E8DCEB",
+              boxShadow: "0 8px 25px rgba(0,0,0,0.06)",
+            }}
+          >
+            <CardContent sx={{ p: 3 }}>
+              <RemoveShoppingCartOutlinedIcon
+                sx={{
+                  fontSize: 40,
+                  color: "#D32F2F",
+                  mb: 1,
+                }}
+              />
+
+              <Typography
+                variant="h4"
+                sx={{ fontWeight: 800 }}
+              >
+                {dashboard?.outOfStockProducts || 0}
+              </Typography>
+
+              <Typography color="text.secondary">
+                Out of Stock
+              </Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+};
+
+export default SellerDashboard;

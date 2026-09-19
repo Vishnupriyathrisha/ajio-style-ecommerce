@@ -20,7 +20,7 @@ const sellerProtect = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
+console.log("DECODED SELLER ID:", decoded.id);
     const seller = await Seller.findById(decoded.id).select("-password");
 
     if (!seller) {

@@ -18,6 +18,10 @@ import Support from "./pages/Support";
 import SupportDetails from "./pages/SupportDetails";
 import SellerRegister from "./pages/SellerRegister";
 import SellerLogin from "./pages/SellerLogin";
+import SellerDashboard from "./pages/SellerDashboard";
+import SellerProducts from "./pages/SellerProducts";
+import SellerAddProduct from "./pages/SellerAddProduct";
+import SellerEditProduct from "./pages/SellerEditProduct";
 
 const Layout = () => {
   return (
@@ -58,6 +62,10 @@ const App = () => {
         <Route path="/support/:id" element={<SupportDetails />} />
         <Route path="/seller/register" element={<SellerRegister />} />
         <Route path="/seller/login" element={<SellerLogin />} />
+        <Route path="/seller/dashboard"element={<SellerDashboard />}/>
+        <Route path="/seller/products"element={<SellerProducts />}/>
+        <Route path="/seller/products/add"element={<SellerAddProduct />}/>
+        <Route path="/seller/products/:id/edit"element={<SellerEditProduct />}/>
       </Route>
     </Routes>
   );

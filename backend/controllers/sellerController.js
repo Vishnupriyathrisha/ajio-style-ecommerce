@@ -127,12 +127,17 @@ const loginSeller = async (req, res) => {
         message: "Seller account is blocked",
       });
     }
+const sellerId = seller._id.toString();
 
-    const token = jwt.sign(
-  { id: seller._id },
+console.log("SELLER ID BEFORE TOKEN:", sellerId);
+
+const token = jwt.sign(
+  { id: sellerId },
   process.env.JWT_SECRET,
   { expiresIn: "7d" }
 );
+
+console.log("TOKEN CREATED FOR SELLER ID:", sellerId);
 
     res.status(200).json({
   success: true,
@@ -197,8 +202,183 @@ const getSellerDashboard = async (req, res) => {
   }
 };
 
+const getSellerProducts = async (req, res) => {
+  try {
+    const sellerId = req.seller._id;
+
+    const products = await Product.find({
+      seller: sellerId,
+    }).sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.error("Get seller products error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to load seller products",
+    });
+  }
+};
+
+const createSellerProduct = async (req, res) => {
+  try {
+    const {
+      name,
+      brand,
+      description,
+      price,
+      category,
+      image,
+      stock,
+      sizes,
+      color,
+    } = req.body;
+
+    if (
+      !name ||
+      !brand ||
+      !description ||
+      price === undefined ||
+      !category ||
+      !image ||
+      stock === undefined ||
+      !color
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Please fill all required product fields",
+      });
+    }
+
+    const product = await Product.create({
+      name,
+      brand,
+      description,
+      price,
+      category,
+      image,
+      stock,
+      sizes,
+      color,
+
+      // Important:
+      // Product belongs to logged-in seller
+      seller: req.seller._id,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Product added successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Create seller product error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to add product",
+    });
+  }
+};
+
+const updateSellerProduct = async (req, res) => {
+  try {
+    const sellerId = req.seller._id;
+    const productId = req.params.id;
+
+    const {
+      name,
+      brand,
+      description,
+      price,
+      category,
+      image,
+      stock,
+      sizes,
+      color,
+    } = req.body;
+
+    const product = await Product.findOne({
+      _id: productId,
+      seller: sellerId,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    product.name = name;
+    product.brand = brand;
+    product.description = description;
+    product.price = price;
+    product.category = category;
+    product.image = image;
+    product.stock = stock;
+    product.sizes = sizes;
+    product.color = color;
+
+    await product.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      product,
+    });
+  } catch (error) {
+    console.error("Update seller product error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update product",
+    });
+  }
+};
+
+const deleteSellerProduct = async (req, res) => {
+  try {
+    const sellerId = req.seller._id;
+    const productId = req.params.id;
+
+    const product = await Product.findOne({
+      _id: productId,
+      seller: sellerId,
+    });
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    await Product.findByIdAndDelete(productId);
+
+    res.status(200).json({
+      success: true,
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+    console.error("Delete seller product error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete product",
+    });
+  }
+};
 module.exports = {
   registerSeller,
   loginSeller,
-   getSellerDashboard,
+  getSellerDashboard,
+  getSellerProducts,
+  createSellerProduct,
+  updateSellerProduct,
+   deleteSellerProduct,
 };

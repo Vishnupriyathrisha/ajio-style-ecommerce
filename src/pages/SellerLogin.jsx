@@ -18,11 +18,13 @@ const SellerLogin = () => {
   });
 
   const [loading, setLoading] = useState(false);
+
   const [alert, setAlert] = useState({
     type: "",
     message: "",
   });
 
+  // Handle input changes
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -32,6 +34,7 @@ const SellerLogin = () => {
     }));
   };
 
+  // Handle seller login
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -40,35 +43,80 @@ const SellerLogin = () => {
       message: "",
     });
 
+    // Basic validation
+    if (!formData.email.trim() || !formData.password.trim()) {
+      setAlert({
+        type: "error",
+        message: "Please enter email and password.",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
 
-      const response = await api.post("/seller/login", formData);
+      // Remove old seller session before creating a new one
+      localStorage.removeItem("sellerToken");
+      localStorage.removeItem("seller");
 
-      if (response.data.success) {
-        // Store seller information
-        localStorage.setItem(
-          "seller",
-          JSON.stringify(response.data.seller)
-        );
+      const response = await api.post("/seller/login", {
+        email: formData.email.trim(),
+        password: formData.password,
+      });
 
-        localStorage.setItem("sellerToken", response.data.token);
-        
+      console.log("SELLER LOGIN RESPONSE:", response.data);
+
+      if (!response.data.success || !response.data.token) {
         setAlert({
-          type: "success",
-          message: "Seller login successful!",
+          type: "error",
+          message:
+            response.data.message || "Seller login failed.",
         });
-
-        setTimeout(() => {
-          navigate("/seller/dashboard");
-        }, 800);
+        return;
       }
+
+      // Save new seller information
+      localStorage.setItem(
+        "seller",
+        JSON.stringify(response.data.seller)
+      );
+
+      // Save new seller JWT token
+      localStorage.setItem(
+        "sellerToken",
+        response.data.token
+      );
+
+      // Verify saved token
+      console.log(
+        "NEW SELLER TOKEN SAVED:",
+        localStorage.getItem("sellerToken")
+      );
+
+      console.log(
+        "SELLER DETAILS SAVED:",
+        localStorage.getItem("seller")
+      );
+
+      setAlert({
+        type: "success",
+        message: "Seller login successful!",
+      });
+
+      // Navigate to seller dashboard
+      setTimeout(() => {
+        navigate("/seller/dashboard", {
+          replace: true,
+        });
+      }, 800);
     } catch (error) {
+      console.error("SELLER LOGIN ERROR:", error);
+
       setAlert({
         type: "error",
         message:
           error.response?.data?.message ||
-          "Login failed. Please try again.",
+          "Login failed. Please check your email and password.",
       });
     } finally {
       setLoading(false);
@@ -94,15 +142,27 @@ const SellerLogin = () => {
           backgroundColor: "#fff",
           border: "1px solid #E8DCEB",
           borderRadius: "12px",
-          boxShadow: "0 12px 35px rgba(182, 30, 202, 0.10)",
-          p: { xs: 3, sm: 5 },
+          boxShadow:
+            "0 12px 35px rgba(182, 30, 202, 0.10)",
+          p: {
+            xs: 3,
+            sm: 5,
+          },
         }}
       >
         {/* Heading */}
-        <Box sx={{ textAlign: "center", mb: 4 }}>
+        <Box
+          sx={{
+            textAlign: "center",
+            mb: 4,
+          }}
+        >
           <Typography
             sx={{
-              fontSize: { xs: 27, sm: 32 },
+              fontSize: {
+                xs: 27,
+                sm: 32,
+              },
               fontWeight: 800,
               color: "#171717",
               mb: 1,
@@ -123,12 +183,18 @@ const SellerLogin = () => {
 
         {/* Alert */}
         {alert.message && (
-          <Alert severity={alert.type} sx={{ mb: 3 }}>
+          <Alert
+            severity={alert.type}
+            sx={{
+              mb: 3,
+              borderRadius: "8px",
+            }}
+          >
             {alert.message}
           </Alert>
         )}
 
-        {/* Form */}
+        {/* Login Form */}
         <Box
           component="form"
           onSubmit={handleSubmit}
@@ -138,6 +204,7 @@ const SellerLogin = () => {
             gap: 2,
           }}
         >
+          {/* Email */}
           <CustomInput
             label="Email"
             name="email"
@@ -148,6 +215,7 @@ const SellerLogin = () => {
             required
           />
 
+          {/* Password */}
           <CustomInput
             label="Password"
             name="password"
@@ -158,12 +226,15 @@ const SellerLogin = () => {
             required
           />
 
+          {/* Login Button */}
           <Box sx={{ mt: 1 }}>
             <CustomButton
               type="submit"
               disabled={loading}
             >
-              {loading ? "Logging in..." : "Login as Seller"}
+              {loading
+                ? "Logging in..."
+                : "Login as Seller"}
             </CustomButton>
           </Box>
 
@@ -182,6 +253,7 @@ const SellerLogin = () => {
               style={{
                 color: "#B61ECA",
                 fontWeight: 700,
+                textDecoration: "none",
               }}
             >
               Register

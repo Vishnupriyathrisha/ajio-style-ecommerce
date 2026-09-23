@@ -18,9 +18,64 @@ import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import CustomInput from "../components/common/CustomInput";
 import CustomButton from "../components/common/CustomButton";
 import api from "../services/api";
+import { useThemeMode } from "../context/ThemeContext";
 
 const Support = () => {
   const navigate = useNavigate();
+
+  const { isLuxuryMode } = useThemeMode();
+
+  // =========================
+  // THEME COLORS
+  // =========================
+
+  const pageBackground = isLuxuryMode
+    ? "#0F0F0F"
+    : "#F9F2FA";
+
+  const cardBackground = isLuxuryMode
+    ? "#1A1A1A"
+    : "#FFFFFF";
+
+  const softBackground = isLuxuryMode
+    ? "#202020"
+    : "#F9F2FA";
+
+  const emptyBackground = isLuxuryMode
+    ? "#181818"
+    : "#FCF8FD";
+
+  const primaryText = isLuxuryMode
+    ? "#FFFFFF"
+    : "#171717";
+
+  const secondaryText = isLuxuryMode
+    ? "#BDBDBD"
+    : "#6B6B6B";
+
+  const mutedText = isLuxuryMode
+    ? "#8F8F8F"
+    : "#777777";
+
+  const accent = isLuxuryMode
+    ? "#C8A96B"
+    : "#B61ECA";
+
+  const accentHover = isLuxuryMode
+    ? "#E0C080"
+    : "#9615A8";
+
+  const border = isLuxuryMode
+    ? "#333333"
+    : "#E8DCEB";
+
+  const emptyBorder = isLuxuryMode
+    ? "#444444"
+    : "#DCC9E0";
+
+  const iconMuted = isLuxuryMode
+    ? "#6D6046"
+    : "#C99BD1";
 
   const [tickets, setTickets] = useState([]);
   const [subject, setSubject] = useState("");
@@ -35,9 +90,16 @@ const Support = () => {
     message: "",
   });
 
+  // =========================
+  // FETCH TICKETS
+  // =========================
+
   const fetchTickets = async () => {
     try {
-      const response = await api.get("/support-tickets/my-tickets");
+      const response = await api.get(
+        "/support-tickets/my-tickets"
+      );
+
       setTickets(response.data.tickets || []);
     } catch (error) {
       console.error(
@@ -60,6 +122,10 @@ const Support = () => {
   useEffect(() => {
     fetchTickets();
   }, []);
+
+  // =========================
+  // CREATE TICKET
+  // =========================
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -102,7 +168,8 @@ const Support = () => {
       setAlert({
         show: true,
         type: "success",
-        message: "Support ticket created successfully!",
+        message:
+          "Support ticket created successfully!",
       });
 
       await fetchTickets();
@@ -124,7 +191,48 @@ const Support = () => {
     }
   };
 
+  // =========================
+  // STATUS COLORS
+  // =========================
+
   const getStatusColor = (status) => {
+    if (isLuxuryMode) {
+      switch (status) {
+        case "Open":
+          return {
+            background:
+              "rgba(33, 150, 243, 0.15)",
+            color: "#64B5F6",
+          };
+
+        case "In Progress":
+          return {
+            background:
+              "rgba(200, 169, 107, 0.15)",
+            color: "#E0C080",
+          };
+
+        case "Resolved":
+          return {
+            background:
+              "rgba(76, 175, 125, 0.15)",
+            color: "#66BB8A",
+          };
+
+        case "Closed":
+          return {
+            background: "#333333",
+            color: "#BDBDBD",
+          };
+
+        default:
+          return {
+            background: "#333333",
+            color: "#BDBDBD",
+          };
+      }
+    }
+
     switch (status) {
       case "Open":
         return {
@@ -162,13 +270,28 @@ const Support = () => {
     <Box
       sx={{
         minHeight: "75vh",
-        backgroundColor: "#F9F2FA",
-        px: { xs: 2, sm: 3, md: 6 },
-        py: { xs: 3, md: 5 },
+        backgroundColor: pageBackground,
+        px: {
+          xs: 2,
+          sm: 3,
+          md: 6,
+        },
+        py: {
+          xs: 3,
+          md: 5,
+        },
+        transition:
+          "background-color 0.3s ease",
       }}
     >
-      <Box sx={{ maxWidth: 1100, mx: "auto" }}>
+      <Box
+        sx={{
+          maxWidth: 1100,
+          mx: "auto",
+        }}
+      >
         {/* ================= HEADER ================= */}
+
         <Box sx={{ mb: 4 }}>
           <Stack
             direction="row"
@@ -181,22 +304,31 @@ const Support = () => {
                 width: 48,
                 height: 48,
                 borderRadius: "12px",
-                backgroundColor: "#B61ECA",
-                color: "#FFFFFF",
+                backgroundColor: accent,
+                color: isLuxuryMode
+                  ? "#171717"
+                  : "#FFFFFF",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
               }}
             >
-              <SupportAgentOutlinedIcon sx={{ fontSize: 28 }} />
+              <SupportAgentOutlinedIcon
+                sx={{
+                  fontSize: 28,
+                }}
+              />
             </Box>
 
             <Box>
               <Typography
                 sx={{
-                  fontSize: { xs: 27, md: 34 },
+                  fontSize: {
+                    xs: 27,
+                    md: 34,
+                  },
                   fontWeight: 800,
-                  color: "#171717",
+                  color: primaryText,
                   letterSpacing: "-0.5px",
                 }}
               >
@@ -205,7 +337,7 @@ const Support = () => {
 
               <Typography
                 sx={{
-                  color: "#6B6B6B",
+                  color: secondaryText,
                   fontSize: 14,
                 }}
               >
@@ -216,6 +348,7 @@ const Support = () => {
         </Box>
 
         {/* ================= ALERT ================= */}
+
         {alert.show && (
           <Alert
             severity={alert.type}
@@ -236,14 +369,21 @@ const Support = () => {
         )}
 
         {/* ================= CREATE TICKET ================= */}
+
         <Paper
           elevation={0}
           sx={{
-            border: "1px solid #E8DCEB",
-            backgroundColor: "#FFFFFF",
+            border: `1px solid ${border}`,
+            backgroundColor: cardBackground,
             borderRadius: "14px",
-            p: { xs: 2.5, sm: 3.5, md: 4 },
+            p: {
+              xs: 2.5,
+              sm: 3.5,
+              md: 4,
+            },
             mb: 4,
+            transition:
+              "background-color 0.3s ease, border-color 0.3s ease",
           }}
         >
           <Stack
@@ -257,8 +397,8 @@ const Support = () => {
                 width: 42,
                 height: 42,
                 borderRadius: "10px",
-                backgroundColor: "#F9F2FA",
-                color: "#B61ECA",
+                backgroundColor: softBackground,
+                color: accent,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -272,7 +412,7 @@ const Support = () => {
                 sx={{
                   fontWeight: 800,
                   fontSize: 19,
-                  color: "#171717",
+                  color: primaryText,
                 }}
               >
                 Create Support Ticket
@@ -281,7 +421,7 @@ const Support = () => {
               <Typography
                 sx={{
                   fontSize: 13,
-                  color: "#6B6B6B",
+                  color: secondaryText,
                   mt: 0.3,
                 }}
               >
@@ -290,7 +430,10 @@ const Support = () => {
             </Box>
           </Stack>
 
-          <Box component="form" onSubmit={handleSubmit}>
+          <Box
+            component="form"
+            onSubmit={handleSubmit}
+          >
             <Stack spacing={2.5}>
               <CustomInput
                 label="Subject"
@@ -318,14 +461,40 @@ const Support = () => {
 
               <Box
                 sx={{
-                  width: { xs: "100%", sm: 210 },
+                  width: {
+                    xs: "100%",
+                    sm: 210,
+                  },
                 }}
               >
                 <CustomButton
                   type="submit"
                   disabled={creating}
+                  sx={{
+                    backgroundColor: accent,
+                    color: isLuxuryMode
+                      ? "#171717"
+                      : "#FFFFFF",
+
+                    "&:hover": {
+                      backgroundColor:
+                        accentHover,
+                    },
+
+                    "&:disabled": {
+                      backgroundColor:
+                        isLuxuryMode
+                          ? "#5C513B"
+                          : "#D9A4DF",
+                      color: isLuxuryMode
+                        ? "#BDBDBD"
+                        : "#FFFFFF",
+                    },
+                  }}
                 >
-                  {creating ? "Creating..." : "Create Ticket"}
+                  {creating
+                    ? "Creating..."
+                    : "Create Ticket"}
                 </CustomButton>
               </Box>
             </Stack>
@@ -333,13 +502,20 @@ const Support = () => {
         </Paper>
 
         {/* ================= MY TICKETS ================= */}
+
         <Paper
           elevation={0}
           sx={{
-            border: "1px solid #E8DCEB",
-            backgroundColor: "#FFFFFF",
+            border: `1px solid ${border}`,
+            backgroundColor: cardBackground,
             borderRadius: "14px",
-            p: { xs: 2.5, sm: 3.5, md: 4 },
+            p: {
+              xs: 2.5,
+              sm: 3.5,
+              md: 4,
+            },
+            transition:
+              "background-color 0.3s ease, border-color 0.3s ease",
           }}
         >
           <Stack
@@ -353,8 +529,8 @@ const Support = () => {
                 width: 42,
                 height: 42,
                 borderRadius: "10px",
-                backgroundColor: "#F9F2FA",
-                color: "#B61ECA",
+                backgroundColor: softBackground,
+                color: accent,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -368,7 +544,7 @@ const Support = () => {
                 sx={{
                   fontWeight: 800,
                   fontSize: 19,
-                  color: "#171717",
+                  color: primaryText,
                 }}
               >
                 My Support Tickets
@@ -377,7 +553,7 @@ const Support = () => {
               <Typography
                 sx={{
                   fontSize: 13,
-                  color: "#6B6B6B",
+                  color: secondaryText,
                   mt: 0.3,
                 }}
               >
@@ -385,6 +561,8 @@ const Support = () => {
               </Typography>
             </Box>
           </Stack>
+
+          {/* ================= LOADING ================= */}
 
           {loading ? (
             <Stack
@@ -395,12 +573,14 @@ const Support = () => {
             >
               <CircularProgress
                 size={30}
-                sx={{ color: "#B61ECA" }}
+                sx={{
+                  color: accent,
+                }}
               />
 
               <Typography
                 sx={{
-                  color: "#6B6B6B",
+                  color: secondaryText,
                   fontSize: 14,
                 }}
               >
@@ -408,20 +588,22 @@ const Support = () => {
               </Typography>
             </Stack>
           ) : tickets.length === 0 ? (
+            /* ================= EMPTY STATE ================= */
+
             <Box
               sx={{
                 textAlign: "center",
                 py: 6,
                 px: 2,
-                border: "1px dashed #DCC9E0",
+                border: `1px dashed ${emptyBorder}`,
                 borderRadius: "12px",
-                backgroundColor: "#FCF8FD",
+                backgroundColor: emptyBackground,
               }}
             >
               <ConfirmationNumberOutlinedIcon
                 sx={{
                   fontSize: 42,
-                  color: "#C99BD1",
+                  color: iconMuted,
                   mb: 1,
                 }}
               />
@@ -429,7 +611,7 @@ const Support = () => {
               <Typography
                 sx={{
                   fontWeight: 700,
-                  color: "#3D3D3D",
+                  color: primaryText,
                   mb: 0.5,
                 }}
               >
@@ -438,7 +620,7 @@ const Support = () => {
 
               <Typography
                 sx={{
-                  color: "#777777",
+                  color: mutedText,
                   fontSize: 13,
                 }}
               >
@@ -446,27 +628,48 @@ const Support = () => {
               </Typography>
             </Box>
           ) : (
-            <Stack divider={<Divider />} spacing={0}>
+            /* ================= TICKET LIST ================= */
+
+            <Stack
+              divider={
+                <Divider
+                  sx={{
+                    borderColor: border,
+                  }}
+                />
+              }
+              spacing={0}
+            >
               {tickets.map((ticket) => {
-                const statusStyle = getStatusColor(
-                  ticket.status
-                );
+                const statusStyle =
+                  getStatusColor(ticket.status);
 
                 return (
                   <Box
                     key={ticket._id}
                     onClick={() =>
-                      navigate(`/support/${ticket._id}`)
+                      navigate(
+                        `/support/${ticket._id}`
+                      )
                     }
                     sx={{
                       py: 2.5,
-                      px: { xs: 1, sm: 1.5 },
+                      px: {
+                        xs: 1,
+                        sm: 1.5,
+                      },
                       cursor: "pointer",
                       borderRadius: "10px",
-                      transition: "all 0.2s ease",
+                      transition:
+                        "all 0.2s ease",
+
                       "&:hover": {
-                        backgroundColor: "#FCF7FD",
-                        transform: "translateX(3px)",
+                        backgroundColor:
+                          isLuxuryMode
+                            ? "#222222"
+                            : "#FCF7FD",
+                        transform:
+                          "translateX(3px)",
                       },
                     }}
                   >
@@ -482,11 +685,15 @@ const Support = () => {
                         sm: "center",
                       }}
                     >
+                      {/* Ticket Info */}
+
                       <Stack
                         direction="row"
                         spacing={1.5}
                         alignItems="center"
-                        sx={{ minWidth: 0 }}
+                        sx={{
+                          minWidth: 0,
+                        }}
                       >
                         <Box
                           sx={{
@@ -494,25 +701,33 @@ const Support = () => {
                             height: 38,
                             flexShrink: 0,
                             borderRadius: "9px",
-                            backgroundColor: "#F9F2FA",
-                            color: "#B61ECA",
+                            backgroundColor:
+                              softBackground,
+                            color: accent,
                             display: "flex",
                             alignItems: "center",
                             justifyContent: "center",
                           }}
                         >
                           <ConfirmationNumberOutlinedIcon
-                            sx={{ fontSize: 20 }}
+                            sx={{
+                              fontSize: 20,
+                            }}
                           />
                         </Box>
 
-                        <Box sx={{ minWidth: 0 }}>
+                        <Box
+                          sx={{
+                            minWidth: 0,
+                          }}
+                        >
                           <Typography
                             sx={{
                               fontWeight: 700,
-                              color: "#242424",
+                              color: primaryText,
                               mb: 0.5,
-                              wordBreak: "break-word",
+                              wordBreak:
+                                "break-word",
                             }}
                           >
                             {ticket.subject}
@@ -520,7 +735,7 @@ const Support = () => {
 
                           <Typography
                             sx={{
-                              color: "#777777",
+                              color: mutedText,
                               fontSize: 12.5,
                             }}
                           >
@@ -531,6 +746,8 @@ const Support = () => {
                           </Typography>
                         </Box>
                       </Stack>
+
+                      {/* Status + Arrow */}
 
                       <Stack
                         direction="row"
@@ -543,7 +760,8 @@ const Support = () => {
                           sx={{
                             backgroundColor:
                               statusStyle.background,
-                            color: statusStyle.color,
+                            color:
+                              statusStyle.color,
                             fontWeight: 700,
                             fontSize: 12,
                             borderRadius: "6px",
@@ -553,7 +771,9 @@ const Support = () => {
                         <ArrowForwardIosIcon
                           sx={{
                             fontSize: 14,
-                            color: "#A0A0A0",
+                            color: isLuxuryMode
+                              ? "#777777"
+                              : "#A0A0A0",
                           }}
                         />
                       </Stack>

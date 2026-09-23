@@ -9,10 +9,32 @@ import CircularProgress from "@mui/material/CircularProgress";
 import CustomInput from "../components/common/CustomInput";
 import CustomButton from "../components/common/CustomButton";
 import api from "../services/api";
+import { useThemeMode } from "../context/ThemeContext";
 
 const SellerEditProduct = () => {
   const navigate = useNavigate();
   const { id } = useParams();
+
+  const { isLuxuryMode } = useThemeMode();
+
+  // =========================
+  // THEME COLORS
+  // =========================
+
+  const pageBackground = isLuxuryMode ? "#0F0F0F" : "#F9F2FA";
+  const cardBackground = isLuxuryMode ? "#1A1A1A" : "#FFFFFF";
+
+  const primaryText = isLuxuryMode ? "#FFFFFF" : "#171717";
+  const secondaryText = isLuxuryMode ? "#BDBDBD" : "#6B6B6B";
+
+  const accent = isLuxuryMode ? "#C8A96B" : "#B61ECA";
+  const accentHover = isLuxuryMode ? "#E0C080" : "#9615A8";
+
+  const border = isLuxuryMode ? "#333333" : "#E8DCEB";
+
+  const boxShadow = isLuxuryMode
+    ? "0 10px 30px rgba(0, 0, 0, 0.35)"
+    : "0 10px 30px rgba(182, 30, 202, 0.08)";
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -33,6 +55,10 @@ const SellerEditProduct = () => {
     sizes: "",
     color: "",
   });
+
+  // =========================
+  // FETCH PRODUCT
+  // =========================
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -89,6 +115,10 @@ const SellerEditProduct = () => {
     fetchProduct();
   }, [id, navigate]);
 
+  // =========================
+  // HANDLE INPUT
+  // =========================
+
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -97,6 +127,10 @@ const SellerEditProduct = () => {
       [name]: value,
     }));
   };
+
+  // =========================
+  // UPDATE PRODUCT
+  // =========================
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -172,6 +206,10 @@ const SellerEditProduct = () => {
     }
   };
 
+  // =========================
+  // LOADING
+  // =========================
+
   if (loading) {
     return (
       <Box
@@ -180,44 +218,53 @@ const SellerEditProduct = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          backgroundColor: pageBackground,
         }}
       >
         <CircularProgress
           sx={{
-            color: "#B61ECA",
+            color: accent,
           }}
         />
       </Box>
     );
   }
 
+  // =========================
+  // UI
+  // =========================
+
   return (
     <Box
       sx={{
         minHeight: "calc(100vh - 76px)",
-        background: "#F9F2FA",
+        backgroundColor: pageBackground,
         px: { xs: 2, sm: 4, md: 6 },
         py: 5,
+        transition: "background-color 0.3s ease",
       }}
     >
       <Box
         sx={{
           maxWidth: 850,
           mx: "auto",
-          backgroundColor: "#FFFFFF",
-          border: "1px solid #E8DCEB",
+          backgroundColor: cardBackground,
+          border: `1px solid ${border}`,
           borderRadius: "12px",
-          boxShadow:
-            "0 10px 30px rgba(182, 30, 202, 0.08)",
+          boxShadow,
           p: { xs: 3, sm: 5 },
+          transition:
+            "background-color 0.3s ease, border-color 0.3s ease",
         }}
       >
+        {/* HEADER */}
+
         <Box sx={{ mb: 4 }}>
           <Typography
             sx={{
               fontSize: { xs: 26, sm: 32 },
               fontWeight: 800,
-              color: "#171717",
+              color: primaryText,
             }}
           >
             Edit Product
@@ -226,13 +273,15 @@ const SellerEditProduct = () => {
           <Typography
             sx={{
               fontSize: 14,
-              color: "#6B6B6B",
+              color: secondaryText,
               mt: 0.5,
             }}
           >
             Update your product details.
           </Typography>
         </Box>
+
+        {/* ALERT */}
 
         {alert.message && (
           <Alert
@@ -246,6 +295,8 @@ const SellerEditProduct = () => {
           </Alert>
         )}
 
+        {/* FORM */}
+
         <Box
           component="form"
           onSubmit={handleSubmit}
@@ -255,6 +306,8 @@ const SellerEditProduct = () => {
             gap: 2,
           }}
         >
+          {/* PRODUCT NAME */}
+
           <CustomInput
             label="Product Name"
             name="name"
@@ -263,6 +316,8 @@ const SellerEditProduct = () => {
             required
           />
 
+          {/* BRAND */}
+
           <CustomInput
             label="Brand"
             name="brand"
@@ -270,6 +325,8 @@ const SellerEditProduct = () => {
             onChange={handleChange}
             required
           />
+
+          {/* DESCRIPTION */}
 
           <CustomInput
             label="Description"
@@ -280,6 +337,8 @@ const SellerEditProduct = () => {
             minRows={4}
             required
           />
+
+          {/* PRICE + STOCK */}
 
           <Box
             sx={{
@@ -310,6 +369,8 @@ const SellerEditProduct = () => {
             />
           </Box>
 
+          {/* CATEGORY + COLOR */}
+
           <Box
             sx={{
               display: "grid",
@@ -337,6 +398,8 @@ const SellerEditProduct = () => {
             />
           </Box>
 
+          {/* SIZES */}
+
           <CustomInput
             label="Sizes"
             name="sizes"
@@ -345,6 +408,8 @@ const SellerEditProduct = () => {
             placeholder="Eg: S, M, L, XL"
           />
 
+          {/* IMAGE */}
+
           <CustomInput
             label="Product Image URL"
             name="image"
@@ -352,6 +417,8 @@ const SellerEditProduct = () => {
             onChange={handleChange}
             required
           />
+
+          {/* BUTTONS */}
 
           <Box
             sx={{
@@ -370,6 +437,17 @@ const SellerEditProduct = () => {
               onClick={() =>
                 navigate("/seller/products")
               }
+              sx={{
+                color: primaryText,
+                borderColor: border,
+                backgroundColor: "transparent",
+                "&:hover": {
+                  borderColor: accent,
+                  backgroundColor: isLuxuryMode
+                    ? "rgba(200, 169, 107, 0.08)"
+                    : "rgba(182, 30, 202, 0.05)",
+                },
+              }}
             >
               Cancel
             </CustomButton>
@@ -377,6 +455,15 @@ const SellerEditProduct = () => {
             <CustomButton
               type="submit"
               disabled={saving}
+              sx={{
+                backgroundColor: accent,
+                color: isLuxuryMode
+                  ? "#171717"
+                  : "#FFFFFF",
+                "&:hover": {
+                  backgroundColor: accentHover,
+                },
+              }}
             >
               {saving
                 ? "Saving..."

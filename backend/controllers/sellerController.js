@@ -161,6 +161,122 @@ console.log("TOKEN CREATED FOR SELLER ID:", sellerId);
   }
 };
 
+// GET SELLER PROFILE
+const getSellerProfile = async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.seller._id).select(
+      "-password"
+    );
+
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      seller,
+    });
+  } catch (error) {
+    console.error("Get seller profile error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to load seller profile",
+    });
+  }
+};
+
+// UPDATE SELLER PROFILE
+const updateSellerProfile = async (req, res) => {
+  try {
+    const seller = await Seller.findById(req.seller._id);
+
+    if (!seller) {
+      return res.status(404).json({
+        success: false,
+        message: "Seller not found",
+      });
+    }
+
+    const {
+      businessName,
+      sellerName,
+      email,
+      phone,
+      address,
+      city,
+      state,
+      pincode,
+    } = req.body;
+
+    if (
+      !businessName ||
+      !sellerName ||
+      !email ||
+      !phone ||
+      !address ||
+      !city ||
+      !state ||
+      !pincode
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "All profile fields are required",
+      });
+    }
+
+    // Check whether email is already used by another seller
+    const existingSeller = await Seller.findOne({
+      email,
+      _id: { $ne: seller._id },
+    });
+
+    if (existingSeller) {
+      return res.status(400).json({
+        success: false,
+        message: "Email is already used by another seller",
+      });
+    }
+
+    seller.businessName = businessName;
+    seller.sellerName = sellerName;
+    seller.email = email;
+    seller.phone = phone;
+    seller.address = address;
+    seller.city = city;
+    seller.state = state;
+    seller.pincode = pincode;
+
+    await seller.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Seller profile updated successfully",
+      seller: {
+        id: seller._id,
+        businessName: seller.businessName,
+        sellerName: seller.sellerName,
+        email: seller.email,
+        phone: seller.phone,
+        address: seller.address,
+        city: seller.city,
+        state: seller.state,
+        pincode: seller.pincode,
+        status: seller.status,
+      },
+    });
+  } catch (error) {
+    console.error("Update seller profile error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to update seller profile",
+    });
+  }
+};
 // SELLER DASHBOARD
 const getSellerDashboard = async (req, res) => {
   try {
@@ -376,6 +492,8 @@ const deleteSellerProduct = async (req, res) => {
 module.exports = {
   registerSeller,
   loginSeller,
+  getSellerProfile,
+  updateSellerProfile,
   getSellerDashboard,
   getSellerProducts,
   createSellerProduct,

@@ -1,19 +1,24 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
+
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 import CustomInput from "../components/common/CustomInput";
 import CustomButton from "../components/common/CustomButton";
 import api from "../services/api";
+import { useThemeMode } from "../context/ThemeContext";
 
 const Register = () => {
   const navigate = useNavigate();
+
+  const { isLuxuryMode } = useThemeMode();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -30,6 +35,46 @@ const Register = () => {
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // --------------------------------------------------
+  // THEME COLORS
+  // --------------------------------------------------
+
+  const pageBackground = isLuxuryMode
+    ? "#0F0F0F"
+    : "#F7F7F7";
+
+  const cardBackground = isLuxuryMode
+    ? "#1A1A1A"
+    : "#FFFFFF";
+
+  const primaryText = isLuxuryMode
+    ? "#FFFFFF"
+    : "#171717";
+
+  const secondaryText = isLuxuryMode
+    ? "#BDBDBD"
+    : "#6B6B6B";
+
+  const border = isLuxuryMode
+    ? "#333333"
+    : "#E5E5E5";
+
+  const accent = isLuxuryMode
+    ? "#C8A96B"
+    : "#B61ECA";
+
+  const accentHover = isLuxuryMode
+    ? "#E0C080"
+    : "#9615A8";
+
+  const inputBackground = isLuxuryMode
+    ? "#222222"
+    : "#FFFFFF";
+
+  // --------------------------------------------------
+  // HANDLE CHANGE
+  // --------------------------------------------------
+
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -37,7 +82,19 @@ const Register = () => {
       ...prev,
       [name]: value,
     }));
+
+    if (error) {
+      setError("");
+    }
+
+    if (success) {
+      setSuccess("");
+    }
   };
+
+  // --------------------------------------------------
+  // HANDLE SUBMIT
+  // --------------------------------------------------
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -45,15 +102,27 @@ const Register = () => {
     setError("");
     setSuccess("");
 
-    const { name, email, password, confirmPassword } = formData;
+    const {
+      name,
+      email,
+      password,
+      confirmPassword,
+    } = formData;
 
-    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
+    if (
+      !name.trim() ||
+      !email.trim() ||
+      !password ||
+      !confirmPassword
+    ) {
       setError("Please fill all required fields.");
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters.");
+      setError(
+        "Password must be at least 6 characters."
+      );
       return;
     }
 
@@ -65,14 +134,18 @@ const Register = () => {
     try {
       setLoading(true);
 
-      const response = await api.post("/auth/register", {
-        name: name.trim(),
-        email: email.trim(),
-        password,
-      });
+      const response = await api.post(
+        "/auth/register",
+        {
+          name: name.trim(),
+          email: email.trim(),
+          password,
+        }
+      );
 
       setSuccess(
-        response.data.message || "Registration successful!"
+        response.data.message ||
+          "Registration successful!"
       );
 
       setFormData({
@@ -95,6 +168,10 @@ const Register = () => {
     }
   };
 
+  // --------------------------------------------------
+  // PAGE
+  // --------------------------------------------------
+
   return (
     <Box
       sx={{
@@ -104,26 +181,40 @@ const Register = () => {
         justifyContent: "center",
         px: 2,
         py: 5,
-        backgroundColor: "#f7f7f7",
+        backgroundColor: pageBackground,
+        transition: "background-color 0.3s ease",
       }}
     >
       <Box
         sx={{
           width: "100%",
           maxWidth: 460,
-          backgroundColor: "#fff",
-          border: "1px solid #e5e5e5",
+          backgroundColor: cardBackground,
+          border: `1px solid ${border}`,
           borderRadius: 2,
           p: { xs: 3, sm: 4 },
-          boxShadow: "0 4px 20px rgba(0,0,0,0.06)",
+          boxShadow: isLuxuryMode
+            ? "0 10px 35px rgba(0,0,0,0.35)"
+            : "0 4px 20px rgba(0,0,0,0.06)",
+          transition:
+            "background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
         }}
       >
+        {/* ------------------------------------------ */}
+        {/* HEADER */}
+        {/* ------------------------------------------ */}
+
         <Typography
           variant="h4"
           align="center"
           sx={{
-            fontWeight: 700,
+            fontWeight: 800,
             mb: 1,
+            color: primaryText,
+            fontSize: {
+              xs: 28,
+              sm: 32,
+            },
           }}
         >
           Create Account
@@ -132,23 +223,49 @@ const Register = () => {
         <Typography
           variant="body2"
           align="center"
-          color="text.secondary"
-          sx={{ mb: 3 }}
+          sx={{
+            mb: 3,
+            color: secondaryText,
+          }}
         >
           Register to start shopping
         </Typography>
 
+        {/* ------------------------------------------ */}
+        {/* ERROR */}
+        {/* ------------------------------------------ */}
+
         {error && (
-          <Alert severity="error" sx={{ mb: 2 }}>
+          <Alert
+            severity="error"
+            sx={{
+              mb: 2,
+              borderRadius: "8px",
+            }}
+          >
             {error}
           </Alert>
         )}
 
+        {/* ------------------------------------------ */}
+        {/* SUCCESS */}
+        {/* ------------------------------------------ */}
+
         {success && (
-          <Alert severity="success" sx={{ mb: 2 }}>
+          <Alert
+            severity="success"
+            sx={{
+              mb: 2,
+              borderRadius: "8px",
+            }}
+          >
             {success}
           </Alert>
         )}
+
+        {/* ------------------------------------------ */}
+        {/* FORM */}
+        {/* ------------------------------------------ */}
 
         <Box
           component="form"
@@ -159,6 +276,8 @@ const Register = () => {
             gap: 2,
           }}
         >
+          {/* FULL NAME */}
+
           <CustomInput
             label="Full Name"
             name="name"
@@ -167,6 +286,8 @@ const Register = () => {
             placeholder="Enter your full name"
             required
           />
+
+          {/* EMAIL */}
 
           <CustomInput
             label="Email"
@@ -178,10 +299,16 @@ const Register = () => {
             required
           />
 
+          {/* PASSWORD */}
+
           <CustomInput
             label="Password"
             name="password"
-            type={showPassword ? "text" : "password"}
+            type={
+              showPassword
+                ? "text"
+                : "password"
+            }
             value={formData.password}
             onChange={handleChange}
             placeholder="Enter your password"
@@ -192,10 +319,20 @@ const Register = () => {
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() =>
-                        setShowPassword((prev) => !prev)
+                        setShowPassword(
+                          (prev) => !prev
+                        )
                       }
                       edge="end"
                       aria-label="toggle password visibility"
+                      sx={{
+                        color: isLuxuryMode
+                          ? "#BDBDBD"
+                          : "#666666",
+                        "&:hover": {
+                          color: accent,
+                        },
+                      }}
                     >
                       {showPassword ? (
                         <VisibilityOff />
@@ -209,10 +346,16 @@ const Register = () => {
             }}
           />
 
+          {/* CONFIRM PASSWORD */}
+
           <CustomInput
             label="Confirm Password"
             name="confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
+            type={
+              showConfirmPassword
+                ? "text"
+                : "password"
+            }
             value={formData.confirmPassword}
             onChange={handleChange}
             placeholder="Confirm your password"
@@ -223,10 +366,20 @@ const Register = () => {
                   <InputAdornment position="end">
                     <IconButton
                       onClick={() =>
-                        setShowConfirmPassword((prev) => !prev)
+                        setShowConfirmPassword(
+                          (prev) => !prev
+                        )
                       }
                       edge="end"
                       aria-label="toggle confirm password visibility"
+                      sx={{
+                        color: isLuxuryMode
+                          ? "#BDBDBD"
+                          : "#666666",
+                        "&:hover": {
+                          color: accent,
+                        },
+                      }}
                     >
                       {showConfirmPassword ? (
                         <VisibilityOff />
@@ -240,25 +393,49 @@ const Register = () => {
             }}
           />
 
+          {/* REGISTER BUTTON */}
+
           <CustomButton
             type="submit"
             disabled={loading}
+            sx={{
+              backgroundColor: accent,
+              color: isLuxuryMode
+                ? "#171717"
+                : "#FFFFFF",
+
+              "&:hover": {
+                backgroundColor: accentHover,
+                color: isLuxuryMode
+                  ? "#171717"
+                  : "#FFFFFF",
+              },
+            }}
           >
-            {loading ? "Creating Account..." : "Register"}
+            {loading
+              ? "Creating Account..."
+              : "Register"}
           </CustomButton>
         </Box>
+
+        {/* ------------------------------------------ */}
+        {/* LOGIN LINK */}
+        {/* ------------------------------------------ */}
 
         <Typography
           variant="body2"
           align="center"
-          sx={{ mt: 3 }}
+          sx={{
+            mt: 3,
+            color: secondaryText,
+          }}
         >
           Already have an account?{" "}
           <Link
             to="/login"
             style={{
-              color: "#111",
-              fontWeight: 600,
+              color: accent,
+              fontWeight: 700,
               textDecoration: "none",
             }}
           >

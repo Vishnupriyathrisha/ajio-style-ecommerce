@@ -16,7 +16,6 @@ import ShoppingBagOutlinedIcon from "@mui/icons-material/ShoppingBagOutlined";
 import LocalShippingOutlinedIcon from "@mui/icons-material/LocalShippingOutlined";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
-import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ReceiptLongOutlinedIcon from "@mui/icons-material/ReceiptLongOutlined";
 import CreditCardOutlinedIcon from "@mui/icons-material/CreditCardOutlined";
@@ -24,11 +23,19 @@ import LocationOnOutlinedIcon from "@mui/icons-material/LocationOnOutlined";
 import CancelOutlinedIcon from "@mui/icons-material/CancelOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 
+import { useThemeMode } from "../context/ThemeContext";
+
 // --------------------------------------------------
 // STATUS TIMELINE
 // --------------------------------------------------
 
-const StatusTimeline = ({ status }) => {
+const StatusTimeline = ({
+  status,
+  isLuxuryMode,
+  accent,
+  primaryText,
+  border,
+}) => {
   const safeStatus = status || "Placed";
 
   const getStatusStep = () => {
@@ -83,8 +90,12 @@ const StatusTimeline = ({ status }) => {
           mt: 2,
           p: 2,
           borderRadius: 2,
-          backgroundColor: "#FDEEEE",
-          border: "1px solid #F5CACA",
+          backgroundColor: isLuxuryMode
+            ? "rgba(201,76,76,0.10)"
+            : "#FDEEEE",
+          border: isLuxuryMode
+            ? "1px solid rgba(201,76,76,0.35)"
+            : "1px solid #F5CACA",
           display: "flex",
           alignItems: "center",
           gap: 1.2,
@@ -110,7 +121,7 @@ const StatusTimeline = ({ status }) => {
 
           <Typography
             sx={{
-              color: "#9A5A5A",
+              color: isLuxuryMode ? "#D6A0A0" : "#9A5A5A",
               fontSize: 11,
               mt: 0.3,
             }}
@@ -149,7 +160,7 @@ const StatusTimeline = ({ status }) => {
             right: "8%",
             top: 15,
             height: 2,
-            backgroundColor: "#E8DCEB",
+            backgroundColor: border,
           }}
         />
 
@@ -169,7 +180,7 @@ const StatusTimeline = ({ status }) => {
                 : "84%",
             top: 15,
             height: 2,
-            backgroundColor: "#B61ECA",
+            backgroundColor: accent,
             transition: "0.3s ease",
           }}
         />
@@ -198,19 +209,27 @@ const StatusTimeline = ({ status }) => {
                   height: 32,
                   borderRadius: "50%",
                   backgroundColor: active
-                    ? "#B61ECA"
+                    ? accent
+                    : isLuxuryMode
+                    ? "#202020"
                     : "#FFFFFF",
                   border: active
-                    ? "2px solid #B61ECA"
-                    : "2px solid #E8DCEB",
+                    ? `2px solid ${accent}`
+                    : `2px solid ${border}`,
                   color: active
-                    ? "#FFFFFF"
+                    ? isLuxuryMode
+                      ? "#171717"
+                      : "#FFFFFF"
+                    : isLuxuryMode
+                    ? "#777777"
                     : "#AAAAAA",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
                   boxShadow: active
-                    ? "0 4px 12px rgba(182,30,202,0.18)"
+                    ? isLuxuryMode
+                      ? "0 4px 12px rgba(200,169,107,0.18)"
+                      : "0 4px 12px rgba(182,30,202,0.18)"
                     : "none",
                 }}
               >
@@ -226,7 +245,9 @@ const StatusTimeline = ({ status }) => {
                       width: 7,
                       height: 7,
                       borderRadius: "50%",
-                      backgroundColor: "#D7D7D7",
+                      backgroundColor: isLuxuryMode
+                        ? "#555555"
+                        : "#D7D7D7",
                     }}
                   />
                 )}
@@ -240,7 +261,9 @@ const StatusTimeline = ({ status }) => {
                   },
                   fontWeight: active ? 800 : 600,
                   color: active
-                    ? "#171717"
+                    ? primaryText
+                    : isLuxuryMode
+                    ? "#777777"
                     : "#999999",
                   mt: 0.8,
                   textAlign: "center",
@@ -264,9 +287,63 @@ const OrderDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
 
+  const { isLuxuryMode } = useThemeMode();
+
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [cancelling, setCancelling] = useState(false);
+
+  // --------------------------------------------------
+  // DYNAMIC THEME COLORS
+  // --------------------------------------------------
+
+  const pageBackground = isLuxuryMode
+    ? "#0F0F0F"
+    : "#F9F2FA";
+
+  const cardBackground = isLuxuryMode
+    ? "#1A1A1A"
+    : "#FFFFFF";
+
+  const sectionBackground = isLuxuryMode
+    ? "#151515"
+    : "#FAF6FB";
+
+  const softBackground = isLuxuryMode
+    ? "#202020"
+    : "#F8F1FA";
+
+  const imageBackground = isLuxuryMode
+    ? "#242424"
+    : "#F3E3F6";
+
+  const primaryText = isLuxuryMode
+    ? "#FFFFFF"
+    : "#171717";
+
+  const secondaryText = isLuxuryMode
+    ? "#BDBDBD"
+    : "#6B6B6B";
+
+  const mutedText = isLuxuryMode
+    ? "#888888"
+    : "#777777";
+
+  const accent = isLuxuryMode
+    ? "#C8A96B"
+    : "#B61ECA";
+
+  const accentHover = isLuxuryMode
+    ? "#E0C080"
+    : "#9615A8";
+
+  const border = isLuxuryMode
+    ? "#333333"
+    : "#E8DCEB";
+
+  const softBorder = isLuxuryMode
+    ? "#444444"
+    : "#D9C7DC";
 
   // --------------------------------------------------
   // FETCH ORDER
@@ -381,7 +458,7 @@ const OrderDetails = () => {
       <Box
         sx={{
           minHeight: "70vh",
-          backgroundColor: "#F9F2FA",
+          backgroundColor: pageBackground,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -393,13 +470,13 @@ const OrderDetails = () => {
           size={38}
           thickness={4}
           sx={{
-            color: "#B61ECA",
+            color: accent,
           }}
         />
 
         <Typography
           sx={{
-            color: "#6B6B6B",
+            color: secondaryText,
             fontSize: 14,
           }}
         >
@@ -418,7 +495,7 @@ const OrderDetails = () => {
       <Box
         sx={{
           minHeight: "70vh",
-          backgroundColor: "#F9F2FA",
+          backgroundColor: pageBackground,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -430,8 +507,8 @@ const OrderDetails = () => {
           sx={{
             width: "100%",
             maxWidth: 520,
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             textAlign: "center",
             px: {
@@ -446,8 +523,8 @@ const OrderDetails = () => {
               width: 80,
               height: 80,
               borderRadius: "50%",
-              backgroundColor: "#F3E3F6",
-              color: "#B61ECA",
+              backgroundColor: imageBackground,
+              color: accent,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -464,7 +541,7 @@ const OrderDetails = () => {
 
           <Typography
             sx={{
-              color: "#171717",
+              color: primaryText,
               fontSize: 28,
               fontWeight: 800,
               mb: 1,
@@ -475,7 +552,7 @@ const OrderDetails = () => {
 
           <Typography
             sx={{
-              color: "#6B6B6B",
+              color: secondaryText,
               fontSize: 14,
               lineHeight: 1.7,
               mb: 3,
@@ -488,14 +565,16 @@ const OrderDetails = () => {
             variant="contained"
             onClick={() => navigate("/orders")}
             sx={{
-              backgroundColor: "#B61ECA",
+              backgroundColor: accent,
+              color: isLuxuryMode ? "#171717" : "#FFFFFF",
               textTransform: "none",
               fontWeight: 700,
               borderRadius: "6px",
               px: 3,
               py: 1.2,
               "&:hover": {
-                backgroundColor: "#9615A8",
+                backgroundColor: accentHover,
+                color: isLuxuryMode ? "#171717" : "#FFFFFF",
               },
             }}
           >
@@ -548,36 +627,56 @@ const OrderDetails = () => {
       case "Delivered":
         return {
           color: "#2E7D5B",
-          background: "#EDF7F2",
-          border: "#CBE9DA",
+          background: isLuxuryMode
+            ? "rgba(46,125,91,0.12)"
+            : "#EDF7F2",
+          border: isLuxuryMode
+            ? "rgba(46,125,91,0.35)"
+            : "#CBE9DA",
         };
 
       case "Shipped":
         return {
           color: "#1976D2",
-          background: "#EEF6FF",
-          border: "#CFE5FA",
+          background: isLuxuryMode
+            ? "rgba(25,118,210,0.12)"
+            : "#EEF6FF",
+          border: isLuxuryMode
+            ? "rgba(25,118,210,0.35)"
+            : "#CFE5FA",
         };
 
       case "Confirmed":
         return {
-          color: "#B61ECA",
-          background: "#FAF1FC",
-          border: "#E8C9ED",
+          color: accent,
+          background: isLuxuryMode
+            ? "rgba(200,169,107,0.10)"
+            : "#FAF1FC",
+          border: isLuxuryMode
+            ? "rgba(200,169,107,0.35)"
+            : "#E8C9ED",
         };
 
       case "Cancelled":
         return {
           color: "#C94C4C",
-          background: "#FDEEEE",
-          border: "#F5CACA",
+          background: isLuxuryMode
+            ? "rgba(201,76,76,0.10)"
+            : "#FDEEEE",
+          border: isLuxuryMode
+            ? "rgba(201,76,76,0.35)"
+            : "#F5CACA",
         };
 
       default:
         return {
           color: "#D27B00",
-          background: "#FFF6E5",
-          border: "#F3DFB0",
+          background: isLuxuryMode
+            ? "rgba(210,123,0,0.10)"
+            : "#FFF6E5",
+          border: isLuxuryMode
+            ? "rgba(210,123,0,0.35)"
+            : "#F3DFB0",
         };
     }
   };
@@ -592,23 +691,35 @@ const OrderDetails = () => {
     if (paymentStatus === "Paid") {
       return {
         color: "#2E7D5B",
-        background: "#EDF7F2",
-        border: "#CBE9DA",
+        background: isLuxuryMode
+          ? "rgba(46,125,91,0.12)"
+          : "#EDF7F2",
+        border: isLuxuryMode
+          ? "rgba(46,125,91,0.35)"
+          : "#CBE9DA",
       };
     }
 
     if (paymentStatus === "Failed") {
       return {
         color: "#C94C4C",
-        background: "#FDEEEE",
-        border: "#F5CACA",
+        background: isLuxuryMode
+          ? "rgba(201,76,76,0.10)"
+          : "#FDEEEE",
+        border: isLuxuryMode
+          ? "rgba(201,76,76,0.35)"
+          : "#F5CACA",
       };
     }
 
     return {
       color: "#D27B00",
-      background: "#FFF6E5",
-      border: "#F3DFB0",
+      background: isLuxuryMode
+        ? "rgba(210,123,0,0.10)"
+        : "#FFF6E5",
+      border: isLuxuryMode
+        ? "rgba(210,123,0,0.35)"
+        : "#F3DFB0",
     };
   };
 
@@ -623,7 +734,7 @@ const OrderDetails = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#F9F2FA",
+        backgroundColor: pageBackground,
         px: {
           xs: 2,
           sm: 3,
@@ -667,10 +778,10 @@ const OrderDetails = () => {
                 alignItems: "center",
                 gap: 0.7,
                 cursor: "pointer",
-                color: "#6B6B6B",
+                color: secondaryText,
                 mb: 1.2,
                 "&:hover": {
-                  color: "#B61ECA",
+                  color: accent,
                 },
               }}
             >
@@ -692,7 +803,7 @@ const OrderDetails = () => {
 
             <Typography
               sx={{
-                color: "#B61ECA",
+                color: accent,
                 fontSize: 12,
                 fontWeight: 800,
                 letterSpacing: "2px",
@@ -704,7 +815,7 @@ const OrderDetails = () => {
 
             <Typography
               sx={{
-                color: "#171717",
+                color: primaryText,
                 fontSize: {
                   xs: 28,
                   md: 36,
@@ -717,7 +828,7 @@ const OrderDetails = () => {
 
             <Typography
               sx={{
-                color: "#6B6B6B",
+                color: secondaryText,
                 fontSize: 14,
                 mt: 0.5,
               }}
@@ -737,8 +848,7 @@ const OrderDetails = () => {
             label={orderStatus}
             sx={{
               color: statusStyle.color,
-              backgroundColor:
-                statusStyle.background,
+              backgroundColor: statusStyle.background,
               border: `1px solid ${statusStyle.border}`,
               fontWeight: 800,
               fontSize: 12,
@@ -757,8 +867,8 @@ const OrderDetails = () => {
 
         <Box
           sx={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             p: {
               xs: 2,
@@ -769,8 +879,6 @@ const OrderDetails = () => {
           }}
         >
           <Grid container spacing={3}>
-            {/* ORDER ID */}
-
             <Grid
               size={{
                 xs: 12,
@@ -779,7 +887,7 @@ const OrderDetails = () => {
             >
               <Typography
                 sx={{
-                  color: "#888",
+                  color: isLuxuryMode ? "#888888" : "#888",
                   fontSize: 10,
                   fontWeight: 800,
                   letterSpacing: "1px",
@@ -791,7 +899,7 @@ const OrderDetails = () => {
 
               <Typography
                 sx={{
-                  color: "#171717",
+                  color: primaryText,
                   fontSize: 13,
                   fontWeight: 700,
                   wordBreak: "break-all",
@@ -801,8 +909,6 @@ const OrderDetails = () => {
               </Typography>
             </Grid>
 
-            {/* ORDER DATE */}
-
             <Grid
               size={{
                 xs: 6,
@@ -811,7 +917,7 @@ const OrderDetails = () => {
             >
               <Typography
                 sx={{
-                  color: "#888",
+                  color: isLuxuryMode ? "#888888" : "#888",
                   fontSize: 10,
                   fontWeight: 800,
                   letterSpacing: "1px",
@@ -823,7 +929,7 @@ const OrderDetails = () => {
 
               <Typography
                 sx={{
-                  color: "#171717",
+                  color: primaryText,
                   fontSize: 13,
                   fontWeight: 700,
                 }}
@@ -840,8 +946,6 @@ const OrderDetails = () => {
               </Typography>
             </Grid>
 
-            {/* PAYMENT */}
-
             <Grid
               size={{
                 xs: 6,
@@ -850,7 +954,7 @@ const OrderDetails = () => {
             >
               <Typography
                 sx={{
-                  color: "#888",
+                  color: isLuxuryMode ? "#888888" : "#888",
                   fontSize: 10,
                   fontWeight: 800,
                   letterSpacing: "1px",
@@ -862,7 +966,7 @@ const OrderDetails = () => {
 
               <Typography
                 sx={{
-                  color: "#171717",
+                  color: primaryText,
                   fontSize: 13,
                   fontWeight: 700,
                 }}
@@ -879,8 +983,8 @@ const OrderDetails = () => {
 
         <Box
           sx={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             p: {
               xs: 2,
@@ -903,8 +1007,8 @@ const OrderDetails = () => {
                 width: 38,
                 height: 38,
                 borderRadius: 2,
-                backgroundColor: "#F3E3F6",
-                color: "#B61ECA",
+                backgroundColor: imageBackground,
+                color: accent,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -916,7 +1020,7 @@ const OrderDetails = () => {
             <Box>
               <Typography
                 sx={{
-                  color: "#171717",
+                  color: primaryText,
                   fontSize: 14,
                   fontWeight: 800,
                 }}
@@ -926,7 +1030,7 @@ const OrderDetails = () => {
 
               <Typography
                 sx={{
-                  color: "#777",
+                  color: mutedText,
                   fontSize: 11,
                 }}
               >
@@ -937,6 +1041,10 @@ const OrderDetails = () => {
 
           <StatusTimeline
             status={orderStatus}
+            isLuxuryMode={isLuxuryMode}
+            accent={accent}
+            primaryText={primaryText}
+            border={border}
           />
         </Box>
 
@@ -957,8 +1065,8 @@ const OrderDetails = () => {
           >
             <Box
               sx={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E8DCEB",
+                backgroundColor: cardBackground,
+                border: `1px solid ${border}`,
                 borderRadius: 3,
                 overflow: "hidden",
               }}
@@ -971,9 +1079,8 @@ const OrderDetails = () => {
                     xs: 2,
                     sm: 2.5,
                   },
-                  backgroundColor: "#FAF6FB",
-                  borderBottom:
-                    "1px solid #E8DCEB",
+                  backgroundColor: sectionBackground,
+                  borderBottom: `1px solid ${border}`,
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
@@ -984,8 +1091,8 @@ const OrderDetails = () => {
                     width: 38,
                     height: 38,
                     borderRadius: 2,
-                    backgroundColor: "#F3E3F6",
-                    color: "#B61ECA",
+                    backgroundColor: imageBackground,
+                    color: accent,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -997,7 +1104,7 @@ const OrderDetails = () => {
                 <Box>
                   <Typography
                     sx={{
-                      color: "#171717",
+                      color: primaryText,
                       fontSize: 15,
                       fontWeight: 800,
                     }}
@@ -1007,7 +1114,7 @@ const OrderDetails = () => {
 
                   <Typography
                     sx={{
-                      color: "#777",
+                      color: mutedText,
                       fontSize: 11,
                     }}
                   >
@@ -1033,7 +1140,7 @@ const OrderDetails = () => {
                 {items.length === 0 ? (
                   <Typography
                     sx={{
-                      color: "#777",
+                      color: mutedText,
                       fontSize: 13,
                       py: 3,
                       textAlign: "center",
@@ -1088,7 +1195,7 @@ const OrderDetails = () => {
                             index ===
                             items.length - 1
                               ? "none"
-                              : "1px solid #E8DCEB",
+                              : `1px solid ${border}`,
                         }}
                       >
                         {/* IMAGE */}
@@ -1105,8 +1212,7 @@ const OrderDetails = () => {
                             },
                             borderRadius: 2,
                             overflow: "hidden",
-                            backgroundColor:
-                              "#F3E3F6",
+                            backgroundColor: imageBackground,
                             flexShrink: 0,
                           }}
                         >
@@ -1130,7 +1236,7 @@ const OrderDetails = () => {
                                 display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                color: "#B61ECA",
+                                color: accent,
                               }}
                             >
                               <ShoppingBagOutlinedIcon
@@ -1154,7 +1260,7 @@ const OrderDetails = () => {
                         >
                           <Typography
                             sx={{
-                              color: "#B61ECA",
+                              color: accent,
                               fontSize: 10,
                               fontWeight: 800,
                               letterSpacing: "0.7px",
@@ -1167,7 +1273,7 @@ const OrderDetails = () => {
 
                           <Typography
                             sx={{
-                              color: "#171717",
+                              color: primaryText,
                               fontSize: {
                                 xs: 14,
                                 sm: 16,
@@ -1194,8 +1300,13 @@ const OrderDetails = () => {
                               sx={{
                                 height: 25,
                                 backgroundColor:
-                                  "#F8F1FA",
-                                color: "#B61ECA",
+                                  isLuxuryMode
+                                    ? "rgba(200,169,107,0.12)"
+                                    : "#F8F1FA",
+                                color: accent,
+                                border: isLuxuryMode
+                                  ? "1px solid rgba(200,169,107,0.25)"
+                                  : "none",
                                 fontSize: 10,
                                 fontWeight: 700,
                               }}
@@ -1209,8 +1320,13 @@ const OrderDetails = () => {
                               sx={{
                                 height: 25,
                                 backgroundColor:
-                                  "#F7F7F7",
-                                color: "#666",
+                                  isLuxuryMode
+                                    ? "#242424"
+                                    : "#F7F7F7",
+                                color: secondaryText,
+                                border: isLuxuryMode
+                                  ? "1px solid #333333"
+                                  : "none",
                                 fontSize: 10,
                                 fontWeight: 700,
                               }}
@@ -1229,7 +1345,7 @@ const OrderDetails = () => {
                           >
                             <Typography
                               sx={{
-                                color: "#777",
+                                color: mutedText,
                                 fontSize: 11,
                               }}
                             >
@@ -1238,7 +1354,7 @@ const OrderDetails = () => {
 
                             <Typography
                               sx={{
-                                color: "#171717",
+                                color: primaryText,
                                 fontSize: {
                                   xs: 16,
                                   sm: 18,
@@ -1265,13 +1381,13 @@ const OrderDetails = () => {
                 <Divider
                   sx={{
                     my: 3,
-                    borderColor: "#E8DCEB",
+                    borderColor: border,
                   }}
                 />
 
                 <Typography
                   sx={{
-                    color: "#171717",
+                    color: primaryText,
                     fontSize: 14,
                     fontWeight: 800,
                     mb: 2,
@@ -1291,7 +1407,7 @@ const OrderDetails = () => {
                 >
                   <Typography
                     sx={{
-                      color: "#777",
+                      color: mutedText,
                       fontSize: 13,
                     }}
                   >
@@ -1300,7 +1416,7 @@ const OrderDetails = () => {
 
                   <Typography
                     sx={{
-                      color: "#171717",
+                      color: primaryText,
                       fontSize: 13,
                       fontWeight: 700,
                     }}
@@ -1323,7 +1439,7 @@ const OrderDetails = () => {
                 >
                   <Typography
                     sx={{
-                      color: "#777",
+                      color: mutedText,
                       fontSize: 13,
                     }}
                   >
@@ -1335,7 +1451,7 @@ const OrderDetails = () => {
                       color:
                         deliveryCharge === 0
                           ? "#2E7D5B"
-                          : "#171717",
+                          : primaryText,
                       fontSize: 13,
                       fontWeight: 700,
                     }}
@@ -1351,7 +1467,7 @@ const OrderDetails = () => {
                 <Divider
                   sx={{
                     mb: 2,
-                    borderColor: "#E8DCEB",
+                    borderColor: border,
                   }}
                 />
 
@@ -1367,7 +1483,7 @@ const OrderDetails = () => {
                   <Box>
                     <Typography
                       sx={{
-                        color: "#171717",
+                        color: primaryText,
                         fontSize: 17,
                         fontWeight: 800,
                       }}
@@ -1377,7 +1493,7 @@ const OrderDetails = () => {
 
                     <Typography
                       sx={{
-                        color: "#777",
+                        color: mutedText,
                         fontSize: 10,
                         mt: 0.2,
                       }}
@@ -1388,7 +1504,7 @@ const OrderDetails = () => {
 
                   <Typography
                     sx={{
-                      color: "#B61ECA",
+                      color: accent,
                       fontSize: 24,
                       fontWeight: 900,
                     }}
@@ -1419,8 +1535,8 @@ const OrderDetails = () => {
 
             <Box
               sx={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E8DCEB",
+                backgroundColor: cardBackground,
+                border: `1px solid ${border}`,
                 borderRadius: 3,
                 overflow: "hidden",
                 mb: 3,
@@ -1432,9 +1548,8 @@ const OrderDetails = () => {
                     xs: 2,
                     sm: 2.5,
                   },
-                  backgroundColor: "#FAF6FB",
-                  borderBottom:
-                    "1px solid #E8DCEB",
+                  backgroundColor: sectionBackground,
+                  borderBottom: `1px solid ${border}`,
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
@@ -1445,8 +1560,8 @@ const OrderDetails = () => {
                     width: 38,
                     height: 38,
                     borderRadius: 2,
-                    backgroundColor: "#F3E3F6",
-                    color: "#B61ECA",
+                    backgroundColor: imageBackground,
+                    color: accent,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1458,7 +1573,7 @@ const OrderDetails = () => {
                 <Box>
                   <Typography
                     sx={{
-                      color: "#171717",
+                      color: primaryText,
                       fontSize: 15,
                       fontWeight: 800,
                     }}
@@ -1468,7 +1583,7 @@ const OrderDetails = () => {
 
                   <Typography
                     sx={{
-                      color: "#777",
+                      color: mutedText,
                       fontSize: 11,
                     }}
                   >
@@ -1487,7 +1602,7 @@ const OrderDetails = () => {
               >
                 <Typography
                   sx={{
-                    color: "#171717",
+                    color: primaryText,
                     fontSize: 14,
                     fontWeight: 800,
                     mb: 1,
@@ -1500,7 +1615,7 @@ const OrderDetails = () => {
                 {shippingAddress.phone && (
                   <Typography
                     sx={{
-                      color: "#666",
+                      color: secondaryText,
                       fontSize: 12,
                       mb: 0.7,
                     }}
@@ -1512,7 +1627,7 @@ const OrderDetails = () => {
                 {shippingAddress.address && (
                   <Typography
                     sx={{
-                      color: "#666",
+                      color: secondaryText,
                       fontSize: 12,
                       lineHeight: 1.6,
                       mb: 0.5,
@@ -1526,7 +1641,7 @@ const OrderDetails = () => {
                   shippingAddress.state) && (
                   <Typography
                     sx={{
-                      color: "#666",
+                      color: secondaryText,
                       fontSize: 12,
                       lineHeight: 1.6,
                       mb: 0.5,
@@ -1544,7 +1659,7 @@ const OrderDetails = () => {
                 {shippingAddress.pincode && (
                   <Typography
                     sx={{
-                      color: "#666",
+                      color: secondaryText,
                       fontSize: 12,
                     }}
                   >
@@ -1558,7 +1673,10 @@ const OrderDetails = () => {
                     mt: 2,
                     p: 1.5,
                     borderRadius: 2,
-                    backgroundColor: "#F8F1FA",
+                    backgroundColor: softBackground,
+                    border: isLuxuryMode
+                      ? "1px solid #333333"
+                      : "none",
                     display: "flex",
                     alignItems: "center",
                     gap: 1,
@@ -1566,14 +1684,16 @@ const OrderDetails = () => {
                 >
                   <LocalShippingOutlinedIcon
                     sx={{
-                      color: "#B61ECA",
+                      color: accent,
                       fontSize: 19,
                     }}
                   />
 
                   <Typography
                     sx={{
-                      color: "#6B4A70",
+                      color: isLuxuryMode
+                        ? "#CFCFCF"
+                        : "#6B4A70",
                       fontSize: 11,
                       fontWeight: 600,
                     }}
@@ -1590,8 +1710,8 @@ const OrderDetails = () => {
 
             <Box
               sx={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E8DCEB",
+                backgroundColor: cardBackground,
+                border: `1px solid ${border}`,
                 borderRadius: 3,
                 overflow: "hidden",
                 mb: 3,
@@ -1603,9 +1723,8 @@ const OrderDetails = () => {
                     xs: 2,
                     sm: 2.5,
                   },
-                  backgroundColor: "#FAF6FB",
-                  borderBottom:
-                    "1px solid #E8DCEB",
+                  backgroundColor: sectionBackground,
+                  borderBottom: `1px solid ${border}`,
                   display: "flex",
                   alignItems: "center",
                   gap: 1,
@@ -1616,8 +1735,8 @@ const OrderDetails = () => {
                     width: 38,
                     height: 38,
                     borderRadius: 2,
-                    backgroundColor: "#F3E3F6",
-                    color: "#B61ECA",
+                    backgroundColor: imageBackground,
+                    color: accent,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1629,7 +1748,7 @@ const OrderDetails = () => {
                 <Box>
                   <Typography
                     sx={{
-                      color: "#171717",
+                      color: primaryText,
                       fontSize: 15,
                       fontWeight: 800,
                     }}
@@ -1639,7 +1758,7 @@ const OrderDetails = () => {
 
                   <Typography
                     sx={{
-                      color: "#777",
+                      color: mutedText,
                       fontSize: 11,
                     }}
                   >
@@ -1666,7 +1785,7 @@ const OrderDetails = () => {
                 >
                   <Typography
                     sx={{
-                      color: "#777",
+                      color: mutedText,
                       fontSize: 12,
                     }}
                   >
@@ -1675,7 +1794,7 @@ const OrderDetails = () => {
 
                   <Typography
                     sx={{
-                      color: "#171717",
+                      color: primaryText,
                       fontSize: 13,
                       fontWeight: 800,
                     }}
@@ -1693,7 +1812,7 @@ const OrderDetails = () => {
                 >
                   <Typography
                     sx={{
-                      color: "#777",
+                      color: mutedText,
                       fontSize: 12,
                     }}
                   >
@@ -1704,8 +1823,7 @@ const OrderDetails = () => {
                     label={paymentStatus}
                     size="small"
                     sx={{
-                      color:
-                        paymentStatusStyle.color,
+                      color: paymentStatusStyle.color,
                       backgroundColor:
                         paymentStatusStyle.background,
                       border: `1px solid ${paymentStatusStyle.border}`,
@@ -1721,7 +1839,10 @@ const OrderDetails = () => {
                     mt: 2,
                     p: 1.5,
                     borderRadius: 2,
-                    backgroundColor: "#F8F1FA",
+                    backgroundColor: softBackground,
+                    border: isLuxuryMode
+                      ? "1px solid #333333"
+                      : "none",
                     display: "flex",
                     alignItems: "center",
                     gap: 1,
@@ -1729,14 +1850,16 @@ const OrderDetails = () => {
                 >
                   <SecurityOutlinedIcon
                     sx={{
-                      color: "#B61ECA",
+                      color: accent,
                       fontSize: 18,
                     }}
                   />
 
                   <Typography
                     sx={{
-                      color: "#6B4A70",
+                      color: isLuxuryMode
+                        ? "#CFCFCF"
+                        : "#6B4A70",
                       fontSize: 11,
                       fontWeight: 600,
                     }}
@@ -1755,7 +1878,7 @@ const OrderDetails = () => {
               orderStatus === "Confirmed") && (
               <Box
                 sx={{
-                  backgroundColor: "#FFFFFF",
+                  backgroundColor: cardBackground,
                   border: "1px solid #F5CACA",
                   borderRadius: 3,
                   p: {
@@ -1767,7 +1890,7 @@ const OrderDetails = () => {
               >
                 <Typography
                   sx={{
-                    color: "#171717",
+                    color: primaryText,
                     fontSize: 13,
                     fontWeight: 800,
                     mb: 0.5,
@@ -1778,7 +1901,7 @@ const OrderDetails = () => {
 
                 <Typography
                   sx={{
-                    color: "#777",
+                    color: mutedText,
                     fontSize: 11,
                     lineHeight: 1.6,
                     mb: 1.5,
@@ -1803,7 +1926,9 @@ const OrderDetails = () => {
                     "&:hover": {
                       borderColor: "#B71C1C",
                       color: "#B71C1C",
-                      backgroundColor: "#FFF5F5",
+                      backgroundColor: isLuxuryMode
+                        ? "rgba(201,76,76,0.08)"
+                        : "#FFF5F5",
                     },
                   }}
                 >
@@ -1835,17 +1960,19 @@ const OrderDetails = () => {
             startIcon={<ArrowBackIcon />}
             onClick={() => navigate("/orders")}
             sx={{
-              borderColor: "#B61ECA",
-              color: "#B61ECA",
+              borderColor: accent,
+              color: accent,
               textTransform: "none",
               fontWeight: 800,
               borderRadius: "6px",
               px: 2.5,
               py: 1.1,
               "&:hover": {
-                borderColor: "#9615A8",
-                color: "#9615A8",
-                backgroundColor: "#FAF1FC",
+                borderColor: accentHover,
+                color: accentHover,
+                backgroundColor: isLuxuryMode
+                  ? "rgba(200,169,107,0.08)"
+                  : "#FAF1FC",
               },
             }}
           >
@@ -1857,14 +1984,20 @@ const OrderDetails = () => {
             startIcon={<ShoppingBagOutlinedIcon />}
             onClick={() => navigate("/products")}
             sx={{
-              backgroundColor: "#B61ECA",
+              backgroundColor: accent,
+              color: isLuxuryMode
+                ? "#171717"
+                : "#FFFFFF",
               textTransform: "none",
               fontWeight: 800,
               borderRadius: "6px",
               px: 2.5,
               py: 1.1,
               "&:hover": {
-                backgroundColor: "#9615A8",
+                backgroundColor: accentHover,
+                color: isLuxuryMode
+                  ? "#171717"
+                  : "#FFFFFF",
               },
             }}
           >

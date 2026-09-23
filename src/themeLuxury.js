@@ -1,34 +1,30 @@
 import { createTheme } from "@mui/material/styles";
 
-const theme = createTheme({
+const luxuryTheme = createTheme({
   palette: {
-    primary: {
-      main: "#171717",
-      contrastText: "#FFFFFF",
-    },
+    mode: "dark",
 
-    secondary: {
+    primary: {
       main: "#C8A96B",
       contrastText: "#171717",
     },
 
+    secondary: {
+      main: "#FFFFFF",
+      contrastText: "#171717",
+    },
+
     background: {
-      default: "#F7F5F0",
-      paper: "#FFFFFF",
-    },
-
-    success: {
-      main: "#2E7D5B",
-    },
-
-    error: {
-      main: "#C94C4C",
+      default: "#111111",
+      paper: "#1A1A1A",
     },
 
     text: {
-      primary: "#171717",
-      secondary: "#6B6B6B",
+      primary: "#FFFFFF",
+      secondary: "#BDBDBD",
     },
+
+    divider: "#333333",
   },
 
   typography: {
@@ -49,14 +45,6 @@ const theme = createTheme({
     },
 
     h4: {
-      fontWeight: 700,
-    },
-
-    h5: {
-      fontWeight: 700,
-    },
-
-    h6: {
       fontWeight: 700,
     },
 
@@ -96,4 +84,4 @@ const theme = createTheme({
   },
 });
 
-export default theme;
+export default luxuryTheme;

@@ -6,21 +6,39 @@ const {
   checkReviewEligibility,
 } = require("../controllers/reviewController");
 
-const protect = require("../middleware/authMiddleware");
+const {
+  protect,
+} = require("../middleware/authMiddleware");
+
+const {
+  reviewValidation,
+  productIdValidation,
+  validateRequest,
+} = require("../middleware/validationMiddleware");
 
 const router = express.Router();
 
-// Get reviews for a product
-router.get("/product/:productId", getProductReviews);
+router.get(
+  "/product/:productId",
+  productIdValidation,
+  validateRequest,
+  getProductReviews
+);
 
-// Check whether logged-in user can review
 router.get(
   "/eligibility/:productId",
   protect,
+  productIdValidation,
+  validateRequest,
   checkReviewEligibility
 );
 
-// Add review
-router.post("/", protect, createReview);
+router.post(
+  "/",
+  protect,
+  reviewValidation,
+  validateRequest,
+  createReview
+);
 
 module.exports = router;

@@ -8,9 +8,12 @@ import Alert from "@mui/material/Alert";
 import CustomInput from "../components/common/CustomInput";
 import CustomButton from "../components/common/CustomButton";
 import api from "../services/api";
+import { useThemeMode } from "../context/ThemeContext";
 
 const SellerAddProduct = () => {
   const navigate = useNavigate();
+
+  const { isLuxuryMode } = useThemeMode();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -29,6 +32,42 @@ const SellerAddProduct = () => {
     message: "",
   });
 
+  // --------------------------------------------------
+  // THEME COLORS
+  // --------------------------------------------------
+
+  const pageBackground = isLuxuryMode
+    ? "#0F0F0F"
+    : "#F9F2FA";
+
+  const cardBackground = isLuxuryMode
+    ? "#1A1A1A"
+    : "#FFFFFF";
+
+  const primaryText = isLuxuryMode
+    ? "#FFFFFF"
+    : "#171717";
+
+  const secondaryText = isLuxuryMode
+    ? "#BDBDBD"
+    : "#6B6B6B";
+
+  const border = isLuxuryMode
+    ? "#333333"
+    : "#E8DCEB";
+
+  const accent = isLuxuryMode
+    ? "#C8A96B"
+    : "#B61ECA";
+
+  const accentHover = isLuxuryMode
+    ? "#E0C080"
+    : "#9615A8";
+
+  // --------------------------------------------------
+  // HANDLE CHANGE
+  // --------------------------------------------------
+
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -36,106 +75,130 @@ const SellerAddProduct = () => {
       ...prev,
       [name]: value,
     }));
+
+    if (alert.message) {
+      setAlert({
+        type: "",
+        message: "",
+      });
+    }
   };
 
+  // --------------------------------------------------
+  // HANDLE SUBMIT
+  // --------------------------------------------------
+
   const handleSubmit = async (event) => {
-  event.preventDefault();
+    event.preventDefault();
 
-  setAlert({
-    type: "",
-    message: "",
-  });
+    setAlert({
+      type: "",
+      message: "",
+    });
 
-  try {
-    const sellerToken = localStorage.getItem("sellerToken");
+    try {
+      const sellerToken =
+        localStorage.getItem("sellerToken");
 
-    if (!sellerToken) {
-      navigate("/seller/login");
-      return;
-    }
-
-    const response = await api.post(
-      "/seller/products",
-      {
-        ...formData,
-        price: Number(formData.price),
-        stock: Number(formData.stock),
-        sizes: formData.sizes
-          .split(",")
-          .map((size) => size.trim())
-          .filter(Boolean),
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${sellerToken}`,
-        },
+      if (!sellerToken) {
+        navigate("/seller/login");
+        return;
       }
-    );
 
-    console.log(
-      "SELLER PRODUCT CREATED:",
-      response.data
-    );
+      const response = await api.post(
+        "/seller/products",
+        {
+          ...formData,
+          price: Number(formData.price),
+          stock: Number(formData.stock),
+          sizes: formData.sizes
+            .split(",")
+            .map((size) => size.trim())
+            .filter(Boolean),
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${sellerToken}`,
+          },
+        }
+      );
 
-    setAlert({
-      type: "success",
-      message: "Product added successfully!",
-    });
+      console.log(
+        "SELLER PRODUCT CREATED:",
+        response.data
+      );
 
-    setTimeout(() => {
-      navigate("/seller/products");
-    }, 1000);
-  } catch (error) {
-    console.error(
-      "ADD SELLER PRODUCT ERROR:",
-      error
-    );
+      setAlert({
+        type: "success",
+        message: "Product added successfully!",
+      });
 
-    if (error.response?.status === 401) {
-      localStorage.removeItem("sellerToken");
-      localStorage.removeItem("seller");
+      setTimeout(() => {
+        navigate("/seller/products");
+      }, 1000);
+    } catch (error) {
+      console.error(
+        "ADD SELLER PRODUCT ERROR:",
+        error
+      );
 
-      navigate("/seller/login");
-      return;
+      if (error.response?.status === 401) {
+        localStorage.removeItem("sellerToken");
+        localStorage.removeItem("seller");
+
+        navigate("/seller/login");
+        return;
+      }
+
+      setAlert({
+        type: "error",
+        message:
+          error.response?.data?.message ||
+          "Failed to add product.",
+      });
     }
+  };
 
-    setAlert({
-      type: "error",
-      message:
-        error.response?.data?.message ||
-        "Failed to add product.",
-    });
-  }
-};
+  // --------------------------------------------------
+  // PAGE
+  // --------------------------------------------------
 
   return (
     <Box
       sx={{
         minHeight: "calc(100vh - 76px)",
-        background: "#F9F2FA",
+        backgroundColor: pageBackground,
         px: { xs: 2, sm: 4, md: 6 },
         py: 5,
+        transition: "background-color 0.3s ease",
       }}
     >
       <Box
         sx={{
           maxWidth: 850,
           mx: "auto",
-          backgroundColor: "#FFFFFF",
-          border: "1px solid #E8DCEB",
+          backgroundColor: cardBackground,
+          border: `1px solid ${border}`,
           borderRadius: "12px",
-          boxShadow:
-            "0 10px 30px rgba(182, 30, 202, 0.08)",
+          boxShadow: isLuxuryMode
+            ? "0 12px 35px rgba(0,0,0,0.35)"
+            : "0 10px 30px rgba(182, 30, 202, 0.08)",
           p: { xs: 3, sm: 5 },
+          transition:
+            "background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease",
         }}
       >
-        {/* Header */}
+        {/* ------------------------------------------ */}
+        {/* HEADER */}
+        {/* ------------------------------------------ */}
+
         <Box sx={{ mb: 4 }}>
           <Typography
             sx={{
               fontSize: { xs: 26, sm: 32 },
               fontWeight: 800,
-              color: "#171717",
+              color: primaryText,
+              transition: "color 0.3s ease",
             }}
           >
             Add Product
@@ -144,15 +207,19 @@ const SellerAddProduct = () => {
           <Typography
             sx={{
               fontSize: 14,
-              color: "#6B6B6B",
+              color: secondaryText,
               mt: 0.5,
+              transition: "color 0.3s ease",
             }}
           >
             Add a new product to your store.
           </Typography>
         </Box>
 
-        {/* Alert */}
+        {/* ------------------------------------------ */}
+        {/* ALERT */}
+        {/* ------------------------------------------ */}
+
         {alert.message && (
           <Alert
             severity={alert.type}
@@ -165,7 +232,10 @@ const SellerAddProduct = () => {
           </Alert>
         )}
 
-        {/* Form */}
+        {/* ------------------------------------------ */}
+        {/* FORM */}
+        {/* ------------------------------------------ */}
+
         <Box
           component="form"
           onSubmit={handleSubmit}
@@ -175,7 +245,8 @@ const SellerAddProduct = () => {
             gap: 2,
           }}
         >
-          {/* Product Name */}
+          {/* PRODUCT NAME */}
+
           <CustomInput
             label="Product Name"
             name="name"
@@ -185,7 +256,8 @@ const SellerAddProduct = () => {
             required
           />
 
-          {/* Brand */}
+          {/* BRAND */}
+
           <CustomInput
             label="Brand"
             name="brand"
@@ -195,7 +267,8 @@ const SellerAddProduct = () => {
             required
           />
 
-          {/* Description */}
+          {/* DESCRIPTION */}
+
           <CustomInput
             label="Description"
             name="description"
@@ -207,7 +280,8 @@ const SellerAddProduct = () => {
             required
           />
 
-          {/* Price + Stock */}
+          {/* PRICE + STOCK */}
+
           <Box
             sx={{
               display: "grid",
@@ -239,7 +313,8 @@ const SellerAddProduct = () => {
             />
           </Box>
 
-          {/* Category + Color */}
+          {/* CATEGORY + COLOR */}
+
           <Box
             sx={{
               display: "grid",
@@ -269,7 +344,8 @@ const SellerAddProduct = () => {
             />
           </Box>
 
-          {/* Sizes */}
+          {/* SIZES */}
+
           <CustomInput
             label="Sizes"
             name="sizes"
@@ -278,7 +354,8 @@ const SellerAddProduct = () => {
             placeholder="Eg: S, M, L, XL"
           />
 
-          {/* Image */}
+          {/* IMAGE */}
+
           <CustomInput
             label="Product Image URL"
             name="image"
@@ -288,7 +365,10 @@ const SellerAddProduct = () => {
             required
           />
 
-          {/* Buttons */}
+          {/* ------------------------------------------ */}
+          {/* BUTTONS */}
+          {/* ------------------------------------------ */}
+
           <Box
             sx={{
               display: "flex",
@@ -300,17 +380,52 @@ const SellerAddProduct = () => {
               },
             }}
           >
+            {/* CANCEL */}
+
             <CustomButton
               type="button"
               variant="outlined"
               onClick={() =>
                 navigate("/seller/products")
               }
+              sx={{
+                borderColor: isLuxuryMode
+                  ? "#555555"
+                  : "#B61ECA",
+                color: isLuxuryMode
+                  ? "#C8A96B"
+                  : "#B61ECA",
+
+                "&:hover": {
+                  borderColor: accentHover,
+                  color: accentHover,
+                  backgroundColor: isLuxuryMode
+                    ? "rgba(200,169,107,0.08)"
+                    : "#FAF1FC",
+                },
+              }}
             >
               Cancel
             </CustomButton>
 
-            <CustomButton type="submit">
+            {/* ADD PRODUCT */}
+
+            <CustomButton
+              type="submit"
+              sx={{
+                backgroundColor: accent,
+                color: isLuxuryMode
+                  ? "#171717"
+                  : "#FFFFFF",
+
+                "&:hover": {
+                  backgroundColor: accentHover,
+                  color: isLuxuryMode
+                    ? "#171717"
+                    : "#FFFFFF",
+                },
+              }}
+            >
               Add Product
             </CustomButton>
           </Box>

@@ -19,9 +19,12 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import LocalOfferOutlinedIcon from "@mui/icons-material/LocalOfferOutlined";
 
 import CustomButton from "../components/common/CustomButton";
+import { useThemeMode } from "../context/ThemeContext";
 
 const Cart = () => {
   const navigate = useNavigate();
+
+  const { isLuxuryMode } = useThemeMode();
 
   const {
     cartItems,
@@ -29,6 +32,54 @@ const Cart = () => {
     updateQuantity,
     cartTotal,
   } = useCart();
+
+  // =========================
+  // THEME COLORS
+  // =========================
+
+  const pageBackground = isLuxuryMode
+    ? "#0F0F0F"
+    : "#F9F2FA";
+
+  const cardBackground = isLuxuryMode
+    ? "#1A1A1A"
+    : "#FFFFFF";
+
+  const softBackground = isLuxuryMode
+    ? "#202020"
+    : "#FAF6FB";
+
+  const imageBackground = isLuxuryMode
+    ? "#242424"
+    : "#F3E3F6";
+
+  const primaryText = isLuxuryMode
+    ? "#FFFFFF"
+    : "#171717";
+
+  const secondaryText = isLuxuryMode
+    ? "#BDBDBD"
+    : "#6B6B6B";
+
+  const accent = isLuxuryMode
+    ? "#C8A96B"
+    : "#B61ECA";
+
+  const accentHover = isLuxuryMode
+    ? "#E0C080"
+    : "#9615A8";
+
+  const border = isLuxuryMode
+    ? "#333333"
+    : "#E8DCEB";
+
+  const softBorder = isLuxuryMode
+    ? "#444444"
+    : "#D9C7DC";
+
+  // =========================
+  // FREE DELIVERY
+  // =========================
 
   const FREE_DELIVERY_TARGET = 2000;
 
@@ -42,13 +93,16 @@ const Cart = () => {
     0
   );
 
-  // Empty Cart
+  // =========================
+  // EMPTY CART
+  // =========================
+
   if (cartItems.length === 0) {
     return (
       <Box
         sx={{
           minHeight: "70vh",
-          backgroundColor: "#F9F2FA",
+          backgroundColor: pageBackground,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -60,8 +114,8 @@ const Cart = () => {
           sx={{
             width: "100%",
             maxWidth: 520,
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             textAlign: "center",
             px: { xs: 3, md: 5 },
@@ -73,8 +127,10 @@ const Cart = () => {
               width: 80,
               height: 80,
               borderRadius: "50%",
-              backgroundColor: "#F3E3F6",
-              color: "#B61ECA",
+              backgroundColor: isLuxuryMode
+                ? "#2A2418"
+                : "#F3E3F6",
+              color: accent,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -82,16 +138,21 @@ const Cart = () => {
               mb: 3,
             }}
           >
-            <ShoppingBagOutlinedIcon sx={{ fontSize: 38 }} />
+            <ShoppingBagOutlinedIcon
+              sx={{ fontSize: 38 }}
+            />
           </Box>
 
           <Typography
             variant="h4"
             sx={{
               fontWeight: 800,
-              color: "#171717",
+              color: primaryText,
               mb: 1.5,
-              fontSize: { xs: 27, md: 32 },
+              fontSize: {
+                xs: 27,
+                md: 32,
+              },
             }}
           >
             Your Bag is Empty
@@ -99,19 +160,32 @@ const Cart = () => {
 
           <Typography
             sx={{
-              color: "#6B6B6B",
+              color: secondaryText,
               fontSize: 14,
               lineHeight: 1.7,
               mb: 3.5,
             }}
           >
-            Looks like you haven't added anything to your bag yet.
-            Discover something you love and add it to your collection.
+            Looks like you haven't added anything
+            to your bag yet. Discover something you
+            love and add it to your collection.
           </Typography>
 
           <CustomButton
             fullWidth={false}
             onClick={() => navigate("/products")}
+            sx={{
+              backgroundColor: accent,
+              color: isLuxuryMode
+                ? "#171717"
+                : "#FFFFFF",
+              "&:hover": {
+                backgroundColor: accentHover,
+                color: isLuxuryMode
+                  ? "#171717"
+                  : "#FFFFFF",
+              },
+            }}
           >
             Continue Shopping
           </CustomButton>
@@ -120,13 +194,24 @@ const Cart = () => {
     );
   }
 
+  // =========================
+  // MAIN CART
+  // =========================
+
   return (
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#F9F2FA",
-        px: { xs: 2, sm: 3, md: 6 },
-        py: { xs: 3, md: 5 },
+        backgroundColor: pageBackground,
+        px: {
+          xs: 2,
+          sm: 3,
+          md: 6,
+        },
+        py: {
+          xs: 3,
+          md: 5,
+        },
       }}
     >
       <Box
@@ -135,7 +220,10 @@ const Cart = () => {
           mx: "auto",
         }}
       >
-        {/* Header */}
+        {/* =========================
+            HEADER
+        ========================= */}
+
         <Box
           sx={{
             display: "flex",
@@ -149,7 +237,7 @@ const Cart = () => {
           <Box>
             <Typography
               sx={{
-                color: "#B61ECA",
+                color: accent,
                 fontSize: 12,
                 fontWeight: 800,
                 letterSpacing: "2px",
@@ -163,8 +251,11 @@ const Cart = () => {
               variant="h4"
               sx={{
                 fontWeight: 800,
-                color: "#171717",
-                fontSize: { xs: 28, md: 34 },
+                color: primaryText,
+                fontSize: {
+                  xs: 28,
+                  md: 34,
+                },
               }}
             >
               My Bag
@@ -172,13 +263,16 @@ const Cart = () => {
 
             <Typography
               sx={{
-                color: "#6B6B6B",
+                color: secondaryText,
                 fontSize: 14,
                 mt: 0.5,
               }}
             >
               {cartItems.length}{" "}
-              {cartItems.length === 1 ? "item" : "items"} in your bag
+              {cartItems.length === 1
+                ? "item"
+                : "items"}{" "}
+              in your bag
             </Typography>
           </Box>
 
@@ -189,13 +283,15 @@ const Cart = () => {
               alignItems: "center",
               gap: 0.7,
               cursor: "pointer",
-              color: "#6B6B6B",
+              color: secondaryText,
               "&:hover": {
-                color: "#B61ECA",
+                color: accent,
               },
             }}
           >
-            <ArrowBackIcon sx={{ fontSize: 19 }} />
+            <ArrowBackIcon
+              sx={{ fontSize: 19 }}
+            />
 
             <Typography
               sx={{
@@ -208,13 +304,19 @@ const Cart = () => {
           </Box>
         </Box>
 
-        {/* Free Delivery Progress */}
+        {/* =========================
+            FREE DELIVERY PROGRESS
+        ========================= */}
+
         <Box
           sx={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
-            px: { xs: 2, sm: 3 },
+            px: {
+              xs: 2,
+              sm: 3,
+            },
             py: 2.5,
             mb: 3,
           }}
@@ -237,7 +339,7 @@ const Cart = () => {
             >
               <LocalShippingOutlinedIcon
                 sx={{
-                  color: "#B61ECA",
+                  color: accent,
                   fontSize: 22,
                 }}
               />
@@ -246,7 +348,7 @@ const Cart = () => {
                 sx={{
                   fontSize: 14,
                   fontWeight: 700,
-                  color: "#171717",
+                  color: primaryText,
                 }}
               >
                 {remainingAmount > 0
@@ -261,7 +363,7 @@ const Cart = () => {
               sx={{
                 fontSize: 12,
                 fontWeight: 700,
-                color: "#B61ECA",
+                color: accent,
               }}
             >
               ₹2,000
@@ -274,9 +376,12 @@ const Cart = () => {
             sx={{
               height: 7,
               borderRadius: 10,
-              backgroundColor: "#F0E4F2",
+              backgroundColor: isLuxuryMode
+                ? "#303030"
+                : "#F0E4F2",
+
               "& .MuiLinearProgress-bar": {
-                backgroundColor: "#B61ECA",
+                backgroundColor: accent,
                 borderRadius: 10,
               },
             }}
@@ -284,29 +389,35 @@ const Cart = () => {
         </Box>
 
         <Grid container spacing={3}>
-          {/* Cart Items */}
+          {/* =========================
+              CART ITEMS
+          ========================= */}
+
           <Grid size={{ xs: 12, md: 8 }}>
             <Box
               sx={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E8DCEB",
+                backgroundColor: cardBackground,
+                border: `1px solid ${border}`,
                 borderRadius: 3,
                 overflow: "hidden",
               }}
             >
               <Box
                 sx={{
-                  px: { xs: 2, sm: 3 },
+                  px: {
+                    xs: 2,
+                    sm: 3,
+                  },
                   py: 2,
-                  backgroundColor: "#FAF6FB",
-                  borderBottom: "1px solid #E8DCEB",
+                  backgroundColor: softBackground,
+                  borderBottom: `1px solid ${border}`,
                 }}
               >
                 <Typography
                   sx={{
                     fontSize: 15,
                     fontWeight: 800,
-                    color: "#171717",
+                    color: primaryText,
                   }}
                 >
                   Bag Items
@@ -314,7 +425,8 @@ const Cart = () => {
               </Box>
 
               {cartItems.map((item, index) => {
-                const productId = item._id || item.id;
+                const productId =
+                  item._id || item.id;
 
                 const stock =
                   typeof item.stock === "number"
@@ -325,31 +437,47 @@ const Cart = () => {
                   <Box
                     key={productId}
                     sx={{
-                      p: { xs: 2, sm: 3 },
+                      p: {
+                        xs: 2,
+                        sm: 3,
+                      },
                     }}
                   >
                     <Box
                       sx={{
                         display: "flex",
-                        gap: { xs: 2, sm: 3 },
-                        alignItems: "flex-start",
+                        gap: {
+                          xs: 2,
+                          sm: 3,
+                        },
+                        alignItems:
+                          "flex-start",
                       }}
                     >
                       {/* Product Image */}
+
                       <Box
                         sx={{
-                          width: { xs: 105, sm: 150 },
-                          height: { xs: 135, sm: 190 },
+                          width: {
+                            xs: 105,
+                            sm: 150,
+                          },
+                          height: {
+                            xs: 135,
+                            sm: 190,
+                          },
                           flexShrink: 0,
                           overflow: "hidden",
                           borderRadius: 2,
-                          backgroundColor: "#F3E3F6",
+                          backgroundColor:
+                            imageBackground,
                         }}
                       >
                         <Box
                           component="img"
                           src={item.image}
                           alt={item.name}
+                          loading="lazy"
                           sx={{
                             width: "100%",
                             height: "100%",
@@ -360,6 +488,7 @@ const Cart = () => {
                       </Box>
 
                       {/* Product Details */}
+
                       <Box
                         sx={{
                           flex: 1,
@@ -368,10 +497,11 @@ const Cart = () => {
                       >
                         <Typography
                           sx={{
-                            color: "#B61ECA",
+                            color: accent,
                             fontSize: 12,
                             fontWeight: 800,
-                            letterSpacing: "0.8px",
+                            letterSpacing:
+                              "0.8px",
                             mb: 0.6,
                           }}
                         >
@@ -380,9 +510,12 @@ const Cart = () => {
 
                         <Typography
                           sx={{
-                            fontSize: { xs: 15, sm: 18 },
+                            fontSize: {
+                              xs: 15,
+                              sm: 18,
+                            },
                             fontWeight: 700,
-                            color: "#171717",
+                            color: primaryText,
                             lineHeight: 1.4,
                             mb: 1.2,
                           }}
@@ -394,14 +527,20 @@ const Cart = () => {
                           sx={{
                             fontSize: 18,
                             fontWeight: 800,
-                            color: "#171717",
+                            color: primaryText,
                             mb: 1.8,
                           }}
                         >
-                          ₹{item.price.toLocaleString("en-IN")}
+                          ₹
+                          {item.price.toLocaleString(
+                            "en-IN"
+                          )}
                         </Typography>
 
-                        {typeof item.stock === "number" && (
+                        {/* Stock */}
+
+                        {typeof item.stock ===
+                          "number" && (
                           <Chip
                             label={
                               stock > 0
@@ -413,11 +552,15 @@ const Cart = () => {
                               mb: 1.8,
                               backgroundColor:
                                 stock > 0
-                                  ? "#EDF7F2"
+                                  ? isLuxuryMode
+                                    ? "#193326"
+                                    : "#EDF7F2"
+                                  : isLuxuryMode
+                                  ? "#382020"
                                   : "#FDEEEE",
                               color:
                                 stock > 0
-                                  ? "#2E7D5B"
+                                  ? "#2E9B70"
                                   : "#C94C4C",
                               fontWeight: 700,
                               fontSize: 11,
@@ -426,12 +569,13 @@ const Cart = () => {
                         )}
 
                         {/* Quantity */}
+
                         <Box>
                           <Typography
                             sx={{
                               fontSize: 12,
                               fontWeight: 700,
-                              color: "#6B6B6B",
+                              color: secondaryText,
                               mb: 0.7,
                             }}
                           >
@@ -441,10 +585,12 @@ const Cart = () => {
                           <Box
                             sx={{
                               display: "flex",
-                              alignItems: "center",
+                              alignItems:
+                                "center",
                               width: "fit-content",
-                              border: "1px solid #D9C7DC",
-                              borderRadius: "6px",
+                              border: `1px solid ${softBorder}`,
+                              borderRadius:
+                                "6px",
                               overflow: "hidden",
                             }}
                           >
@@ -453,13 +599,17 @@ const Cart = () => {
                               onClick={() =>
                                 updateQuantity(
                                   productId,
-                                  item.quantity - 1
+                                  item.quantity -
+                                    1
                                 )
                               }
-                              disabled={item.quantity <= 1}
+                              disabled={
+                                item.quantity <=
+                                1
+                              }
                               sx={{
                                 borderRadius: 0,
-                                color: "#171717",
+                                color: primaryText,
                                 width: 36,
                                 height: 36,
                               }}
@@ -470,9 +620,12 @@ const Cart = () => {
                             <Typography
                               sx={{
                                 minWidth: 38,
-                                textAlign: "center",
+                                textAlign:
+                                  "center",
                                 fontSize: 14,
                                 fontWeight: 700,
+                                color:
+                                  primaryText,
                               }}
                             >
                               {item.quantity}
@@ -483,16 +636,19 @@ const Cart = () => {
                               onClick={() =>
                                 updateQuantity(
                                   productId,
-                                  item.quantity + 1
+                                  item.quantity +
+                                    1
                                 )
                               }
                               disabled={
-                                typeof item.stock === "number" &&
-                                item.quantity >= item.stock
+                                typeof item.stock ===
+                                  "number" &&
+                                item.quantity >=
+                                  item.stock
                               }
                               sx={{
                                 borderRadius: 0,
-                                color: "#171717",
+                                color: primaryText,
                                 width: 36,
                                 height: 36,
                               }}
@@ -504,17 +660,25 @@ const Cart = () => {
                       </Box>
 
                       {/* Remove */}
+
                       <IconButton
                         onClick={() =>
-                          removeFromCart(productId)
+                          removeFromCart(
+                            productId
+                          )
                         }
                         sx={{
-                          color: "#777",
+                          color: isLuxuryMode
+                            ? "#999999"
+                            : "#777777",
                           width: 40,
                           height: 40,
                           "&:hover": {
                             color: "#C94C4C",
-                            backgroundColor: "#FDEEEE",
+                            backgroundColor:
+                              isLuxuryMode
+                                ? "#382020"
+                                : "#FDEEEE",
                           },
                         }}
                       >
@@ -522,11 +686,12 @@ const Cart = () => {
                       </IconButton>
                     </Box>
 
-                    {index < cartItems.length - 1 && (
+                    {index <
+                      cartItems.length - 1 && (
                       <Divider
                         sx={{
                           mt: 3,
-                          borderColor: "#E8DCEB",
+                          borderColor: border,
                         }}
                       />
                     )}
@@ -536,14 +701,22 @@ const Cart = () => {
             </Box>
           </Grid>
 
-          {/* Order Summary */}
+          {/* =========================
+              ORDER SUMMARY
+          ========================= */}
+
           <Grid size={{ xs: 12, md: 4 }}>
             <Box
               sx={{
-                position: { md: "sticky" },
-                top: { md: 20 },
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E8DCEB",
+                position: {
+                  md: "sticky",
+                },
+                top: {
+                  md: 20,
+                },
+                backgroundColor:
+                  cardBackground,
+                border: `1px solid ${border}`,
                 borderRadius: 3,
                 overflow: "hidden",
               }}
@@ -552,15 +725,16 @@ const Cart = () => {
                 sx={{
                   px: 3,
                   py: 2,
-                  backgroundColor: "#FAF6FB",
-                  borderBottom: "1px solid #E8DCEB",
+                  backgroundColor:
+                    softBackground,
+                  borderBottom: `1px solid ${border}`,
                 }}
               >
                 <Typography
                   sx={{
                     fontSize: 16,
                     fontWeight: 800,
-                    color: "#171717",
+                    color: primaryText,
                   }}
                 >
                   Order Summary
@@ -569,16 +743,18 @@ const Cart = () => {
 
               <Box sx={{ p: 3 }}>
                 {/* Subtotal */}
+
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    justifyContent:
+                      "space-between",
                     mb: 2,
                   }}
                 >
                   <Typography
                     sx={{
-                      color: "#6B6B6B",
+                      color: secondaryText,
                       fontSize: 14,
                     }}
                   >
@@ -587,20 +763,25 @@ const Cart = () => {
 
                   <Typography
                     sx={{
-                      color: "#171717",
+                      color: primaryText,
                       fontSize: 14,
                       fontWeight: 700,
                     }}
                   >
-                    ₹{cartTotal.toLocaleString("en-IN")}
+                    ₹
+                    {cartTotal.toLocaleString(
+                      "en-IN"
+                    )}
                   </Typography>
                 </Box>
 
                 {/* Delivery */}
+
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    justifyContent:
+                      "space-between",
                     alignItems: "center",
                     mb: 2,
                   }}
@@ -608,20 +789,21 @@ const Cart = () => {
                   <Box
                     sx={{
                       display: "flex",
-                      alignItems: "center",
+                      alignItems:
+                        "center",
                       gap: 0.8,
                     }}
                   >
                     <LocalShippingOutlinedIcon
                       sx={{
                         fontSize: 18,
-                        color: "#B61ECA",
+                        color: accent,
                       }}
                     />
 
                     <Typography
                       sx={{
-                        color: "#6B6B6B",
+                        color: secondaryText,
                         fontSize: 14,
                       }}
                     >
@@ -631,7 +813,7 @@ const Cart = () => {
 
                   <Typography
                     sx={{
-                      color: "#2E7D5B",
+                      color: "#2E9B70",
                       fontSize: 13,
                       fontWeight: 800,
                     }}
@@ -641,10 +823,12 @@ const Cart = () => {
                 </Box>
 
                 {/* Coupon */}
+
                 <Box
                   sx={{
-                    backgroundColor: "#FAF6FB",
-                    border: "1px solid #E8DCEB",
+                    backgroundColor:
+                      softBackground,
+                    border: `1px solid ${border}`,
                     borderRadius: 2,
                     p: 1.5,
                     mb: 2.5,
@@ -653,7 +837,8 @@ const Cart = () => {
                   <Box
                     sx={{
                       display: "flex",
-                      alignItems: "center",
+                      alignItems:
+                        "center",
                       gap: 0.8,
                       mb: 1.2,
                     }}
@@ -661,7 +846,7 @@ const Cart = () => {
                     <LocalOfferOutlinedIcon
                       sx={{
                         fontSize: 19,
-                        color: "#B61ECA",
+                        color: accent,
                       }}
                     />
 
@@ -669,7 +854,7 @@ const Cart = () => {
                       sx={{
                         fontSize: 13,
                         fontWeight: 700,
-                        color: "#171717",
+                        color: primaryText,
                       }}
                     >
                       Have a coupon?
@@ -687,17 +872,65 @@ const Cart = () => {
                       placeholder="Enter code"
                       fullWidth
                       sx={{
-                        "& .MuiOutlinedInput-root": {
-                          backgroundColor: "#FFFFFF",
-                          borderRadius: "6px",
-                          fontSize: 13,
-                        },
+                        "& .MuiOutlinedInput-root":
+                          {
+                            backgroundColor:
+                              isLuxuryMode
+                                ? "#181818"
+                                : "#FFFFFF",
+                            borderRadius:
+                              "6px",
+                            fontSize: 13,
+                            color: primaryText,
+
+                            "& fieldset": {
+                              borderColor:
+                                softBorder,
+                            },
+
+                            "&:hover fieldset":
+                              {
+                                borderColor:
+                                  accent,
+                              },
+
+                            "&.Mui-focused fieldset":
+                              {
+                                borderColor:
+                                  accent,
+                              },
+                          },
+
+                        "& .MuiInputBase-input":
+                          {
+                            color:
+                              primaryText,
+                          },
+
+                        "& .MuiInputBase-input::placeholder":
+                          {
+                            color:
+                              secondaryText,
+                            opacity: 1,
+                          },
                       }}
                     />
 
                     <CustomButton
                       fullWidth={false}
                       variant="outlined"
+                      sx={{
+                        borderColor: accent,
+                        color: accent,
+                        "&:hover": {
+                          borderColor:
+                            accentHover,
+                          backgroundColor:
+                            isLuxuryMode
+                              ? "rgba(200,169,107,0.08)"
+                              : "rgba(182,30,202,0.06)",
+                        },
+                      }}
                     >
                       Apply
                     </CustomButton>
@@ -707,15 +940,17 @@ const Cart = () => {
                 <Divider
                   sx={{
                     my: 2.5,
-                    borderColor: "#E8DCEB",
+                    borderColor: border,
                   }}
                 />
 
                 {/* Total */}
+
                 <Box
                   sx={{
                     display: "flex",
-                    justifyContent: "space-between",
+                    justifyContent:
+                      "space-between",
                     alignItems: "center",
                     mb: 3,
                   }}
@@ -724,7 +959,7 @@ const Cart = () => {
                     sx={{
                       fontSize: 17,
                       fontWeight: 800,
-                      color: "#171717",
+                      color: primaryText,
                     }}
                   >
                     Total
@@ -734,15 +969,33 @@ const Cart = () => {
                     sx={{
                       fontSize: 22,
                       fontWeight: 800,
-                      color: "#B61ECA",
+                      color: accent,
                     }}
                   >
-                    ₹{cartTotal.toLocaleString("en-IN")}
+                    ₹
+                    {cartTotal.toLocaleString(
+                      "en-IN"
+                    )}
                   </Typography>
                 </Box>
 
                 <CustomButton
-                  onClick={() => navigate("/checkout")}
+                  onClick={() =>
+                    navigate("/checkout")
+                  }
+                  sx={{
+                    backgroundColor: accent,
+                    color: isLuxuryMode
+                      ? "#171717"
+                      : "#FFFFFF",
+                    "&:hover": {
+                      backgroundColor:
+                        accentHover,
+                      color: isLuxuryMode
+                        ? "#171717"
+                        : "#FFFFFF",
+                    },
+                  }}
                 >
                   Proceed to Checkout
                 </CustomButton>
@@ -750,31 +1003,40 @@ const Cart = () => {
                 <Typography
                   sx={{
                     textAlign: "center",
-                    color: "#888",
+                    color: isLuxuryMode
+                      ? "#888888"
+                      : "#888888",
                     fontSize: 11,
                     mt: 2,
                   }}
                 >
-                  Secure checkout • Easy returns • Trusted payments
+                  Secure checkout • Easy returns
+                  • Trusted payments
                 </Typography>
               </Box>
             </Box>
           </Grid>
         </Grid>
 
-        {/* Complete Your Look */}
+        {/* =========================
+            COMPLETE YOUR LOOK
+        ========================= */}
+
         <Box
           sx={{
             mt: 4,
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
-            p: { xs: 2, sm: 3 },
+            p: {
+              xs: 2,
+              sm: 3,
+            },
           }}
         >
           <Typography
             sx={{
-              color: "#B61ECA",
+              color: accent,
               fontSize: 12,
               fontWeight: 800,
               letterSpacing: "1.5px",
@@ -786,9 +1048,12 @@ const Cart = () => {
 
           <Typography
             sx={{
-              fontSize: { xs: 21, md: 25 },
+              fontSize: {
+                xs: 21,
+                md: 25,
+              },
               fontWeight: 800,
-              color: "#171717",
+              color: primaryText,
               mb: 0.5,
             }}
           >
@@ -797,12 +1062,13 @@ const Cart = () => {
 
           <Typography
             sx={{
-              color: "#6B6B6B",
+              color: secondaryText,
               fontSize: 13,
               mb: 3,
             }}
           >
-            Discover more styles that pair perfectly with your bag.
+            Discover more styles that pair
+            perfectly with your bag.
           </Typography>
 
           <Box
@@ -815,77 +1081,107 @@ const Cart = () => {
               gap: 2,
             }}
           >
-            {cartItems.slice(0, 4).map((item) => (
-              <Box
-                key={`suggestion-${item._id || item.id}`}
-                onClick={() =>
-                  navigate("/product-details", {
-                    state: { product: item },
-                  })
-                }
-                sx={{
-                  cursor: "pointer",
-                  border: "1px solid #E8DCEB",
-                  borderRadius: 2,
-                  overflow: "hidden",
-                  transition: "0.25s ease",
-                  "&:hover": {
-                    transform: "translateY(-4px)",
-                    boxShadow:
-                      "0 8px 20px rgba(182,30,202,0.12)",
-                  },
-                }}
-              >
+            {cartItems
+              .slice(0, 4)
+              .map((item) => (
                 <Box
-                  component="img"
-                  src={item.image}
-                  alt={item.name}
+                  key={`suggestion-${
+                    item._id || item.id
+                  }`}
+                  onClick={() =>
+                    navigate(
+                      "/product-details",
+                      {
+                        state: {
+                          product: item,
+                        },
+                      }
+                    )
+                  }
                   sx={{
-                    width: "100%",
-                    height: { xs: 170, sm: 220 },
-                    objectFit: "cover",
-                    display: "block",
+                    cursor: "pointer",
+                    border: `1px solid ${border}`,
+                    borderRadius: 2,
+                    overflow: "hidden",
+                    backgroundColor:
+                      cardBackground,
+                    transition:
+                      "box-shadow 0.25s ease, transform 0.25s ease",
+
+                    "@media (hover: hover)":
+                      {
+                        "&:hover": {
+                          transform:
+                            "translateY(-4px)",
+                          boxShadow:
+                            isLuxuryMode
+                              ? "0 8px 20px rgba(0,0,0,0.35)"
+                              : "0 8px 20px rgba(182,30,202,0.12)",
+                        },
+                      },
                   }}
-                />
-
-                <Box sx={{ p: 1.5 }}>
-                  <Typography
+                >
+                  <Box
+                    component="img"
+                    src={item.image}
+                    alt={item.name}
+                    loading="lazy"
                     sx={{
-                      color: "#B61ECA",
-                      fontSize: 10,
-                      fontWeight: 800,
-                      mb: 0.3,
+                      width: "100%",
+                      height: {
+                        xs: 170,
+                        sm: 220,
+                      },
+                      objectFit: "cover",
+                      display: "block",
+                      backgroundColor:
+                        imageBackground,
                     }}
-                  >
-                    {item.brand}
-                  </Typography>
+                  />
 
-                  <Typography
-                    sx={{
-                      fontSize: 13,
-                      fontWeight: 700,
-                      color: "#171717",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis",
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
+                  <Box sx={{ p: 1.5 }}>
+                    <Typography
+                      sx={{
+                        color: accent,
+                        fontSize: 10,
+                        fontWeight: 800,
+                        mb: 0.3,
+                      }}
+                    >
+                      {item.brand}
+                    </Typography>
 
-                  <Typography
-                    sx={{
-                      fontSize: 14,
-                      fontWeight: 800,
-                      color: "#171717",
-                      mt: 0.7,
-                    }}
-                  >
-                    ₹{item.price.toLocaleString("en-IN")}
-                  </Typography>
+                    <Typography
+                      sx={{
+                        fontSize: 13,
+                        fontWeight: 700,
+                        color: primaryText,
+                        whiteSpace:
+                          "nowrap",
+                        overflow: "hidden",
+                        textOverflow:
+                          "ellipsis",
+                      }}
+                    >
+                      {item.name}
+                    </Typography>
+
+                    <Typography
+                      sx={{
+                        fontSize: 14,
+                        fontWeight: 800,
+                        color: primaryText,
+                        mt: 0.7,
+                      }}
+                    >
+                      ₹
+                      {item.price.toLocaleString(
+                        "en-IN"
+                      )}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-            ))}
+              ))}
           </Box>
         </Box>
       </Box>

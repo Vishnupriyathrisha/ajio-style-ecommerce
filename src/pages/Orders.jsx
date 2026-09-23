@@ -22,11 +22,33 @@ import CreditCardOutlinedIcon from "@mui/icons-material/CreditCard";
 import AccessTimeOutlinedIcon from "@mui/icons-material/AccessTimeOutlined";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 
+import { useThemeMode } from "../context/ThemeContext";
+
 const Orders = () => {
   const navigate = useNavigate();
 
+  const { isLuxuryMode } = useThemeMode();
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // --------------------------------------------------
+  // THEME COLORS
+  // --------------------------------------------------
+
+  const pageBackground = isLuxuryMode ? "#0F0F0F" : "#F9F2FA";
+  const cardBackground = isLuxuryMode ? "#1A1A1A" : "#FFFFFF";
+  const sectionBackground = isLuxuryMode ? "#151515" : "#FAF6FB";
+  const softBackground = isLuxuryMode ? "#202020" : "#F3E3F6";
+
+  const primaryText = isLuxuryMode ? "#FFFFFF" : "#171717";
+  const secondaryText = isLuxuryMode ? "#BDBDBD" : "#6B6B6B";
+
+  const accent = isLuxuryMode ? "#C8A96B" : "#B61ECA";
+  const accentHover = isLuxuryMode ? "#E0C080" : "#9615A8";
+
+  const border = isLuxuryMode ? "#333333" : "#E8DCEB";
+  const softBorder = isLuxuryMode ? "#444444" : "#D9C7DC";
 
   // --------------------------------------------------
   // FETCH ORDERS
@@ -98,9 +120,13 @@ const Orders = () => {
 
       case "Confirmed":
         return {
-          color: "#B61ECA",
-          background: "#FAF1FC",
-          border: "#E8C9ED",
+          color: accent,
+          background: isLuxuryMode
+            ? "rgba(200,169,107,0.10)"
+            : "#FAF1FC",
+          border: isLuxuryMode
+            ? "rgba(200,169,107,0.35)"
+            : "#E8C9ED",
         };
 
       case "Cancelled":
@@ -275,7 +301,7 @@ const Orders = () => {
               right: "8%",
               top: 15,
               height: 2,
-              backgroundColor: "#E8DCEB",
+              backgroundColor: softBorder,
             }}
           />
 
@@ -295,7 +321,7 @@ const Orders = () => {
                   : "84%",
               top: 15,
               height: 2,
-              backgroundColor: "#B61ECA",
+              backgroundColor: accent,
               transition: "0.3s ease",
             }}
           />
@@ -328,19 +354,25 @@ const Orders = () => {
                     height: 32,
                     borderRadius: "50%",
                     backgroundColor: active
-                      ? "#B61ECA"
-                      : "#FFFFFF",
+                      ? accent
+                      : cardBackground,
                     border: active
-                      ? "2px solid #B61ECA"
-                      : "2px solid #E8DCEB",
+                      ? `2px solid ${accent}`
+                      : `2px solid ${border}`,
                     color: active
-                      ? "#FFFFFF"
-                      : "#AAA",
+                      ? isLuxuryMode
+                        ? "#171717"
+                        : "#FFFFFF"
+                      : isLuxuryMode
+                      ? "#777777"
+                      : "#AAAAAA",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     boxShadow: active
-                      ? "0 4px 12px rgba(182,30,202,0.18)"
+                      ? isLuxuryMode
+                        ? "0 4px 12px rgba(200,169,107,0.18)"
+                        : "0 4px 12px rgba(182,30,202,0.18)"
                       : "none",
                   }}
                 >
@@ -356,7 +388,9 @@ const Orders = () => {
                         width: 7,
                         height: 7,
                         borderRadius: "50%",
-                        backgroundColor: "#D7D7D7",
+                        backgroundColor: isLuxuryMode
+                          ? "#555555"
+                          : "#D7D7D7",
                       }}
                     />
                   )}
@@ -374,8 +408,10 @@ const Orders = () => {
                       ? 800
                       : 600,
                     color: active
-                      ? "#171717"
-                      : "#999",
+                      ? primaryText
+                      : isLuxuryMode
+                      ? "#777777"
+                      : "#999999",
                     mt: 0.8,
                     textAlign: "center",
                   }}
@@ -399,7 +435,7 @@ const Orders = () => {
       <Box
         sx={{
           minHeight: "70vh",
-          backgroundColor: "#F9F2FA",
+          backgroundColor: pageBackground,
           display: "flex",
           flexDirection: "column",
           justifyContent: "center",
@@ -411,13 +447,13 @@ const Orders = () => {
           size={36}
           thickness={4}
           sx={{
-            color: "#B61ECA",
+            color: accent,
           }}
         />
 
         <Typography
           sx={{
-            color: "#6B6B6B",
+            color: secondaryText,
             fontSize: 14,
           }}
         >
@@ -436,7 +472,7 @@ const Orders = () => {
       <Box
         sx={{
           minHeight: "70vh",
-          backgroundColor: "#F9F2FA",
+          backgroundColor: pageBackground,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
@@ -448,8 +484,8 @@ const Orders = () => {
           sx={{
             width: "100%",
             maxWidth: 540,
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             textAlign: "center",
             px: {
@@ -464,8 +500,8 @@ const Orders = () => {
               width: 86,
               height: 86,
               borderRadius: "50%",
-              backgroundColor: "#F3E3F6",
-              color: "#B61ECA",
+              backgroundColor: softBackground,
+              color: accent,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -482,7 +518,7 @@ const Orders = () => {
 
           <Typography
             sx={{
-              color: "#B61ECA",
+              color: accent,
               fontSize: 12,
               fontWeight: 800,
               letterSpacing: "2px",
@@ -494,7 +530,7 @@ const Orders = () => {
 
           <Typography
             sx={{
-              color: "#171717",
+              color: primaryText,
               fontSize: {
                 xs: 27,
                 sm: 32,
@@ -508,7 +544,7 @@ const Orders = () => {
 
           <Typography
             sx={{
-              color: "#6B6B6B",
+              color: secondaryText,
               fontSize: 14,
               lineHeight: 1.7,
               mb: 3,
@@ -523,14 +559,20 @@ const Orders = () => {
             variant="contained"
             onClick={() => navigate("/products")}
             sx={{
-              backgroundColor: "#B61ECA",
+              backgroundColor: accent,
+              color: isLuxuryMode
+                ? "#171717"
+                : "#FFFFFF",
               textTransform: "none",
               fontWeight: 700,
               borderRadius: "6px",
               px: 3,
               py: 1.2,
               "&:hover": {
-                backgroundColor: "#9615A8",
+                backgroundColor: accentHover,
+                color: isLuxuryMode
+                  ? "#171717"
+                  : "#FFFFFF",
               },
             }}
           >
@@ -549,7 +591,7 @@ const Orders = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#F9F2FA",
+        backgroundColor: pageBackground,
         px: {
           xs: 2,
           sm: 3,
@@ -588,7 +630,7 @@ const Orders = () => {
           <Box>
             <Typography
               sx={{
-                color: "#B61ECA",
+                color: accent,
                 fontSize: 12,
                 fontWeight: 800,
                 letterSpacing: "2px",
@@ -600,7 +642,7 @@ const Orders = () => {
 
             <Typography
               sx={{
-                color: "#171717",
+                color: primaryText,
                 fontSize: {
                   xs: 29,
                   md: 36,
@@ -613,7 +655,7 @@ const Orders = () => {
 
             <Typography
               sx={{
-                color: "#6B6B6B",
+                color: secondaryText,
                 fontSize: 14,
                 mt: 0.5,
               }}
@@ -629,9 +671,9 @@ const Orders = () => {
               alignItems: "center",
               gap: 0.7,
               cursor: "pointer",
-              color: "#6B6B6B",
+              color: secondaryText,
               "&:hover": {
-                color: "#B61ECA",
+                color: accent,
               },
             }}
           >
@@ -658,8 +700,8 @@ const Orders = () => {
 
         <Box
           sx={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             px: {
               xs: 2,
@@ -677,8 +719,8 @@ const Orders = () => {
               width: 42,
               height: 42,
               borderRadius: 2,
-              backgroundColor: "#F3E3F6",
-              color: "#B61ECA",
+              backgroundColor: softBackground,
+              color: accent,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -690,7 +732,7 @@ const Orders = () => {
           <Box>
             <Typography
               sx={{
-                color: "#171717",
+                color: primaryText,
                 fontSize: 14,
                 fontWeight: 800,
               }}
@@ -703,7 +745,7 @@ const Orders = () => {
 
             <Typography
               sx={{
-                color: "#777",
+                color: secondaryText,
                 fontSize: 11,
               }}
             >
@@ -753,18 +795,20 @@ const Orders = () => {
               >
                 <Box
                   sx={{
-                    backgroundColor: "#FFFFFF",
-                    border:
-                      "1px solid #E8DCEB",
+                    backgroundColor: cardBackground,
+                    border: `1px solid ${border}`,
                     borderRadius: 3,
                     overflow: "hidden",
                     transition:
                       "transform 0.25s ease, box-shadow 0.25s ease",
-                    "&:hover": {
-                      transform:
-                        "translateY(-5px)",
-                      boxShadow:
-                        "0 14px 35px rgba(182,30,202,0.10)",
+                    "@media (hover: hover)": {
+                      "&:hover": {
+                        transform:
+                          "translateY(-5px)",
+                        boxShadow: isLuxuryMode
+                          ? "0 14px 35px rgba(0,0,0,0.35)"
+                          : "0 14px 35px rgba(182,30,202,0.10)",
+                      },
                     },
                   }}
                 >
@@ -779,9 +823,9 @@ const Orders = () => {
                         sm: 2.5,
                       },
                       backgroundColor:
-                        "#FAF6FB",
+                        sectionBackground,
                       borderBottom:
-                        "1px solid #E8DCEB",
+                        `1px solid ${border}`,
                     }}
                   >
                     <Box
@@ -801,7 +845,9 @@ const Orders = () => {
                       >
                         <Typography
                           sx={{
-                            color: "#888",
+                            color: isLuxuryMode
+                              ? "#888888"
+                              : "#888888",
                             fontSize: 10,
                             fontWeight: 700,
                             letterSpacing:
@@ -814,7 +860,7 @@ const Orders = () => {
 
                         <Typography
                           sx={{
-                            color: "#171717",
+                            color: primaryText,
                             fontSize: 12,
                             fontWeight: 700,
                             wordBreak:
@@ -827,7 +873,7 @@ const Orders = () => {
 
                         <Typography
                           sx={{
-                            color: "#888",
+                            color: secondaryText,
                             fontSize: 10,
                             mt: 0.7,
                           }}
@@ -879,7 +925,7 @@ const Orders = () => {
                   >
                     <Typography
                       sx={{
-                        color: "#171717",
+                        color: primaryText,
                         fontSize: 13,
                         fontWeight: 800,
                         mb: 1.5,
@@ -891,7 +937,7 @@ const Orders = () => {
                     {visibleItems.length === 0 ? (
                       <Typography
                         sx={{
-                          color: "#777",
+                          color: secondaryText,
                           fontSize: 12,
                           py: 2,
                         }}
@@ -946,7 +992,7 @@ const Orders = () => {
                                   overflow:
                                     "hidden",
                                   backgroundColor:
-                                    "#F3E3F6",
+                                    softBackground,
                                   flexShrink: 0,
                                 }}
                               >
@@ -978,7 +1024,7 @@ const Orders = () => {
                                       justifyContent:
                                         "center",
                                       color:
-                                        "#B61ECA",
+                                        accent,
                                     }}
                                   >
                                     <ShoppingBagOutlinedIcon />
@@ -996,8 +1042,7 @@ const Orders = () => {
                               >
                                 <Typography
                                   sx={{
-                                    color:
-                                      "#B61ECA",
+                                    color: accent,
                                     fontSize: 10,
                                     fontWeight: 800,
                                     letterSpacing:
@@ -1012,7 +1057,7 @@ const Orders = () => {
                                 <Typography
                                   sx={{
                                     color:
-                                      "#171717",
+                                      primaryText,
                                     fontSize: 14,
                                     fontWeight: 700,
                                     lineHeight:
@@ -1032,7 +1077,7 @@ const Orders = () => {
                                 <Typography
                                   sx={{
                                     color:
-                                      "#777",
+                                      secondaryText,
                                     fontSize: 11,
                                     mt: 0.6,
                                   }}
@@ -1044,7 +1089,7 @@ const Orders = () => {
                                 <Typography
                                   sx={{
                                     color:
-                                      "#171717",
+                                      primaryText,
                                     fontSize: 14,
                                     fontWeight: 800,
                                     mt: 0.7,
@@ -1072,8 +1117,10 @@ const Orders = () => {
                           alignItems:
                             "center",
                           backgroundColor:
-                            "#F8F1FA",
-                          color: "#B61ECA",
+                            isLuxuryMode
+                              ? "rgba(200,169,107,0.10)"
+                              : "#F8F1FA",
+                          color: accent,
                           borderRadius: 5,
                           px: 1.3,
                           py: 0.5,
@@ -1097,8 +1144,7 @@ const Orders = () => {
                     <Divider
                       sx={{
                         my: 2,
-                        borderColor:
-                          "#E8DCEB",
+                        borderColor: border,
                       }}
                     />
 
@@ -1131,14 +1177,13 @@ const Orders = () => {
                           <CreditCardOutlinedIcon
                             sx={{
                               fontSize: 16,
-                              color:
-                                "#B61ECA",
+                              color: accent,
                             }}
                           />
 
                           <Typography
                             sx={{
-                              color: "#888",
+                              color: "#888888",
                               fontSize: 10,
                               fontWeight: 700,
                             }}
@@ -1149,7 +1194,7 @@ const Orders = () => {
 
                         <Typography
                           sx={{
-                            color: "#171717",
+                            color: primaryText,
                             fontSize: 13,
                             fontWeight: 800,
                           }}
@@ -1165,7 +1210,7 @@ const Orders = () => {
                                 order.paymentStatus ===
                                 "Paid"
                                   ? "#2E7D5B"
-                                  : "#777",
+                                  : secondaryText,
                               fontSize: 10,
                               fontWeight: 700,
                               mt: 0.2,
@@ -1185,7 +1230,7 @@ const Orders = () => {
                       >
                         <Typography
                           sx={{
-                            color: "#888",
+                            color: "#888888",
                             fontSize: 10,
                             fontWeight: 700,
                             mb: 0.5,
@@ -1196,8 +1241,7 @@ const Orders = () => {
 
                         <Typography
                           sx={{
-                            color:
-                              "#B61ECA",
+                            color: accent,
                             fontSize: 20,
                             fontWeight: 800,
                           }}
@@ -1238,9 +1282,8 @@ const Orders = () => {
                       disabled={!orderId}
                       sx={{
                         mt: 2.5,
-                        borderColor:
-                          "#B61ECA",
-                        color: "#B61ECA",
+                        borderColor: accent,
+                        color: accent,
                         textTransform:
                           "none",
                         fontWeight: 800,
@@ -1248,10 +1291,12 @@ const Orders = () => {
                         py: 1.1,
                         "&:hover": {
                           borderColor:
-                            "#9615A8",
-                          color: "#9615A8",
+                            accentHover,
+                          color: accentHover,
                           backgroundColor:
-                            "#FAF1FC",
+                            isLuxuryMode
+                              ? "rgba(200,169,107,0.08)"
+                              : "#FAF1FC",
                         },
                       }}
                     >

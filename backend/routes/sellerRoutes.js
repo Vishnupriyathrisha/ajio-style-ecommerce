@@ -2,6 +2,8 @@ const express = require("express");
 
 const { registerSeller,
         loginSeller,
+        getSellerProfile,
+        updateSellerProfile,
         getSellerDashboard,
         getSellerProducts,
         createSellerProduct,
@@ -11,18 +13,79 @@ const { registerSeller,
 
  const sellerProtect = require("../middleware/sellerAuthMiddleware");
 
+ const {
+  sellerRegisterValidation,
+  sellerLoginValidation,
+  sellerProfileValidation,
+  sellerProductValidation,
+  sellerProductIdValidation,
+  validateRequest,
+} = require("../middleware/validationMiddleware");
+
 const router = express.Router();
 
-// Seller Register
-router.post("/register", registerSeller);
-// Seller Login
-router.post("/login", loginSeller);
-// Seller Dashboard
-router.get("/dashboard", sellerProtect, getSellerDashboard);
-// Seller Products
-router.get("/products", sellerProtect, getSellerProducts);
-//create SellerProduct
-router.post( "/products", sellerProtect, createSellerProduct);
-router.put("/products/:id",sellerProtect,updateSellerProduct);
-router.delete( "/products/:id", sellerProtect, deleteSellerProduct);
+router.post(
+  "/register",
+  sellerRegisterValidation,
+  validateRequest,
+  registerSeller
+);
+
+router.post(
+  "/login",
+  sellerLoginValidation,
+  validateRequest,
+  loginSeller
+);
+
+router.get(
+  "/profile",
+  sellerProtect,
+  getSellerProfile
+);
+
+router.put(
+  "/profile",
+  sellerProtect,
+  sellerProfileValidation,
+  validateRequest,
+  updateSellerProfile
+);
+
+router.get(
+  "/dashboard",
+  sellerProtect,
+  getSellerDashboard
+);
+
+router.get(
+  "/products",
+  sellerProtect,
+  getSellerProducts
+);
+
+router.post(
+  "/products",
+  sellerProtect,
+  sellerProductValidation,
+  validateRequest,
+  createSellerProduct
+);
+
+router.put(
+  "/products/:id",
+  sellerProtect,
+  sellerProductIdValidation,
+  sellerProductValidation,
+  validateRequest,
+  updateSellerProduct
+);
+
+router.delete(
+  "/products/:id",
+  sellerProtect,
+  sellerProductIdValidation,
+  validateRequest,
+  deleteSellerProduct
+);
 module.exports = router;

@@ -6,10 +6,28 @@ const {
   createProduct,
 } = require("../controllers/productController");
 
+const {
+  productValidation,
+  productIdValidation,
+  validateRequest,
+} = require("../middleware/validationMiddleware");
+
 const router = express.Router();
 
 router.get("/", getProducts);
-router.get("/:id", getProductById);
-router.post("/", createProduct);
+
+router.get(
+  "/:id",
+  productIdValidation,
+  validateRequest,
+  getProductById
+);
+
+router.post(
+  "/",
+  productValidation,
+  validateRequest,
+  createProduct
+);
 
 module.exports = router;

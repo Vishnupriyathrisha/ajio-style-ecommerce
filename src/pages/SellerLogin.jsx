@@ -8,9 +8,31 @@ import Alert from "@mui/material/Alert";
 import CustomInput from "../components/common/CustomInput";
 import CustomButton from "../components/common/CustomButton";
 import api from "../services/api";
+import { useThemeMode } from "../context/ThemeContext";
 
 const SellerLogin = () => {
   const navigate = useNavigate();
+
+  const { isLuxuryMode } = useThemeMode();
+
+  // =========================
+  // THEME COLORS
+  // =========================
+
+  const pageBackground = isLuxuryMode ? "#0F0F0F" : "#F9F2FA";
+  const cardBackground = isLuxuryMode ? "#1A1A1A" : "#FFFFFF";
+
+  const primaryText = isLuxuryMode ? "#FFFFFF" : "#171717";
+  const secondaryText = isLuxuryMode ? "#BDBDBD" : "#6B6B6B";
+
+  const accent = isLuxuryMode ? "#C8A96B" : "#B61ECA";
+  const accentHover = isLuxuryMode ? "#E0C080" : "#9615A8";
+
+  const border = isLuxuryMode ? "#333333" : "#E8DCEB";
+
+  const boxShadow = isLuxuryMode
+    ? "0 12px 35px rgba(0, 0, 0, 0.40)"
+    : "0 12px 35px rgba(182, 30, 202, 0.10)";
 
   const [formData, setFormData] = useState({
     email: "",
@@ -24,7 +46,10 @@ const SellerLogin = () => {
     message: "",
   });
 
-  // Handle input changes
+  // =========================
+  // HANDLE INPUT CHANGES
+  // =========================
+
   const handleChange = (event) => {
     const { name, value } = event.target;
 
@@ -34,7 +59,10 @@ const SellerLogin = () => {
     }));
   };
 
-  // Handle seller login
+  // =========================
+  // HANDLE SELLER LOGIN
+  // =========================
+
   const handleSubmit = async (event) => {
     event.preventDefault();
 
@@ -55,7 +83,7 @@ const SellerLogin = () => {
     try {
       setLoading(true);
 
-      // Remove old seller session before creating a new one
+      // Remove old seller session
       localStorage.removeItem("sellerToken");
       localStorage.removeItem("seller");
 
@@ -75,13 +103,13 @@ const SellerLogin = () => {
         return;
       }
 
-      // Save new seller information
+      // Save seller information
       localStorage.setItem(
         "seller",
         JSON.stringify(response.data.seller)
       );
 
-      // Save new seller JWT token
+      // Save seller JWT token
       localStorage.setItem(
         "sellerToken",
         response.data.token
@@ -127,30 +155,33 @@ const SellerLogin = () => {
     <Box
       sx={{
         minHeight: "calc(100vh - 76px)",
-        background: "#F9F2FA",
+        backgroundColor: pageBackground,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         px: 2,
         py: 5,
+        transition: "background-color 0.3s ease",
       }}
     >
       <Box
         sx={{
           width: "100%",
           maxWidth: 450,
-          backgroundColor: "#fff",
-          border: "1px solid #E8DCEB",
+          backgroundColor: cardBackground,
+          border: `1px solid ${border}`,
           borderRadius: "12px",
-          boxShadow:
-            "0 12px 35px rgba(182, 30, 202, 0.10)",
+          boxShadow,
           p: {
             xs: 3,
             sm: 5,
           },
+          transition:
+            "background-color 0.3s ease, border-color 0.3s ease",
         }}
       >
         {/* Heading */}
+
         <Box
           sx={{
             textAlign: "center",
@@ -164,7 +195,7 @@ const SellerLogin = () => {
                 sm: 32,
               },
               fontWeight: 800,
-              color: "#171717",
+              color: primaryText,
               mb: 1,
             }}
           >
@@ -174,7 +205,7 @@ const SellerLogin = () => {
           <Typography
             sx={{
               fontSize: 14,
-              color: "#6B6B6B",
+              color: secondaryText,
             }}
           >
             Login to manage your store and products.
@@ -182,6 +213,7 @@ const SellerLogin = () => {
         </Box>
 
         {/* Alert */}
+
         {alert.message && (
           <Alert
             severity={alert.type}
@@ -195,6 +227,7 @@ const SellerLogin = () => {
         )}
 
         {/* Login Form */}
+
         <Box
           component="form"
           onSubmit={handleSubmit}
@@ -205,6 +238,7 @@ const SellerLogin = () => {
           }}
         >
           {/* Email */}
+
           <CustomInput
             label="Email"
             name="email"
@@ -216,6 +250,7 @@ const SellerLogin = () => {
           />
 
           {/* Password */}
+
           <CustomInput
             label="Password"
             name="password"
@@ -227,10 +262,21 @@ const SellerLogin = () => {
           />
 
           {/* Login Button */}
+
           <Box sx={{ mt: 1 }}>
             <CustomButton
               type="submit"
               disabled={loading}
+              sx={{
+                backgroundColor: accent,
+                color: isLuxuryMode
+                  ? "#171717"
+                  : "#FFFFFF",
+
+                "&:hover": {
+                  backgroundColor: accentHover,
+                },
+              }}
             >
               {loading
                 ? "Logging in..."
@@ -239,10 +285,11 @@ const SellerLogin = () => {
           </Box>
 
           {/* Register Link */}
+
           <Typography
             sx={{
               textAlign: "center",
-              color: "#6B6B6B",
+              color: secondaryText,
               fontSize: 14,
               mt: 1,
             }}
@@ -251,7 +298,7 @@ const SellerLogin = () => {
             <Link
               to="/seller/register"
               style={{
-                color: "#B61ECA",
+                color: accent,
                 fontWeight: 700,
                 textDecoration: "none",
               }}

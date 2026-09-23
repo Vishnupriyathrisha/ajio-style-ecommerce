@@ -33,9 +33,28 @@ import { useCart } from "../context/CartContext";
 import CustomInput from "../components/common/CustomInput";
 import CustomButton from "../components/common/CustomButton";
 import api from "../services/api";
+import { useThemeMode } from "../context/ThemeContext";
 
 const Checkout = () => {
   const navigate = useNavigate();
+
+  const { isLuxuryMode } = useThemeMode();
+
+  const pageBackground = isLuxuryMode ? "#0F0F0F" : "#F9F2FA";
+  const cardBackground = isLuxuryMode ? "#1A1A1A" : "#FFFFFF";
+  const sectionBackground = isLuxuryMode ? "#151515" : "#FAF6FB";
+  const softBackground = isLuxuryMode ? "#202020" : "#F8F2FA";
+  const selectedBackground = isLuxuryMode
+    ? "rgba(200,169,107,0.10)"
+    : "#FAF1FC";
+  const imageBackground = isLuxuryMode ? "#242424" : "#F3E3F6";
+  const securityBackground = isLuxuryMode ? "#202020" : "#F8F8F8";
+  const primaryText = isLuxuryMode ? "#FFFFFF" : "#171717";
+  const secondaryText = isLuxuryMode ? "#BDBDBD" : "#6B6B6B";
+  const mutedText = isLuxuryMode ? "#999999" : "#777777";
+  const accent = isLuxuryMode ? "#C8A96B" : "#B61ECA";
+  const accentHover = isLuxuryMode ? "#E0C080" : "#9615A8";
+  const border = isLuxuryMode ? "#333333" : "#E8DCEB";
 
   const {
     cartItems,
@@ -370,7 +389,7 @@ const Checkout = () => {
         },
 
         theme: {
-          color: "#B61ECA",
+          color: accent,
         },
       };
 
@@ -411,7 +430,7 @@ const Checkout = () => {
       <Box
         sx={{
           minHeight: "70vh",
-          backgroundColor: "#F9F2FA",
+          backgroundColor: pageBackground,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -423,8 +442,8 @@ const Checkout = () => {
           sx={{
             width: "100%",
             maxWidth: 520,
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             textAlign: "center",
             px: { xs: 3, md: 5 },
@@ -436,8 +455,8 @@ const Checkout = () => {
               width: 80,
               height: 80,
               borderRadius: "50%",
-              backgroundColor: "#F3E3F6",
-              color: "#B61ECA",
+              backgroundColor: imageBackground,
+              color: accent,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -452,7 +471,7 @@ const Checkout = () => {
             variant="h4"
             sx={{
               fontWeight: 800,
-              color: "#171717",
+              color: primaryText,
               mb: 1.5,
             }}
           >
@@ -461,7 +480,7 @@ const Checkout = () => {
 
           <Typography
             sx={{
-              color: "#6B6B6B",
+              color: secondaryText,
               fontSize: 14,
               lineHeight: 1.7,
               mb: 3.5,
@@ -474,6 +493,13 @@ const Checkout = () => {
           <CustomButton
             fullWidth={false}
             onClick={() => navigate("/products")}
+            sx={{
+              backgroundColor: accent,
+              color: isLuxuryMode ? "#171717" : "#FFFFFF",
+              "&:hover": {
+                backgroundColor: accentHover,
+              },
+            }}
           >
             Continue Shopping
           </CustomButton>
@@ -490,7 +516,7 @@ const Checkout = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#F9F2FA",
+        backgroundColor: pageBackground,
         px: {
           xs: 2,
           sm: 3,
@@ -527,7 +553,7 @@ const Checkout = () => {
           <Box>
             <Typography
               sx={{
-                color: "#B61ECA",
+                color: accent,
                 fontSize: 12,
                 fontWeight: 800,
                 letterSpacing: "2px",
@@ -540,7 +566,7 @@ const Checkout = () => {
             <Typography
               variant="h4"
               sx={{
-                color: "#171717",
+                color: primaryText,
                 fontWeight: 800,
                 fontSize: {
                   xs: 28,
@@ -553,7 +579,7 @@ const Checkout = () => {
 
             <Typography
               sx={{
-                color: "#6B6B6B",
+                color: secondaryText,
                 fontSize: 14,
                 mt: 0.5,
               }}
@@ -569,9 +595,9 @@ const Checkout = () => {
               alignItems: "center",
               gap: 0.7,
               cursor: "pointer",
-              color: "#6B6B6B",
+              color: secondaryText,
               "&:hover": {
-                color: "#B61ECA",
+                color: accent,
               },
             }}
           >
@@ -592,8 +618,8 @@ const Checkout = () => {
 
         <Box
           sx={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             p: {
               xs: 2,
@@ -617,7 +643,7 @@ const Checkout = () => {
                 right: "8%",
                 top: 18,
                 height: 2,
-                backgroundColor: "#E8DCEB",
+                backgroundColor: border,
               }}
             />
 
@@ -652,15 +678,16 @@ const Checkout = () => {
                     width: 36,
                     height: 36,
                     borderRadius: "50%",
-                    backgroundColor: "#B61ECA",
-                    color: "#FFFFFF",
+                    backgroundColor: accent,
+                    color: isLuxuryMode ? "#171717" : "#FFFFFF",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     fontSize: 13,
                     fontWeight: 800,
-                    boxShadow:
-                      "0 4px 12px rgba(182,30,202,0.25)",
+                    boxShadow: isLuxuryMode
+                      ? "0 4px 12px rgba(200,169,107,0.18)"
+                      : "0 4px 12px rgba(182,30,202,0.25)",
                   }}
                 >
                   <CheckCircleIcon sx={{ fontSize: 20 }} />
@@ -673,7 +700,7 @@ const Checkout = () => {
                       sm: 12,
                     },
                     fontWeight: 700,
-                    color: "#171717",
+                    color: primaryText,
                   }}
                 >
                   {step.title}
@@ -694,8 +721,8 @@ const Checkout = () => {
             <Paper
               elevation={0}
               sx={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E8DCEB",
+                backgroundColor: cardBackground,
+                border: `1px solid ${border}`,
                 borderRadius: 3,
                 overflow: "hidden",
                 mb: 3,
@@ -708,8 +735,8 @@ const Checkout = () => {
                     sm: 3,
                   },
                   py: 2.2,
-                  backgroundColor: "#FAF6FB",
-                  borderBottom: "1px solid #E8DCEB",
+                  backgroundColor: sectionBackground,
+                  borderBottom: `1px solid ${border}`,
                   display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
@@ -719,7 +746,7 @@ const Checkout = () => {
                 <Box>
                   <Typography
                     sx={{
-                      color: "#171717",
+                      color: primaryText,
                       fontWeight: 800,
                       fontSize: 17,
                     }}
@@ -729,7 +756,7 @@ const Checkout = () => {
 
                   <Typography
                     sx={{
-                      color: "#777",
+                      color: mutedText,
                       fontSize: 12,
                       mt: 0.3,
                     }}
@@ -740,7 +767,7 @@ const Checkout = () => {
 
                 <LocationOnOutlinedIcon
                   sx={{
-                    color: "#B61ECA",
+                    color: accent,
                     fontSize: 25,
                   }}
                 />
@@ -760,7 +787,7 @@ const Checkout = () => {
                       mb: 2,
                       borderRadius: 5,
                       "& .MuiLinearProgress-bar": {
-                        backgroundColor: "#B61ECA",
+                        backgroundColor: accent,
                       },
                     }}
                   />
@@ -772,7 +799,7 @@ const Checkout = () => {
                   sx={{
                     fontSize: 13,
                     fontWeight: 800,
-                    color: "#171717",
+                    color: primaryText,
                     mb: 1.2,
                   }}
                 >
@@ -799,12 +826,12 @@ const Checkout = () => {
                     sx={{
                       border:
                         addressType === "home"
-                          ? "2px solid #B61ECA"
-                          : "1px solid #E8DCEB",
+                          ? `2px solid ${accent}`
+                          : `1px solid ${border}`,
                       backgroundColor:
                         addressType === "home"
-                          ? "#FAF1FC"
-                          : "#FFFFFF",
+                          ? selectedBackground
+                          : cardBackground,
                       borderRadius: 2,
                       p: 1.5,
                       cursor: "pointer",
@@ -815,7 +842,7 @@ const Checkout = () => {
                   >
                     <HomeOutlinedIcon
                       sx={{
-                        color: "#B61ECA",
+                        color: accent,
                         fontSize: 22,
                       }}
                     />
@@ -833,7 +860,7 @@ const Checkout = () => {
                       <Typography
                         sx={{
                           fontSize: 10,
-                          color: "#777",
+                          color: mutedText,
                         }}
                       >
                         Personal
@@ -850,12 +877,12 @@ const Checkout = () => {
                     sx={{
                       border:
                         addressType === "work"
-                          ? "2px solid #B61ECA"
-                          : "1px solid #E8DCEB",
+                          ? `2px solid ${accent}`
+                          : `1px solid ${border}`,
                       backgroundColor:
                         addressType === "work"
-                          ? "#FAF1FC"
-                          : "#FFFFFF",
+                          ? selectedBackground
+                          : cardBackground,
                       borderRadius: 2,
                       p: 1.5,
                       cursor: "pointer",
@@ -866,7 +893,7 @@ const Checkout = () => {
                   >
                     <WorkOutlineOutlinedIcon
                       sx={{
-                        color: "#B61ECA",
+                        color: accent,
                         fontSize: 22,
                       }}
                     />
@@ -884,7 +911,7 @@ const Checkout = () => {
                       <Typography
                         sx={{
                           fontSize: 10,
-                          color: "#777",
+                          color: mutedText,
                         }}
                       >
                         Office
@@ -901,12 +928,12 @@ const Checkout = () => {
                     sx={{
                       border:
                         addressType === "other"
-                          ? "2px solid #B61ECA"
-                          : "1px solid #E8DCEB",
+                          ? `2px solid ${accent}`
+                          : `1px solid ${border}`,
                       backgroundColor:
                         addressType === "other"
-                          ? "#FAF1FC"
-                          : "#FFFFFF",
+                          ? selectedBackground
+                          : cardBackground,
                       borderRadius: 2,
                       p: 1.5,
                       cursor: "pointer",
@@ -920,7 +947,7 @@ const Checkout = () => {
                   >
                     <LocationOnOutlinedIcon
                       sx={{
-                        color: "#B61ECA",
+                        color: accent,
                         fontSize: 22,
                       }}
                     />
@@ -938,7 +965,7 @@ const Checkout = () => {
                       <Typography
                         sx={{
                           fontSize: 10,
-                          color: "#777",
+                          color: mutedText,
                         }}
                       >
                         Other place
@@ -1032,8 +1059,8 @@ const Checkout = () => {
                     mt: 2.5,
                     p: 1.8,
                     borderRadius: 2,
-                    backgroundColor: "#F8F2FA",
-                    border: "1px solid #E8DCEB",
+                    backgroundColor: softBackground,
+                    border: `1px solid ${border}`,
                     display: "flex",
                     alignItems: "center",
                     gap: 1.2,
@@ -1041,7 +1068,7 @@ const Checkout = () => {
                 >
                   <LocalShippingOutlinedIcon
                     sx={{
-                      color: "#B61ECA",
+                      color: accent,
                       fontSize: 22,
                     }}
                   />
@@ -1051,7 +1078,7 @@ const Checkout = () => {
                       sx={{
                         fontSize: 12,
                         fontWeight: 800,
-                        color: "#171717",
+                        color: primaryText,
                       }}
                     >
                       Delivery Estimate
@@ -1060,7 +1087,7 @@ const Checkout = () => {
                     <Typography
                       sx={{
                         fontSize: 12,
-                        color: "#6B6B6B",
+                        color: secondaryText,
                         mt: 0.2,
                       }}
                     >
@@ -1076,8 +1103,8 @@ const Checkout = () => {
             <Paper
               elevation={0}
               sx={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E8DCEB",
+                backgroundColor: cardBackground,
+                border: `1px solid ${border}`,
                 borderRadius: 3,
                 overflow: "hidden",
                 mb: 3,
@@ -1090,13 +1117,13 @@ const Checkout = () => {
                     sm: 3,
                   },
                   py: 2.2,
-                  backgroundColor: "#FAF6FB",
-                  borderBottom: "1px solid #E8DCEB",
+                  backgroundColor: sectionBackground,
+                  borderBottom: `1px solid ${border}`,
                 }}
               >
                 <Typography
                   sx={{
-                    color: "#171717",
+                    color: primaryText,
                     fontWeight: 800,
                     fontSize: 17,
                   }}
@@ -1106,7 +1133,7 @@ const Checkout = () => {
 
                 <Typography
                   sx={{
-                    color: "#777",
+                    color: mutedText,
                     fontSize: 12,
                     mt: 0.3,
                   }}
@@ -1129,12 +1156,12 @@ const Checkout = () => {
                       sx={{
                         border:
                           paymentMethod === "cod"
-                            ? "2px solid #B61ECA"
-                            : "1px solid #E8DCEB",
+                            ? `2px solid ${accent}`
+                            : `1px solid ${border}`,
                         backgroundColor:
                           paymentMethod === "cod"
-                            ? "#FAF1FC"
-                            : "#FFFFFF",
+                            ? selectedBackground
+                            : cardBackground,
                         borderRadius: 2,
                         mb: 1.5,
                         transition: "0.2s ease",
@@ -1145,9 +1172,9 @@ const Checkout = () => {
                         control={
                           <Radio
                             sx={{
-                              color: "#B61ECA",
+                              color: accent,
                               "&.Mui-checked": {
-                                color: "#B61ECA",
+                                color: accent,
                               },
                             }}
                           />
@@ -1162,7 +1189,7 @@ const Checkout = () => {
                           >
                             <AccountBalanceWalletOutlinedIcon
                               sx={{
-                                color: "#B61ECA",
+                                color: accent,
                               }}
                             />
 
@@ -1171,7 +1198,7 @@ const Checkout = () => {
                                 sx={{
                                   fontSize: 14,
                                   fontWeight: 800,
-                                  color: "#171717",
+                                  color: primaryText,
                                 }}
                               >
                                 Cash on Delivery
@@ -1180,7 +1207,7 @@ const Checkout = () => {
                               <Typography
                                 sx={{
                                   fontSize: 11,
-                                  color: "#777",
+                                  color: mutedText,
                                 }}
                               >
                                 Pay when your order arrives
@@ -1203,12 +1230,12 @@ const Checkout = () => {
                       sx={{
                         border:
                           paymentMethod === "online"
-                            ? "2px solid #B61ECA"
-                            : "1px solid #E8DCEB",
+                            ? `2px solid ${accent}`
+                            : `1px solid ${border}`,
                         backgroundColor:
                           paymentMethod === "online"
-                            ? "#FAF1FC"
-                            : "#FFFFFF",
+                            ? selectedBackground
+                            : cardBackground,
                         borderRadius: 2,
                         transition: "0.2s ease",
                       }}
@@ -1218,9 +1245,9 @@ const Checkout = () => {
                         control={
                           <Radio
                             sx={{
-                              color: "#B61ECA",
+                              color: accent,
                               "&.Mui-checked": {
-                                color: "#B61ECA",
+                                color: accent,
                               },
                             }}
                           />
@@ -1235,7 +1262,7 @@ const Checkout = () => {
                           >
                             <CreditCardOutlinedIcon
                               sx={{
-                                color: "#B61ECA",
+                                color: accent,
                               }}
                             />
 
@@ -1244,7 +1271,7 @@ const Checkout = () => {
                                 sx={{
                                   fontSize: 14,
                                   fontWeight: 800,
-                                  color: "#171717",
+                                  color: primaryText,
                                 }}
                               >
                                 Online Payment
@@ -1253,7 +1280,7 @@ const Checkout = () => {
                               <Typography
                                 sx={{
                                   fontSize: 11,
-                                  color: "#777",
+                                  color: mutedText,
                                 }}
                               >
                                 UPI, Cards, Net Banking & Wallets
@@ -1303,8 +1330,8 @@ const Checkout = () => {
 
             <Box
               sx={{
-                backgroundColor: "#FFFFFF",
-                border: "1px solid #E8DCEB",
+                backgroundColor: cardBackground,
+                border: `1px solid ${border}`,
                 borderRadius: 3,
                 p: {
                   xs: 2,
@@ -1328,8 +1355,8 @@ const Checkout = () => {
                     width: 42,
                     height: 42,
                     borderRadius: "50%",
-                    backgroundColor: "#F3E3F6",
-                    color: "#B61ECA",
+                    backgroundColor: imageBackground,
+                    color: accent,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -1343,7 +1370,7 @@ const Checkout = () => {
                     sx={{
                       fontSize: 13,
                       fontWeight: 800,
-                      color: "#171717",
+                      color: primaryText,
                     }}
                   >
                     Need help?
@@ -1352,7 +1379,7 @@ const Checkout = () => {
                   <Typography
                     sx={{
                       fontSize: 11,
-                      color: "#777",
+                      color: mutedText,
                     }}
                   >
                     Our support team is here for you.
@@ -1364,6 +1391,15 @@ const Checkout = () => {
                 variant="outlined"
                 fullWidth={false}
                 onClick={() => navigate("/support")}
+                sx={{
+                  color: accent,
+                  borderColor: accent,
+                  "&:hover": {
+                    borderColor: accentHover,
+                    color: accentHover,
+                    backgroundColor: "transparent",
+                  },
+                }}
               >
                 Contact Support
               </CustomButton>
@@ -1386,8 +1422,8 @@ const Checkout = () => {
               <Paper
                 elevation={0}
                 sx={{
-                  backgroundColor: "#FFFFFF",
-                  border: "1px solid #E8DCEB",
+                  backgroundColor: cardBackground,
+                  border: `1px solid ${border}`,
                   borderRadius: 3,
                   overflow: "hidden",
                 }}
@@ -1398,15 +1434,15 @@ const Checkout = () => {
                   sx={{
                     px: 3,
                     py: 2.2,
-                    backgroundColor: "#FAF6FB",
-                    borderBottom: "1px solid #E8DCEB",
+                    backgroundColor: sectionBackground,
+                    borderBottom: `1px solid ${border}`,
                   }}
                 >
                   <Typography
                     sx={{
                       fontSize: 17,
                       fontWeight: 800,
-                      color: "#171717",
+                      color: primaryText,
                     }}
                   >
                     Order Summary
@@ -1415,7 +1451,7 @@ const Checkout = () => {
                   <Typography
                     sx={{
                       fontSize: 11,
-                      color: "#777",
+                      color: mutedText,
                       mt: 0.3,
                     }}
                   >
@@ -1434,7 +1470,7 @@ const Checkout = () => {
                     sx={{
                       fontSize: 13,
                       fontWeight: 800,
-                      color: "#171717",
+                      color: primaryText,
                       mb: 1.5,
                     }}
                   >
@@ -1470,7 +1506,7 @@ const Checkout = () => {
                               height: 85,
                               borderRadius: 1.5,
                               objectFit: "cover",
-                              backgroundColor: "#F3E3F6",
+                              backgroundColor: imageBackground,
                               flexShrink: 0,
                             }}
                           />
@@ -1483,7 +1519,7 @@ const Checkout = () => {
                           >
                             <Typography
                               sx={{
-                                color: "#B61ECA",
+                                color: accent,
                                 fontSize: 10,
                                 fontWeight: 800,
                                 mb: 0.3,
@@ -1494,7 +1530,7 @@ const Checkout = () => {
 
                             <Typography
                               sx={{
-                                color: "#171717",
+                                color: primaryText,
                                 fontSize: 13,
                                 fontWeight: 700,
                                 lineHeight: 1.4,
@@ -1509,7 +1545,7 @@ const Checkout = () => {
 
                             <Typography
                               sx={{
-                                color: "#777",
+                                color: mutedText,
                                 fontSize: 11,
                                 mt: 0.5,
                               }}
@@ -1519,7 +1555,7 @@ const Checkout = () => {
 
                             <Typography
                               sx={{
-                                color: "#171717",
+                                color: primaryText,
                                 fontSize: 14,
                                 fontWeight: 800,
                                 mt: 0.5,
@@ -1540,7 +1576,7 @@ const Checkout = () => {
                   <Divider
                     sx={{
                       my: 2.5,
-                      borderColor: "#E8DCEB",
+                      borderColor: border,
                     }}
                   />
 
@@ -1548,8 +1584,8 @@ const Checkout = () => {
 
                   <Box
                     sx={{
-                      backgroundColor: "#FAF6FB",
-                      border: "1px solid #E8DCEB",
+                      backgroundColor: sectionBackground,
+                      border: `1px solid ${border}`,
                       borderRadius: 2,
                       p: 1.5,
                       mb: 2.5,
@@ -1566,7 +1602,7 @@ const Checkout = () => {
                       <LocalOfferOutlinedIcon
                         sx={{
                           fontSize: 19,
-                          color: "#B61ECA",
+                          color: accent,
                         }}
                       />
 
@@ -1574,7 +1610,7 @@ const Checkout = () => {
                         sx={{
                           fontSize: 13,
                           fontWeight: 800,
-                          color: "#171717",
+                          color: primaryText,
                         }}
                       >
                         Have a coupon?
@@ -1619,6 +1655,14 @@ const Checkout = () => {
                           fullWidth={false}
                           variant="outlined"
                           onClick={handleApplyCoupon}
+                          sx={{
+                            color: accent,
+                            borderColor: accent,
+                            "&:hover": {
+                              borderColor: accentHover,
+                              color: accentHover,
+                            },
+                          }}
                         >
                           Apply
                         </CustomButton>
@@ -1627,6 +1671,14 @@ const Checkout = () => {
                           fullWidth={false}
                           variant="outlined"
                           onClick={handleRemoveCoupon}
+                          sx={{
+                            color: accent,
+                            borderColor: accent,
+                            "&:hover": {
+                              borderColor: accentHover,
+                              color: accentHover,
+                            },
+                          }}
                         >
                           Remove
                         </CustomButton>
@@ -1660,7 +1712,7 @@ const Checkout = () => {
                   >
                     <Typography
                       sx={{
-                        color: "#6B6B6B",
+                        color: secondaryText,
                         fontSize: 13,
                       }}
                     >
@@ -1669,7 +1721,7 @@ const Checkout = () => {
 
                     <Typography
                       sx={{
-                        color: "#171717",
+                        color: primaryText,
                         fontSize: 13,
                         fontWeight: 700,
                       }}
@@ -1688,7 +1740,7 @@ const Checkout = () => {
                   >
                     <Typography
                       sx={{
-                        color: "#6B6B6B",
+                        color: secondaryText,
                         fontSize: 13,
                       }}
                     >
@@ -1700,7 +1752,7 @@ const Checkout = () => {
                         color:
                           discountAmount > 0
                             ? "#2E7D5B"
-                            : "#777",
+                            : mutedText,
                         fontSize: 13,
                         fontWeight: 700,
                       }}
@@ -1731,13 +1783,13 @@ const Checkout = () => {
                       <LocalShippingOutlinedIcon
                         sx={{
                           fontSize: 18,
-                          color: "#B61ECA",
+                          color: accent,
                         }}
                       />
 
                       <Typography
                         sx={{
-                          color: "#6B6B6B",
+                          color: secondaryText,
                           fontSize: 13,
                         }}
                       >
@@ -1759,7 +1811,7 @@ const Checkout = () => {
                   <Divider
                     sx={{
                       my: 2.2,
-                      borderColor: "#E8DCEB",
+                      borderColor: border,
                     }}
                   />
 
@@ -1778,7 +1830,7 @@ const Checkout = () => {
                         sx={{
                           fontSize: 17,
                           fontWeight: 800,
-                          color: "#171717",
+                          color: primaryText,
                         }}
                       >
                         Total
@@ -1787,7 +1839,7 @@ const Checkout = () => {
                       <Typography
                         sx={{
                           fontSize: 10,
-                          color: "#888",
+                          color: mutedText,
                           mt: 0.3,
                         }}
                       >
@@ -1799,7 +1851,7 @@ const Checkout = () => {
                       sx={{
                         fontSize: 24,
                         fontWeight: 800,
-                        color: "#B61ECA",
+                        color: accent,
                       }}
                     >
                       ₹
@@ -1812,6 +1864,13 @@ const Checkout = () => {
                   <CustomButton
                     onClick={handlePlaceOrder}
                     disabled={loading || profileLoading}
+                    sx={{
+                      backgroundColor: accent,
+                      color: isLuxuryMode ? "#171717" : "#FFFFFF",
+                      "&:hover": {
+                        backgroundColor: accentHover,
+                      },
+                    }}
                   >
                     {loading
                       ? "Processing..."
@@ -1827,7 +1886,7 @@ const Checkout = () => {
                       mt: 2,
                       p: 1.5,
                       borderRadius: 2,
-                      backgroundColor: "#F8F8F8",
+                      backgroundColor: securityBackground,
                       display: "flex",
                       alignItems: "center",
                       gap: 1,
@@ -1843,7 +1902,7 @@ const Checkout = () => {
                     <Typography
                       sx={{
                         fontSize: 10,
-                        color: "#777",
+                        color: mutedText,
                         lineHeight: 1.5,
                       }}
                     >
@@ -1864,9 +1923,9 @@ const Checkout = () => {
                       alignItems: "center",
                       gap: 0.7,
                       cursor: "pointer",
-                      color: "#777",
+                      color: mutedText,
                       "&:hover": {
-                        color: "#B61ECA",
+                        color: accent,
                       },
                     }}
                   >
@@ -1891,8 +1950,8 @@ const Checkout = () => {
               <Box
                 sx={{
                   mt: 2,
-                  backgroundColor: "#FFFFFF",
-                  border: "1px solid #E8DCEB",
+                  backgroundColor: cardBackground,
+                  border: `1px solid ${border}`,
                   borderRadius: 3,
                   p: 2,
                 }}
@@ -1901,7 +1960,7 @@ const Checkout = () => {
                   sx={{
                     fontSize: 12,
                     fontWeight: 800,
-                    color: "#171717",
+                    color: primaryText,
                     mb: 1.5,
                   }}
                 >

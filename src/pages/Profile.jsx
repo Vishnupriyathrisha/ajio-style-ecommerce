@@ -21,9 +21,72 @@ import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import CustomInput from "../components/common/CustomInput";
 import CustomButton from "../components/common/CustomButton";
 import api from "../services/api";
+import { useThemeMode } from "../context/ThemeContext";
 
 const Profile = () => {
   const navigate = useNavigate();
+
+  const { isLuxuryMode } = useThemeMode();
+
+  // --------------------------------------------------
+  // THEME COLORS
+  // --------------------------------------------------
+
+  const pageBackground = isLuxuryMode
+    ? "#0F0F0F"
+    : "#F9F2FA";
+
+  const cardBackground = isLuxuryMode
+    ? "#1A1A1A"
+    : "#FFFFFF";
+
+  const sectionBackground = isLuxuryMode
+    ? "#151515"
+    : "#FAF6FB";
+
+  const softBackground = isLuxuryMode
+    ? "#202020"
+    : "#F9F2FA";
+
+  const iconBackground = isLuxuryMode
+    ? "#242424"
+    : "#F3E3F6";
+
+  const primaryText = isLuxuryMode
+    ? "#FFFFFF"
+    : "#171717";
+
+  const secondaryText = isLuxuryMode
+    ? "#BDBDBD"
+    : "#6B6B6B";
+
+  const mutedText = isLuxuryMode
+    ? "#888888"
+    : "#777777";
+
+  const accent = isLuxuryMode
+    ? "#C8A96B"
+    : "#B61ECA";
+
+  const accentHover = isLuxuryMode
+    ? "#E0C080"
+    : "#9615A8";
+
+  const border = isLuxuryMode
+    ? "#333333"
+    : "#E8DCEB";
+
+  const inputBorder = isLuxuryMode
+    ? "#444444"
+    : "#E8DCEB";
+
+  const luxuryInputBackground = isLuxuryMode
+    ? "#202020"
+    : "#FFFFFF";
+
+  // --------------------------------------------------
+  // PROFILE STATE
+  // --------------------------------------------------
 
   const [profile, setProfile] = useState({
     name: "",
@@ -42,10 +105,15 @@ const Profile = () => {
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState("success");
 
+  // --------------------------------------------------
+  // FETCH PROFILE
+  // --------------------------------------------------
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await api.get("/profile");
+
         const user = response.data.user;
 
         setProfile({
@@ -65,6 +133,7 @@ const Profile = () => {
         );
 
         setMessageType("error");
+
         setMessage(
           error.response?.data?.message ||
             "Failed to load profile information"
@@ -77,6 +146,10 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
+  // --------------------------------------------------
+  // HANDLE CHANGE
+  // --------------------------------------------------
+
   const handleChange = (event) => {
     setProfile((prev) => ({
       ...prev,
@@ -87,6 +160,10 @@ const Profile = () => {
       setMessage("");
     }
   };
+
+  // --------------------------------------------------
+  // HANDLE SUBMIT
+  // --------------------------------------------------
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -99,21 +176,36 @@ const Profile = () => {
       return;
     }
 
-    if (profile.phone && !/^[6-9]\d{9}$/.test(profile.phone)) {
+    if (
+      profile.phone &&
+      !/^[6-9]\d{9}$/.test(profile.phone)
+    ) {
       setMessageType("error");
-      setMessage("Please enter a valid 10-digit phone number");
+      setMessage(
+        "Please enter a valid 10-digit phone number"
+      );
       return;
     }
 
-    if (profile.pincode && !/^\d{6}$/.test(profile.pincode)) {
+    if (
+      profile.pincode &&
+      !/^\d{6}$/.test(profile.pincode)
+    ) {
       setMessageType("error");
-      setMessage("Please enter a valid 6-digit pincode");
+      setMessage(
+        "Please enter a valid 6-digit pincode"
+      );
       return;
     }
 
-    if (profile.password && profile.password.length < 6) {
+    if (
+      profile.password &&
+      profile.password.length < 6
+    ) {
       setMessageType("error");
-      setMessage("Password must be at least 6 characters");
+      setMessage(
+        "Password must be at least 6 characters"
+      );
       return;
     }
 
@@ -134,7 +226,10 @@ const Profile = () => {
         updateData.password = profile.password;
       }
 
-      const response = await api.put("/profile", updateData);
+      const response = await api.put(
+        "/profile",
+        updateData
+      );
 
       setProfile((prev) => ({
         ...prev,
@@ -149,7 +244,9 @@ const Profile = () => {
       }));
 
       setMessageType("success");
-      setMessage("Profile updated successfully!");
+      setMessage(
+        "Profile updated successfully!"
+      );
     } catch (error) {
       console.error(
         "Failed to update profile:",
@@ -157,19 +254,30 @@ const Profile = () => {
       );
 
       setMessageType("error");
+
       setMessage(
-        error.response?.data?.message || "Failed to update profile"
+        error.response?.data?.message ||
+          "Failed to update profile"
       );
     } finally {
       setSaving(false);
     }
   };
 
+  // --------------------------------------------------
+  // LOGOUT
+  // --------------------------------------------------
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+
     navigate("/login");
   };
+
+  // --------------------------------------------------
+  // LOADING
+  // --------------------------------------------------
 
   if (loading) {
     return (
@@ -179,12 +287,21 @@ const Profile = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#F9F2FA",
+          backgroundColor: pageBackground,
         }}
       >
         <Stack alignItems="center" spacing={2}>
-          <CircularProgress sx={{ color: "#B61ECA" }} />
-          <Typography color="text.secondary">
+          <CircularProgress
+            sx={{
+              color: accent,
+            }}
+          />
+
+          <Typography
+            sx={{
+              color: secondaryText,
+            }}
+          >
             Loading profile...
           </Typography>
         </Stack>
@@ -192,23 +309,47 @@ const Profile = () => {
     );
   }
 
+  // --------------------------------------------------
+  // MAIN
+  // --------------------------------------------------
+
   return (
     <Box
       sx={{
         minHeight: "75vh",
-        backgroundColor: "#F9F2FA",
-        px: { xs: 2, sm: 3, md: 6 },
-        py: { xs: 3, md: 5 },
+        backgroundColor: pageBackground,
+        px: {
+          xs: 2,
+          sm: 3,
+          md: 6,
+        },
+        py: {
+          xs: 3,
+          md: 5,
+        },
+        transition:
+          "background-color 0.3s ease",
       }}
     >
-      <Box sx={{ maxWidth: 1200, mx: "auto" }}>
-        {/* Page Header */}
+      <Box
+        sx={{
+          maxWidth: 1200,
+          mx: "auto",
+        }}
+      >
+        {/* ================================================== */}
+        {/* PAGE HEADER */}
+        {/* ================================================== */}
+
         <Box sx={{ mb: 4 }}>
           <Typography
             sx={{
-              fontSize: { xs: 28, md: 36 },
+              fontSize: {
+                xs: 28,
+                md: 36,
+              },
               fontWeight: 800,
-              color: "#171717",
+              color: primaryText,
               letterSpacing: "-0.5px",
             }}
           >
@@ -218,33 +359,47 @@ const Profile = () => {
           <Typography
             sx={{
               mt: 0.7,
-              color: "#6B6B6B",
+              color: secondaryText,
               fontSize: 15,
             }}
           >
-            Manage your personal information, orders and preferences
+            Manage your personal information,
+            orders and preferences
           </Typography>
         </Box>
 
         <Grid container spacing={3.5}>
-          {/* ================= SIDEBAR ================= */}
+          {/* ================================================== */}
+          {/* SIDEBAR */}
+          {/* ================================================== */}
+
           <Grid size={{ xs: 12, md: 3 }}>
             <Paper
               elevation={0}
               sx={{
-                border: "1px solid #E8DCEB",
+                border: `1px solid ${border}`,
                 borderRadius: "14px",
                 overflow: "hidden",
-                backgroundColor: "#FFFFFF",
+                backgroundColor: cardBackground,
+                transition:
+                  "background-color 0.3s ease, border-color 0.3s ease",
               }}
             >
-              {/* Profile Header */}
+              {/* PROFILE HEADER */}
+
               <Box
                 sx={{
                   p: 3,
-                  background:
-                    "linear-gradient(145deg, #B61ECA 0%, #8E18A0 100%)",
+
+                  background: isLuxuryMode
+                    ? "linear-gradient(145deg, #1F1F1F 0%, #111111 100%)"
+                    : "linear-gradient(145deg, #B61ECA 0%, #8E18A0 100%)",
+
                   color: "#FFFFFF",
+
+                  borderBottom: isLuxuryMode
+                    ? `1px solid ${border}`
+                    : "none",
                 }}
               >
                 <Box
@@ -252,15 +407,29 @@ const Profile = () => {
                     width: 64,
                     height: 64,
                     borderRadius: "50%",
-                    backgroundColor: "rgba(255,255,255,0.18)",
-                    border: "2px solid rgba(255,255,255,0.55)",
+
+                    backgroundColor: isLuxuryMode
+                      ? "rgba(200,169,107,0.12)"
+                      : "rgba(255,255,255,0.18)",
+
+                    border: isLuxuryMode
+                      ? "2px solid rgba(200,169,107,0.55)"
+                      : "2px solid rgba(255,255,255,0.55)",
+
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
                     mb: 2,
                   }}
                 >
-                  <PersonIcon sx={{ fontSize: 32 }} />
+                  <PersonIcon
+                    sx={{
+                      fontSize: 32,
+                      color: isLuxuryMode
+                        ? accent
+                        : "#FFFFFF",
+                    }}
+                  />
                 </Box>
 
                 <Typography
@@ -270,14 +439,17 @@ const Profile = () => {
                     wordBreak: "break-word",
                   }}
                 >
-                  {profile.name || "My Account"}
+                  {profile.name ||
+                    "My Account"}
                 </Typography>
 
                 <Typography
                   sx={{
                     mt: 0.5,
                     fontSize: 13,
-                    opacity: 0.9,
+                    color: isLuxuryMode
+                      ? "#BDBDBD"
+                      : "rgba(255,255,255,0.9)",
                     wordBreak: "break-word",
                   }}
                 >
@@ -285,11 +457,15 @@ const Profile = () => {
                 </Typography>
               </Box>
 
-              {/* Navigation */}
+              {/* NAVIGATION */}
+
               <Box sx={{ py: 1 }}>
-                {/* Profile */}
+                {/* PROFILE */}
+
                 <Box
-                  onClick={() => navigate("/profile")}
+                  onClick={() =>
+                    navigate("/profile")
+                  }
                   sx={{
                     mx: 1,
                     px: 2,
@@ -299,20 +475,38 @@ const Profile = () => {
                     display: "flex",
                     alignItems: "center",
                     gap: 1.5,
-                    backgroundColor: "#F9F2FA",
-                    color: "#B61ECA",
+
+                    backgroundColor:
+                      isLuxuryMode
+                        ? "rgba(200,169,107,0.10)"
+                        : "#F9F2FA",
+
+                    color: accent,
                     fontWeight: 700,
+
+                    border: isLuxuryMode
+                      ? "1px solid rgba(200,169,107,0.18)"
+                      : "1px solid transparent",
                   }}
                 >
                   <PersonIcon fontSize="small" />
-                  <Typography fontSize={14} fontWeight={700}>
+
+                  <Typography
+                    sx={{
+                      fontSize: 14,
+                      fontWeight: 700,
+                    }}
+                  >
                     My Profile
                   </Typography>
                 </Box>
 
-                {/* Orders */}
+                {/* ORDERS */}
+
                 <Box
-                  onClick={() => navigate("/orders")}
+                  onClick={() =>
+                    navigate("/orders")
+                  }
                   sx={{
                     mx: 1,
                     px: 2,
@@ -322,22 +516,32 @@ const Profile = () => {
                     display: "flex",
                     alignItems: "center",
                     gap: 1.5,
-                    color: "#4F4F4F",
+                    color: isLuxuryMode
+                      ? "#BDBDBD"
+                      : "#4F4F4F",
+
                     "&:hover": {
-                      backgroundColor: "#F9F2FA",
-                      color: "#B61ECA",
+                      backgroundColor:
+                        isLuxuryMode
+                          ? "rgba(200,169,107,0.08)"
+                          : "#F9F2FA",
+                      color: accent,
                     },
                   }}
                 >
                   <ShoppingBagOutlinedIcon fontSize="small" />
+
                   <Typography fontSize={14}>
                     My Orders
                   </Typography>
                 </Box>
 
-                {/* Wishlist */}
+                {/* WISHLIST */}
+
                 <Box
-                  onClick={() => navigate("/wishlist")}
+                  onClick={() =>
+                    navigate("/wishlist")
+                  }
                   sx={{
                     mx: 1,
                     px: 2,
@@ -347,23 +551,35 @@ const Profile = () => {
                     display: "flex",
                     alignItems: "center",
                     gap: 1.5,
-                    color: "#4F4F4F",
+                    color: isLuxuryMode
+                      ? "#BDBDBD"
+                      : "#4F4F4F",
+
                     "&:hover": {
-                      backgroundColor: "#F9F2FA",
-                      color: "#B61ECA",
+                      backgroundColor:
+                        isLuxuryMode
+                          ? "rgba(200,169,107,0.08)"
+                          : "#F9F2FA",
+                      color: accent,
                     },
                   }}
                 >
                   <FavoriteBorderIcon fontSize="small" />
+
                   <Typography fontSize={14}>
                     My Wishlist
                   </Typography>
                 </Box>
               </Box>
 
-              <Divider />
+              <Divider
+                sx={{
+                  borderColor: border,
+                }}
+              />
 
-              {/* Logout */}
+              {/* LOGOUT */}
+
               <Box
                 onClick={handleLogout}
                 sx={{
@@ -376,32 +592,49 @@ const Profile = () => {
                   display: "flex",
                   alignItems: "center",
                   gap: 1.5,
-                  color: "#C62828",
+                  color: "#C94C4C",
+
                   "&:hover": {
-                    backgroundColor: "#FFF5F5",
+                    backgroundColor: isLuxuryMode
+                      ? "rgba(201,76,76,0.10)"
+                      : "#FFF5F5",
                   },
                 }}
               >
                 <LogoutIcon fontSize="small" />
-                <Typography fontSize={14} fontWeight={600}>
+
+                <Typography
+                  fontSize={14}
+                  fontWeight={600}
+                >
                   Logout
                 </Typography>
               </Box>
             </Paper>
           </Grid>
 
-          {/* ================= PROFILE CONTENT ================= */}
+          {/* ================================================== */}
+          {/* PROFILE CONTENT */}
+          {/* ================================================== */}
+
           <Grid size={{ xs: 12, md: 9 }}>
             <Paper
               elevation={0}
               sx={{
-                border: "1px solid #E8DCEB",
+                border: `1px solid ${border}`,
                 borderRadius: "14px",
-                backgroundColor: "#FFFFFF",
-                p: { xs: 2.5, sm: 3.5, md: 4.5 },
+                backgroundColor: cardBackground,
+                p: {
+                  xs: 2.5,
+                  sm: 3.5,
+                  md: 4.5,
+                },
+                transition:
+                  "background-color 0.3s ease, border-color 0.3s ease",
               }}
             >
-              {/* Content Header */}
+              {/* CONTENT HEADER */}
+
               <Stack
                 direction="row"
                 spacing={1.5}
@@ -413,8 +646,9 @@ const Profile = () => {
                     width: 42,
                     height: 42,
                     borderRadius: "10px",
-                    backgroundColor: "#F9F2FA",
-                    color: "#B61ECA",
+                    backgroundColor:
+                      iconBackground,
+                    color: accent,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -428,7 +662,7 @@ const Profile = () => {
                     sx={{
                       fontSize: 20,
                       fontWeight: 800,
-                      color: "#171717",
+                      color: primaryText,
                     }}
                   >
                     Edit Profile
@@ -437,18 +671,23 @@ const Profile = () => {
                   <Typography
                     sx={{
                       fontSize: 13,
-                      color: "#6B6B6B",
+                      color: secondaryText,
                     }}
                   >
-                    Keep your account information up to date
+                    Keep your account information
+                    up to date
                   </Typography>
                 </Box>
               </Stack>
 
+              {/* MESSAGE */}
+
               {message && (
                 <Alert
                   severity={messageType}
-                  onClose={() => setMessage("")}
+                  onClose={() =>
+                    setMessage("")
+                  }
                   sx={{
                     mb: 3,
                     borderRadius: "8px",
@@ -458,8 +697,14 @@ const Profile = () => {
                 </Alert>
               )}
 
-              <Box component="form" onSubmit={handleSubmit}>
-                {/* ================= PERSONAL INFORMATION ================= */}
+              <Box
+                component="form"
+                onSubmit={handleSubmit}
+              >
+                {/* ================================================== */}
+                {/* PERSONAL INFORMATION */}
+                {/* ================================================== */}
+
                 <Box sx={{ mb: 3 }}>
                   <Stack
                     direction="row"
@@ -470,7 +715,7 @@ const Profile = () => {
                     <PersonIcon
                       sx={{
                         fontSize: 20,
-                        color: "#B61ECA",
+                        color: accent,
                       }}
                     />
 
@@ -478,14 +723,23 @@ const Profile = () => {
                       sx={{
                         fontWeight: 800,
                         fontSize: 17,
+                        color: primaryText,
                       }}
                     >
                       Personal Information
                     </Typography>
                   </Stack>
 
-                  <Grid container spacing={2.5}>
-                    <Grid size={{ xs: 12, md: 6 }}>
+                  <Grid
+                    container
+                    spacing={2.5}
+                  >
+                    <Grid
+                      size={{
+                        xs: 12,
+                        md: 6,
+                      }}
+                    >
                       <CustomInput
                         label="Full Name"
                         name="name"
@@ -495,7 +749,12 @@ const Profile = () => {
                       />
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid
+                      size={{
+                        xs: 12,
+                        md: 6,
+                      }}
+                    >
                       <CustomInput
                         label="Email"
                         name="email"
@@ -506,7 +765,12 @@ const Profile = () => {
                       />
                     </Grid>
 
-                    <Grid size={{ xs: 12, md: 6 }}>
+                    <Grid
+                      size={{
+                        xs: 12,
+                        md: 6,
+                      }}
+                    >
                       <CustomInput
                         label="Phone Number"
                         name="phone"
@@ -519,9 +783,17 @@ const Profile = () => {
                   </Grid>
                 </Box>
 
-                <Divider sx={{ my: 4 }} />
+                <Divider
+                  sx={{
+                    my: 4,
+                    borderColor: border,
+                  }}
+                />
 
-                {/* ================= PASSWORD ================= */}
+                {/* ================================================== */}
+                {/* PASSWORD */}
+                {/* ================================================== */}
+
                 <Box sx={{ mb: 3 }}>
                   <Stack
                     direction="row"
@@ -532,7 +804,7 @@ const Profile = () => {
                     <LockOutlinedIcon
                       sx={{
                         fontSize: 20,
-                        color: "#B61ECA",
+                        color: accent,
                       }}
                     />
 
@@ -540,6 +812,7 @@ const Profile = () => {
                       sx={{
                         fontWeight: 800,
                         fontSize: 17,
+                        color: primaryText,
                       }}
                     >
                       Change Password
@@ -548,16 +821,21 @@ const Profile = () => {
 
                   <Typography
                     sx={{
-                      color: "#6B6B6B",
+                      color: secondaryText,
                       fontSize: 13,
                       mb: 2.5,
                     }}
                   >
-                    Leave this field empty if you don't want to change
-                    your password.
+                    Leave this field empty if you
+                    don't want to change your
+                    password.
                   </Typography>
 
-                  <Box sx={{ maxWidth: 400 }}>
+                  <Box
+                    sx={{
+                      maxWidth: 400,
+                    }}
+                  >
                     <CustomInput
                       label="New Password"
                       name="password"
@@ -569,9 +847,17 @@ const Profile = () => {
                   </Box>
                 </Box>
 
-                <Divider sx={{ my: 4 }} />
+                <Divider
+                  sx={{
+                    my: 4,
+                    borderColor: border,
+                  }}
+                />
 
-                {/* ================= ADDRESS ================= */}
+                {/* ================================================== */}
+                {/* ADDRESS */}
+                {/* ================================================== */}
+
                 <Box sx={{ mb: 3 }}>
                   <Stack
                     direction="row"
@@ -582,7 +868,7 @@ const Profile = () => {
                     <LocationOnOutlinedIcon
                       sx={{
                         fontSize: 20,
-                        color: "#B61ECA",
+                        color: accent,
                       }}
                     />
 
@@ -590,6 +876,7 @@ const Profile = () => {
                       sx={{
                         fontWeight: 800,
                         fontSize: 17,
+                        color: primaryText,
                       }}
                     >
                       Delivery Address
@@ -598,13 +885,13 @@ const Profile = () => {
 
                   <Typography
                     sx={{
-                      color: "#6B6B6B",
+                      color: secondaryText,
                       fontSize: 13,
                       mb: 2.5,
                     }}
                   >
-                    Add your delivery details for a smoother checkout
-                    experience.
+                    Add your delivery details for
+                    a smoother checkout experience.
                   </Typography>
 
                   <Stack spacing={2.5}>
@@ -616,8 +903,16 @@ const Profile = () => {
                       placeholder="Enter your complete address"
                     />
 
-                    <Grid container spacing={2}>
-                      <Grid size={{ xs: 12, md: 4 }}>
+                    <Grid
+                      container
+                      spacing={2}
+                    >
+                      <Grid
+                        size={{
+                          xs: 12,
+                          md: 4,
+                        }}
+                      >
                         <CustomInput
                           label="City"
                           name="city"
@@ -627,7 +922,12 @@ const Profile = () => {
                         />
                       </Grid>
 
-                      <Grid size={{ xs: 12, md: 4 }}>
+                      <Grid
+                        size={{
+                          xs: 12,
+                          md: 4,
+                        }}
+                      >
                         <CustomInput
                           label="State"
                           name="state"
@@ -637,7 +937,12 @@ const Profile = () => {
                         />
                       </Grid>
 
-                      <Grid size={{ xs: 12, md: 4 }}>
+                      <Grid
+                        size={{
+                          xs: 12,
+                          md: 4,
+                        }}
+                      >
                         <CustomInput
                           label="Pincode"
                           name="pincode"
@@ -650,22 +955,49 @@ const Profile = () => {
                   </Stack>
                 </Box>
 
-                {/* ================= SAVE ================= */}
+                {/* ================================================== */}
+                {/* SAVE */}
+                {/* ================================================== */}
+
                 <Box
                   sx={{
                     mt: 4,
                     pt: 3,
-                    borderTop: "1px solid #E8DCEB",
+                    borderTop: `1px solid ${border}`,
                     display: "flex",
-                    justifyContent: "flex-end",
+                    justifyContent:
+                      "flex-end",
                   }}
                 >
-                  <Box sx={{ width: { xs: "100%", sm: 190 } }}>
+                  <Box
+                    sx={{
+                      width: {
+                        xs: "100%",
+                        sm: 190,
+                      },
+                    }}
+                  >
                     <CustomButton
                       type="submit"
                       disabled={saving}
+                      sx={{
+                        backgroundColor: accent,
+                        color: isLuxuryMode
+                          ? "#171717"
+                          : "#FFFFFF",
+
+                        "&:hover": {
+                          backgroundColor:
+                            accentHover,
+                          color: isLuxuryMode
+                            ? "#171717"
+                            : "#FFFFFF",
+                        },
+                      }}
                     >
-                      {saving ? "Saving..." : "Save Changes"}
+                      {saving
+                        ? "Saving..."
+                        : "Save Changes"}
                     </CustomButton>
                   </Box>
                 </Box>

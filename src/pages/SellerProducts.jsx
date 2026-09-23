@@ -10,15 +10,39 @@ import CircularProgress from "@mui/material/CircularProgress";
 import AddIcon from "@mui/icons-material/Add";
 
 import api from "../services/api";
+import { useThemeMode } from "../context/ThemeContext";
 
 const SellerProducts = () => {
   const navigate = useNavigate();
+
+  const { isLuxuryMode } = useThemeMode();
+
+  // =========================
+  // THEME COLORS
+  // =========================
+
+  const pageBackground = isLuxuryMode ? "#0F0F0F" : "#F9F2FA";
+  const cardBackground = isLuxuryMode ? "#1A1A1A" : "#FFFFFF";
+  const primaryText = isLuxuryMode ? "#FFFFFF" : "#171717";
+  const secondaryText = isLuxuryMode ? "#BDBDBD" : "#6B6B6B";
+
+  const accent = isLuxuryMode ? "#C8A96B" : "#B61ECA";
+  const accentHover = isLuxuryMode ? "#E0C080" : "#9615A8";
+
+  const border = isLuxuryMode ? "#333333" : "#E8DCEB";
+
+  const boxShadow = isLuxuryMode
+    ? "0 8px 25px rgba(0, 0, 0, 0.30)"
+    : "0 8px 25px rgba(182, 30, 202, 0.06)";
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Delete seller product
+  // =========================
+  // DELETE SELLER PRODUCT
+  // =========================
+
   const handleDelete = async (productId) => {
     const confirmDelete = window.confirm(
       "Are you sure you want to delete this product?"
@@ -29,22 +53,28 @@ const SellerProducts = () => {
     }
 
     try {
-      const sellerToken = localStorage.getItem("sellerToken");
+      const sellerToken =
+        localStorage.getItem("sellerToken");
 
       if (!sellerToken) {
         navigate("/seller/login");
         return;
       }
 
-      await api.delete(`/seller/products/${productId}`, {
-        headers: {
-          Authorization: `Bearer ${sellerToken}`,
-        },
-      });
+      await api.delete(
+        `/seller/products/${productId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${sellerToken}`,
+          },
+        }
+      );
 
       // Remove deleted product from current list
       setProducts((prev) =>
-        prev.filter((product) => product._id !== productId)
+        prev.filter(
+          (product) => product._id !== productId
+        )
       );
     } catch (error) {
       console.error(
@@ -67,29 +97,38 @@ const SellerProducts = () => {
     }
   };
 
-  // Fetch seller products
+  // =========================
+  // FETCH SELLER PRODUCTS
+  // =========================
+
   useEffect(() => {
     const fetchSellerProducts = async () => {
       try {
-        const sellerToken = localStorage.getItem("sellerToken");
+        const sellerToken =
+          localStorage.getItem("sellerToken");
 
         if (!sellerToken) {
           navigate("/seller/login");
           return;
         }
 
-        const response = await api.get("/seller/products", {
-          headers: {
-            Authorization: `Bearer ${sellerToken}`,
-          },
-        });
+        const response = await api.get(
+          "/seller/products",
+          {
+            headers: {
+              Authorization: `Bearer ${sellerToken}`,
+            },
+          }
+        );
 
         console.log(
           "SELLER PRODUCTS RESPONSE:",
           response.data
         );
 
-        setProducts(response.data.products || []);
+        setProducts(
+          response.data.products || []
+        );
       } catch (error) {
         console.error(
           "SELLER PRODUCTS ERROR:",
@@ -116,7 +155,10 @@ const SellerProducts = () => {
     fetchSellerProducts();
   }, [navigate]);
 
-  // Loading state
+  // =========================
+  // LOADING STATE
+  // =========================
+
   if (loading) {
     return (
       <Box
@@ -125,24 +167,28 @@ const SellerProducts = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          backgroundColor: pageBackground,
         }}
       >
         <CircularProgress
           sx={{
-            color: "#B61ECA",
+            color: accent,
           }}
         />
       </Box>
     );
   }
 
-  // Error state
+  // =========================
+  // ERROR STATE
+  // =========================
+
   if (error) {
     return (
       <Box
         sx={{
           minHeight: "70vh",
-          background: "#F9F2FA",
+          backgroundColor: pageBackground,
           px: {
             xs: 2,
             sm: 4,
@@ -158,20 +204,28 @@ const SellerProducts = () => {
     );
   }
 
+  // =========================
+  // MAIN UI
+  // =========================
+
   return (
     <Box
       sx={{
         minHeight: "calc(100vh - 76px)",
-        background: "#F9F2FA",
+        backgroundColor: pageBackground,
         px: {
           xs: 2,
           sm: 4,
           md: 6,
         },
         py: 5,
+        transition: "background-color 0.3s ease",
       }}
     >
-      {/* Page Header */}
+      {/* =========================
+          PAGE HEADER
+      ========================= */}
+
       <Box
         sx={{
           display: "flex",
@@ -196,7 +250,7 @@ const SellerProducts = () => {
                 sm: 32,
               },
               fontWeight: 800,
-              color: "#171717",
+              color: primaryText,
             }}
           >
             My Products
@@ -205,13 +259,15 @@ const SellerProducts = () => {
           <Typography
             sx={{
               fontSize: 14,
-              color: "#6B6B6B",
+              color: secondaryText,
               mt: 0.5,
             }}
           >
             Manage your store products
           </Typography>
         </Box>
+
+        {/* Add Product */}
 
         <Button
           variant="contained"
@@ -220,14 +276,18 @@ const SellerProducts = () => {
             navigate("/seller/products/add")
           }
           sx={{
-            backgroundColor: "#B61ECA",
+            backgroundColor: accent,
+            color: isLuxuryMode
+              ? "#171717"
+              : "#FFFFFF",
             textTransform: "none",
             fontWeight: 700,
             borderRadius: "7px",
             px: 2.5,
             py: 1.2,
+
             "&:hover": {
-              backgroundColor: "#9615A8",
+              backgroundColor: accentHover,
             },
           }}
         >
@@ -235,12 +295,15 @@ const SellerProducts = () => {
         </Button>
       </Box>
 
-      {/* Empty State */}
+      {/* =========================
+          EMPTY STATE
+      ========================= */}
+
       {products.length === 0 && (
         <Box
           sx={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: "12px",
             minHeight: 300,
             display: "flex",
@@ -249,15 +312,16 @@ const SellerProducts = () => {
             alignItems: "center",
             textAlign: "center",
             px: 3,
-            boxShadow:
-              "0 8px 25px rgba(182, 30, 202, 0.06)",
+            boxShadow,
+            transition:
+              "background-color 0.3s ease, border-color 0.3s ease",
           }}
         >
           <Typography
             sx={{
               fontSize: 20,
               fontWeight: 700,
-              color: "#171717",
+              color: primaryText,
               mb: 1,
             }}
           >
@@ -267,7 +331,7 @@ const SellerProducts = () => {
           <Typography
             sx={{
               fontSize: 14,
-              color: "#6B6B6B",
+              color: secondaryText,
               mb: 3,
             }}
           >
@@ -281,14 +345,17 @@ const SellerProducts = () => {
               navigate("/seller/products/add")
             }
             sx={{
-              color: "#B61ECA",
-              borderColor: "#B61ECA",
+              color: accent,
+              borderColor: accent,
               textTransform: "none",
               fontWeight: 700,
               borderRadius: "7px",
+
               "&:hover": {
-                borderColor: "#9615A8",
-                backgroundColor: "#F9F2FA",
+                borderColor: accentHover,
+                backgroundColor: isLuxuryMode
+                  ? "rgba(200, 169, 107, 0.08)"
+                  : "#F9F2FA",
               },
             }}
           >
@@ -297,21 +364,29 @@ const SellerProducts = () => {
         </Box>
       )}
 
-      {/* Products */}
+      {/* =========================
+          PRODUCTS
+      ========================= */}
+
       {products.length > 0 && (
         <Box
           sx={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: "12px",
-            p: 3,
+            p: {
+              xs: 2,
+              sm: 3,
+            },
+            transition:
+              "background-color 0.3s ease, border-color 0.3s ease",
           }}
         >
           <Typography
             sx={{
               fontSize: 20,
               fontWeight: 700,
-              color: "#171717",
+              color: primaryText,
               mb: 3,
             }}
           >
@@ -322,73 +397,95 @@ const SellerProducts = () => {
             <Box
               key={product._id}
               sx={{
-                borderBottom: "1px solid #E8DCEB",
+                borderBottom: `1px solid ${border}`,
                 py: 2,
+
                 "&:last-child": {
                   borderBottom: "none",
                 },
               }}
             >
+              {/* Product Name */}
+
               <Typography
                 sx={{
                   fontWeight: 700,
-                  color: "#171717",
+                  color: primaryText,
                 }}
               >
                 {product.name}
               </Typography>
 
+              {/* Price + Stock */}
+
               <Typography
                 sx={{
                   fontSize: 14,
-                  color: "#6B6B6B",
+                  color: secondaryText,
                   mt: 0.5,
                 }}
               >
-                ₹{product.price} · Stock: {product.stock}
+                ₹{product.price} · Stock:{" "}
+                {product.stock}
               </Typography>
 
-              {/* Edit Button */}
-              <Button
-                variant="outlined"
-                onClick={() =>
-                  navigate(
-                    `/seller/products/${product._id}/edit`
-                  )
-                }
-                sx={{
-                  mt: 1.5,
-                  color: "#B61ECA",
-                  borderColor: "#B61ECA",
-                  textTransform: "none",
-                  fontWeight: 700,
-                  borderRadius: "7px",
-                  mr: 1,
-                  "&:hover": {
-                    borderColor: "#9615A8",
-                    backgroundColor: "#F9F2FA",
-                  },
-                }}
-              >
-                Edit Product
-              </Button>
+              {/* =========================
+                  ACTION BUTTONS
+              ========================= */}
 
-              {/* Delete Button */}
-              <Button
-                variant="outlined"
-                color="error"
-                onClick={() =>
-                  handleDelete(product._id)
-                }
+              <Box
                 sx={{
+                  display: "flex",
+                  gap: 1,
+                  flexWrap: "wrap",
                   mt: 1.5,
-                  textTransform: "none",
-                  fontWeight: 700,
-                  borderRadius: "7px",
                 }}
               >
-                Delete Product
-              </Button>
+                {/* Edit */}
+
+                <Button
+                  variant="outlined"
+                  onClick={() =>
+                    navigate(
+                      `/seller/products/${product._id}/edit`
+                    )
+                  }
+                  sx={{
+                    color: accent,
+                    borderColor: accent,
+                    textTransform: "none",
+                    fontWeight: 700,
+                    borderRadius: "7px",
+
+                    "&:hover": {
+                      borderColor: accentHover,
+                      backgroundColor:
+                        isLuxuryMode
+                          ? "rgba(200, 169, 107, 0.08)"
+                          : "#F9F2FA",
+                    },
+                  }}
+                >
+                  Edit Product
+                </Button>
+
+                {/* Delete */}
+
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() =>
+                    handleDelete(product._id)
+                  }
+                  sx={{
+                    textTransform: "none",
+                    fontWeight: 700,
+                    borderRadius: "7px",
+                  }}
+                >
+                  Delete Product
+                </Button>
+              </Box>
             </Box>
           ))}
         </Box>

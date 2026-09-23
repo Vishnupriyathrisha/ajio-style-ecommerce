@@ -30,6 +30,7 @@ import RateReviewOutlinedIcon from "@mui/icons-material/RateReviewOutlined";
 import CustomButton from "../components/common/CustomButton";
 import { useCart } from "../context/CartContext";
 import { useWishlist } from "../context/WishlistContext";
+import { useThemeMode } from "../context/ThemeContext";
 import api from "../services/api";
 
 const ProductDetails = () => {
@@ -38,8 +39,107 @@ const ProductDetails = () => {
 
   const { addToCart } = useCart();
   const { addToWishlist, isInWishlist } = useWishlist();
+  const { isLuxuryMode } = useThemeMode();
 
-  const product = location.state?.product;
+  const productId = location.state?.productId;
+
+const [product, setProduct] = useState(null);
+const [productLoading, setProductLoading] = useState(true);
+
+useEffect(() => {
+  const fetchProduct = async () => {
+    try {
+      setProductLoading(true);
+
+      const response = await api.get(
+        `/products/${productId}`
+      );
+
+      setProduct(response.data.product);
+    } catch (error) {
+      console.error(
+        "Failed to fetch product:",
+        error.response?.data || error.message
+      );
+    } finally {
+      setProductLoading(false);
+    }
+  };
+
+  if (productLoading) {
+  return (
+    <Box
+      sx={{
+        minHeight: "70vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: pageBackground,
+      }}
+    >
+      <CircularProgress
+        sx={{
+          color: accent,
+        }}
+      />
+    </Box>
+  );
+}
+  if (productId) {
+    fetchProduct();
+  }
+}, [productId]);
+  // =========================
+  // THEME COLORS
+  // =========================
+
+  const pageBackground = isLuxuryMode
+    ? "#0F0F0F"
+    : "#F9F2FA";
+
+  const cardBackground = isLuxuryMode
+    ? "#1A1A1A"
+    : "#FFFFFF";
+
+  const softBackground = isLuxuryMode
+    ? "#202020"
+    : "#FAF6FB";
+
+  const imageBackground = isLuxuryMode
+    ? "#242424"
+    : "#F3E3F6";
+
+  const primaryText = isLuxuryMode
+    ? "#FFFFFF"
+    : "#171717";
+
+  const secondaryText = isLuxuryMode
+    ? "#BDBDBD"
+    : "#6B6B6B";
+
+  const accent = isLuxuryMode
+    ? "#C8A96B"
+    : "#B61ECA";
+
+  const accentHover = isLuxuryMode
+    ? "#E0C080"
+    : "#9615A8";
+
+  const border = isLuxuryMode
+    ? "#333333"
+    : "#E8DCEB";
+
+  const softBorder = isLuxuryMode
+    ? "#444444"
+    : "#D9C7DC";
+
+  const emptyStarColor = isLuxuryMode
+    ? "#555555"
+    : "#D8C5DB";
+
+  // =========================
+  // QUANTITY
+  // =========================
 
   const [quantity, setQuantity] = useState(1);
 
@@ -76,7 +176,7 @@ const ProductDetails = () => {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          backgroundColor: "#F9F2FA",
+          backgroundColor: pageBackground,
           px: 2,
         }}
       >
@@ -84,7 +184,7 @@ const ProductDetails = () => {
           variant="h5"
           sx={{
             fontWeight: 700,
-            color: "#171717",
+            color: primaryText,
             mb: 3,
           }}
         >
@@ -94,6 +194,14 @@ const ProductDetails = () => {
         <CustomButton
           fullWidth={false}
           onClick={() => navigate("/products")}
+          sx={{
+            backgroundColor: accent,
+            color: isLuxuryMode ? "#171717" : "#FFFFFF",
+            "&:hover": {
+              backgroundColor: accentHover,
+              color: isLuxuryMode ? "#171717" : "#FFFFFF",
+            },
+          }}
         >
           Back to Products
         </CustomButton>
@@ -101,12 +209,13 @@ const ProductDetails = () => {
     );
   }
 
-  const productId = product._id || product.id;
 
   const wishlisted = isInWishlist(productId);
 
   const maxStock =
-    typeof product.stock === "number" ? product.stock : 10;
+    typeof product.stock === "number"
+      ? product.stock
+      : 10;
 
   // =========================
   // FETCH REVIEWS
@@ -122,8 +231,12 @@ const ProductDetails = () => {
         );
 
         setReviews(response.data.reviews || []);
-        setAverageRating(response.data.averageRating || 0);
-        setTotalReviews(response.data.totalReviews || 0);
+        setAverageRating(
+          response.data.averageRating || 0
+        );
+        setTotalReviews(
+          response.data.totalReviews || 0
+        );
       } catch (error) {
         console.error(
           "Failed to fetch reviews:",
@@ -146,7 +259,10 @@ const ProductDetails = () => {
           `/reviews/eligibility/${productId}`
         );
 
-        setCanReview(response.data.canReview || false);
+        setCanReview(
+          response.data.canReview || false
+        );
+
         setAlreadyReviewed(
           response.data.alreadyReviewed || false
         );
@@ -176,7 +292,9 @@ const ProductDetails = () => {
   // =========================
 
   const handleQuantityIncrease = () => {
-    setQuantity((prev) => Math.min(prev + 1, maxStock));
+    setQuantity((prev) =>
+      Math.min(prev + 1, maxStock)
+    );
   };
 
   // =========================
@@ -222,7 +340,8 @@ const ProductDetails = () => {
       });
 
       setReviewMessage(
-        response.data.message || "Review added successfully!"
+        response.data.message ||
+          "Review added successfully!"
       );
 
       setReviewRating(0);
@@ -231,15 +350,19 @@ const ProductDetails = () => {
       setCanReview(false);
       setAlreadyReviewed(true);
 
-      // Refresh reviews after successful submission
+      // Refresh reviews
       const reviewsResponse = await api.get(
         `/reviews/product/${productId}`
       );
 
-      setReviews(reviewsResponse.data.reviews || []);
+      setReviews(
+        reviewsResponse.data.reviews || []
+      );
+
       setAverageRating(
         reviewsResponse.data.averageRating || 0
       );
+
       setTotalReviews(
         reviewsResponse.data.totalReviews || 0
       );
@@ -267,11 +390,14 @@ const ProductDetails = () => {
       return "Date unavailable";
     }
 
-    return new Date(date).toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric",
-    });
+    return new Date(date).toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      }
+    );
   };
 
   // =========================
@@ -282,9 +408,18 @@ const ProductDetails = () => {
     <Box
       sx={{
         minHeight: "100vh",
-        backgroundColor: "#F9F2FA",
-        px: { xs: 2, sm: 3, md: 6 },
-        py: { xs: 3, md: 5 },
+        backgroundColor: pageBackground,
+        px: {
+          xs: 2,
+          sm: 3,
+          md: 6,
+        },
+        py: {
+          xs: 3,
+          md: 5,
+        },
+        transition:
+          "background-color 0.3s ease",
       }}
     >
       <Box
@@ -304,14 +439,17 @@ const ProductDetails = () => {
             alignItems: "center",
             gap: 0.7,
             cursor: "pointer",
-            color: "#6B6B6B",
+            color: secondaryText,
             mb: 3,
+            transition: "color 0.2s ease",
             "&:hover": {
-              color: "#B61ECA",
+              color: accent,
             },
           }}
         >
-          <ArrowBackIcon sx={{ fontSize: 19 }} />
+          <ArrowBackIcon
+            sx={{ fontSize: 19 }}
+          />
 
           <Typography
             sx={{
@@ -329,10 +467,12 @@ const ProductDetails = () => {
 
         <Box
           sx={{
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             overflow: "hidden",
+            transition:
+              "background-color 0.3s ease, border-color 0.3s ease",
           }}
         >
           <Grid container>
@@ -344,8 +484,12 @@ const ProductDetails = () => {
               <Box
                 sx={{
                   position: "relative",
-                  backgroundColor: "#F3E3F6",
-                  minHeight: { xs: 380, md: 560 },
+                  backgroundColor:
+                    imageBackground,
+                  minHeight: {
+                    xs: 380,
+                    md: 560,
+                  },
                   overflow: "hidden",
                 }}
               >
@@ -355,12 +499,19 @@ const ProductDetails = () => {
                   alt={product.name}
                   sx={{
                     width: "100%",
-                    height: { xs: 380, md: 560 },
+                    height: {
+                      xs: 380,
+                      md: 560,
+                    },
                     objectFit: "cover",
                     display: "block",
-                    transition: "transform 0.5s ease",
-                    "&:hover": {
-                      transform: "scale(1.03)",
+                    transition:
+                      "transform 0.5s ease",
+                    "@media (hover: hover)": {
+                      "&:hover": {
+                        transform:
+                          "scale(1.03)",
+                      },
                     },
                   }}
                 />
@@ -373,8 +524,10 @@ const ProductDetails = () => {
                     position: "absolute",
                     top: 18,
                     left: 18,
-                    backgroundColor: "#B61ECA",
-                    color: "#FFFFFF",
+                    backgroundColor: accent,
+                    color: isLuxuryMode
+                      ? "#171717"
+                      : "#FFFFFF",
                     fontWeight: 700,
                     fontSize: 11,
                     letterSpacing: "0.8px",
@@ -392,17 +545,25 @@ const ProductDetails = () => {
                     width: 46,
                     height: 46,
                     backgroundColor:
-                      "rgba(255,255,255,0.95)",
+                      isLuxuryMode
+                        ? "rgba(20,20,20,0.92)"
+                        : "rgba(255,255,255,0.95)",
+                    border: isLuxuryMode
+                      ? "1px solid rgba(200,169,107,0.45)"
+                      : "1px solid transparent",
+                    color: primaryText,
                     "&:hover": {
-                      backgroundColor: "#B61ECA",
-                      color: "#FFFFFF",
+                      backgroundColor: accent,
+                      color: isLuxuryMode
+                        ? "#171717"
+                        : "#FFFFFF",
                     },
                   }}
                 >
                   {wishlisted ? (
                     <FavoriteIcon
                       sx={{
-                        color: "#B61ECA",
+                        color: accent,
                       }}
                     />
                   ) : (
@@ -419,17 +580,22 @@ const ProductDetails = () => {
             <Grid size={{ xs: 12, md: 6 }}>
               <Box
                 sx={{
-                  p: { xs: 3, md: 4 },
+                  p: {
+                    xs: 3,
+                    md: 4,
+                  },
                   height: "100%",
                   display: "flex",
                   flexDirection: "column",
+                  backgroundColor:
+                    cardBackground,
                 }}
               >
                 {/* Brand */}
 
                 <Typography
                   sx={{
-                    color: "#B61ECA",
+                    color: accent,
                     fontSize: 13,
                     fontWeight: 800,
                     letterSpacing: "1.5px",
@@ -444,7 +610,7 @@ const ProductDetails = () => {
                 <Typography
                   variant="h4"
                   sx={{
-                    color: "#171717",
+                    color: primaryText,
                     fontWeight: 800,
                     lineHeight: 1.25,
                     mb: 2,
@@ -469,8 +635,10 @@ const ProductDetails = () => {
                 >
                   <Box
                     sx={{
-                      backgroundColor: "#B61ECA",
-                      color: "#FFFFFF",
+                      backgroundColor: accent,
+                      color: isLuxuryMode
+                        ? "#171717"
+                        : "#FFFFFF",
                       px: 1,
                       py: 0.4,
                       borderRadius: "4px",
@@ -486,7 +654,7 @@ const ProductDetails = () => {
 
                   <Typography
                     sx={{
-                      color: "#6B6B6B",
+                      color: secondaryText,
                       fontSize: 13,
                     }}
                   >
@@ -497,7 +665,12 @@ const ProductDetails = () => {
                   </Typography>
                 </Box>
 
-                <Divider sx={{ mb: 2.5 }} />
+                <Divider
+                  sx={{
+                    mb: 2.5,
+                    borderColor: border,
+                  }}
+                />
 
                 {/* Price */}
 
@@ -505,7 +678,7 @@ const ProductDetails = () => {
                   sx={{
                     fontSize: 30,
                     fontWeight: 800,
-                    color: "#171717",
+                    color: primaryText,
                     mb: 0.5,
                   }}
                 >
@@ -518,7 +691,7 @@ const ProductDetails = () => {
                 <Typography
                   sx={{
                     fontSize: 13,
-                    color: "#6B6B6B",
+                    color: secondaryText,
                     mb: 2,
                   }}
                 >
@@ -533,7 +706,7 @@ const ProductDetails = () => {
                       sx={{
                         fontSize: 15,
                         fontWeight: 700,
-                        color: "#171717",
+                        color: primaryText,
                         mb: 1,
                       }}
                     >
@@ -544,7 +717,7 @@ const ProductDetails = () => {
                       sx={{
                         fontSize: 14,
                         lineHeight: 1.7,
-                        color: "#6B6B6B",
+                        color: secondaryText,
                       }}
                     >
                       {product.description}
@@ -560,7 +733,7 @@ const ProductDetails = () => {
                       sx={{
                         fontSize: 14,
                         fontWeight: 700,
-                        color: "#171717",
+                        color: primaryText,
                         mb: 1,
                       }}
                     >
@@ -571,8 +744,8 @@ const ProductDetails = () => {
                       label={product.color}
                       variant="outlined"
                       sx={{
-                        borderColor: "#D9B7DE",
-                        color: "#171717",
+                        borderColor: softBorder,
+                        color: primaryText,
                       }}
                     />
                   </Box>
@@ -586,7 +759,7 @@ const ProductDetails = () => {
                       sx={{
                         fontSize: 14,
                         fontWeight: 700,
-                        color: "#171717",
+                        color: primaryText,
                         mb: 1,
                       }}
                     >
@@ -600,19 +773,23 @@ const ProductDetails = () => {
                         flexWrap: "wrap",
                       }}
                     >
-                      {product.sizes.map((size) => (
-                        <Chip
-                          key={size}
-                          label={size}
-                          variant="outlined"
-                          sx={{
-                            minWidth: 48,
-                            borderColor: "#D9B7DE",
-                            color: "#171717",
-                            fontWeight: 600,
-                          }}
-                        />
-                      ))}
+                      {product.sizes.map(
+                        (size) => (
+                          <Chip
+                            key={size}
+                            label={size}
+                            variant="outlined"
+                            sx={{
+                              minWidth: 48,
+                              borderColor:
+                                softBorder,
+                              color:
+                                primaryText,
+                              fontWeight: 600,
+                            }}
+                          />
+                        )
+                      )}
                     </Box>
                   </Box>
                 )}
@@ -653,7 +830,7 @@ const ProductDetails = () => {
                   sx={{
                     fontSize: 14,
                     fontWeight: 700,
-                    color: "#171717",
+                    color: primaryText,
                     mb: 1,
                   }}
                 >
@@ -665,7 +842,7 @@ const ProductDetails = () => {
                     display: "flex",
                     alignItems: "center",
                     width: "fit-content",
-                    border: "1px solid #D9C7DC",
+                    border: `1px solid ${softBorder}`,
                     borderRadius: "6px",
                     mb: 3,
                     overflow: "hidden",
@@ -674,13 +851,16 @@ const ProductDetails = () => {
                   <IconButton
                     onClick={() =>
                       setQuantity((prev) =>
-                        Math.max(1, prev - 1)
+                        Math.max(
+                          1,
+                          prev - 1
+                        )
                       )
                     }
                     disabled={quantity <= 1}
                     sx={{
                       borderRadius: 0,
-                      color: "#171717",
+                      color: primaryText,
                     }}
                   >
                     <RemoveIcon fontSize="small" />
@@ -691,17 +871,22 @@ const ProductDetails = () => {
                       minWidth: 45,
                       textAlign: "center",
                       fontWeight: 700,
+                      color: primaryText,
                     }}
                   >
                     {quantity}
                   </Typography>
 
                   <IconButton
-                    onClick={handleQuantityIncrease}
-                    disabled={quantity >= maxStock}
+                    onClick={
+                      handleQuantityIncrease
+                    }
+                    disabled={
+                      quantity >= maxStock
+                    }
                     sx={{
                       borderRadius: 0,
-                      color: "#171717",
+                      color: primaryText,
                     }}
                   >
                     <AddIcon fontSize="small" />
@@ -719,23 +904,45 @@ const ProductDetails = () => {
                 >
                   <Box sx={{ flex: 1 }}>
                     <CustomButton
-                      onClick={handleAddToBag}
-                      disabled={maxStock <= 0}
+                      onClick={
+                        handleAddToBag
+                      }
+                      disabled={
+                        maxStock <= 0
+                      }
+                      sx={{
+                        backgroundColor:
+                          accent,
+                        color:
+                          isLuxuryMode
+                            ? "#171717"
+                            : "#FFFFFF",
+                        "&:hover": {
+                          backgroundColor:
+                            accentHover,
+                          color:
+                            isLuxuryMode
+                              ? "#171717"
+                              : "#FFFFFF",
+                        },
+                      }}
                     >
                       Add to Bag
                     </CustomButton>
                   </Box>
 
                   <IconButton
-                    onClick={handleWishlist}
+                    onClick={
+                      handleWishlist
+                    }
                     sx={{
                       width: 48,
                       height: 48,
-                      border: "1px solid #D9C7DC",
+                      border: `1px solid ${softBorder}`,
                       borderRadius: "6px",
                       color: wishlisted
-                        ? "#B61ECA"
-                        : "#171717",
+                        ? accent
+                        : primaryText,
                     }}
                   >
                     {wishlisted ? (
@@ -750,8 +957,9 @@ const ProductDetails = () => {
 
                 <Box
                   sx={{
-                    backgroundColor: "#FAF6FB",
-                    border: "1px solid #E8DCEB",
+                    backgroundColor:
+                      softBackground,
+                    border: `1px solid ${border}`,
                     borderRadius: 2,
                     p: 2,
                   }}
@@ -766,7 +974,7 @@ const ProductDetails = () => {
                   >
                     <LocalShippingOutlinedIcon
                       sx={{
-                        color: "#B61ECA",
+                        color: accent,
                       }}
                     />
 
@@ -775,7 +983,8 @@ const ProductDetails = () => {
                         sx={{
                           fontSize: 14,
                           fontWeight: 700,
-                          color: "#171717",
+                          color:
+                            primaryText,
                         }}
                       >
                         Easy Delivery
@@ -784,11 +993,12 @@ const ProductDetails = () => {
                       <Typography
                         sx={{
                           fontSize: 12,
-                          color: "#6B6B6B",
+                          color:
+                            secondaryText,
                         }}
                       >
-                        Delivery available to your
-                        location
+                        Delivery available to
+                        your location
                       </Typography>
                     </Box>
                   </Box>
@@ -803,7 +1013,7 @@ const ProductDetails = () => {
                   >
                     <VerifiedOutlinedIcon
                       sx={{
-                        color: "#B61ECA",
+                        color: accent,
                       }}
                     />
 
@@ -812,7 +1022,8 @@ const ProductDetails = () => {
                         sx={{
                           fontSize: 14,
                           fontWeight: 700,
-                          color: "#171717",
+                          color:
+                            primaryText,
                         }}
                       >
                         Quality Assured
@@ -821,11 +1032,12 @@ const ProductDetails = () => {
                       <Typography
                         sx={{
                           fontSize: 12,
-                          color: "#6B6B6B",
+                          color:
+                            secondaryText,
                         }}
                       >
-                        Genuine products with secure
-                        packaging
+                        Genuine products with
+                        secure packaging
                       </Typography>
                     </Box>
                   </Box>
@@ -833,11 +1045,11 @@ const ProductDetails = () => {
                   <Typography
                     sx={{
                       fontSize: 12,
-                      color: "#6B6B6B",
+                      color: secondaryText,
                     }}
                   >
-                    Secure payments • Easy returns •
-                    Customer support
+                    Secure payments • Easy returns
+                    • Customer support
                   </Typography>
                 </Box>
               </Box>
@@ -852,8 +1064,8 @@ const ProductDetails = () => {
         <Box
           sx={{
             mt: 4,
-            backgroundColor: "#FFFFFF",
-            border: "1px solid #E8DCEB",
+            backgroundColor: cardBackground,
+            border: `1px solid ${border}`,
             borderRadius: 3,
             overflow: "hidden",
           }}
@@ -862,11 +1074,15 @@ const ProductDetails = () => {
 
           <Box
             sx={{
-              px: { xs: 2.5, md: 4 },
+              px: {
+                xs: 2.5,
+                md: 4,
+              },
               py: 3,
-              background:
-                "linear-gradient(135deg, #FAF6FB 0%, #F3E3F6 100%)",
-              borderBottom: "1px solid #E8DCEB",
+              background: isLuxuryMode
+                ? "linear-gradient(135deg, #151515 0%, #202020 100%)"
+                : "linear-gradient(135deg, #FAF6FB 0%, #F3E3F6 100%)",
+              borderBottom: `1px solid ${border}`,
             }}
           >
             <Box
@@ -879,15 +1095,18 @@ const ProductDetails = () => {
             >
               <RateReviewOutlinedIcon
                 sx={{
-                  color: "#B61ECA",
+                  color: accent,
                   fontSize: 25,
                 }}
               />
 
               <Typography
                 sx={{
-                  color: "#171717",
-                  fontSize: { xs: 21, md: 25 },
+                  color: primaryText,
+                  fontSize: {
+                    xs: 21,
+                    md: 25,
+                  },
                   fontWeight: 800,
                 }}
               >
@@ -897,18 +1116,23 @@ const ProductDetails = () => {
 
             <Typography
               sx={{
-                color: "#6B6B6B",
+                color: secondaryText,
                 fontSize: 13,
               }}
             >
-              See what our customers say about this
-              product.
+              See what our customers say about
+              this product.
             </Typography>
           </Box>
 
           <Box
             sx={{
-              p: { xs: 2.5, md: 4 },
+              p: {
+                xs: 2.5,
+                md: 4,
+              },
+              backgroundColor:
+                cardBackground,
             }}
           >
             {/* =========================
@@ -921,13 +1145,16 @@ const ProductDetails = () => {
                   sx={{
                     height: "100%",
                     minHeight: 180,
-                    border: "1px solid #E8DCEB",
+                    border: `1px solid ${border}`,
                     borderRadius: 2,
-                    backgroundColor: "#FAF6FB",
+                    backgroundColor:
+                      softBackground,
                     display: "flex",
-                    flexDirection: "column",
+                    flexDirection:
+                      "column",
                     alignItems: "center",
-                    justifyContent: "center",
+                    justifyContent:
+                      "center",
                     p: 3,
                   }}
                 >
@@ -936,11 +1163,13 @@ const ProductDetails = () => {
                       fontSize: 46,
                       lineHeight: 1,
                       fontWeight: 800,
-                      color: "#171717",
+                      color: primaryText,
                     }}
                   >
                     {averageRating > 0
-                      ? averageRating.toFixed(1)
+                      ? averageRating.toFixed(
+                          1
+                        )
                       : "0.0"}
                   </Typography>
 
@@ -951,14 +1180,15 @@ const ProductDetails = () => {
                     icon={
                       <StarIcon
                         sx={{
-                          color: "#B61ECA",
+                          color: accent,
                         }}
                       />
                     }
                     emptyIcon={
                       <StarBorderIcon
                         sx={{
-                          color: "#D8C5DB",
+                          color:
+                            emptyStarColor,
                         }}
                       />
                     }
@@ -968,7 +1198,7 @@ const ProductDetails = () => {
                   <Typography
                     sx={{
                       fontSize: 12,
-                      color: "#6B6B6B",
+                      color: secondaryText,
                     }}
                   >
                     Based on {totalReviews}{" "}
@@ -986,17 +1216,22 @@ const ProductDetails = () => {
               <Grid size={{ xs: 12, md: 8 }}>
                 <Box
                   sx={{
-                    border: "1px solid #E8DCEB",
+                    border: `1px solid ${border}`,
                     borderRadius: 2,
-                    p: { xs: 2, md: 3 },
+                    p: {
+                      xs: 2,
+                      md: 3,
+                    },
                     height: "100%",
+                    backgroundColor:
+                      cardBackground,
                   }}
                 >
                   <Typography
                     sx={{
                       fontSize: 16,
                       fontWeight: 800,
-                      color: "#171717",
+                      color: primaryText,
                       mb: 0.5,
                     }}
                   >
@@ -1006,12 +1241,12 @@ const ProductDetails = () => {
                   <Typography
                     sx={{
                       fontSize: 12,
-                      color: "#6B6B6B",
+                      color: secondaryText,
                       mb: 2,
                     }}
                   >
-                    Reviews can be submitted after your
-                    order has been delivered.
+                    Reviews can be submitted after
+                    your order has been delivered.
                   </Typography>
 
                   {reviewMessage && (
@@ -1044,7 +1279,7 @@ const ProductDetails = () => {
                         sx={{
                           fontSize: 13,
                           fontWeight: 700,
-                          color: "#171717",
+                          color: primaryText,
                           mb: 0.8,
                         }}
                       >
@@ -1053,14 +1288,19 @@ const ProductDetails = () => {
 
                       <Rating
                         value={reviewRating}
-                        onChange={(event, newValue) => {
-                          setReviewRating(newValue || 0);
+                        onChange={(
+                          event,
+                          newValue
+                        ) => {
+                          setReviewRating(
+                            newValue || 0
+                          );
                           setReviewError("");
                         }}
                         icon={
                           <StarIcon
                             sx={{
-                              color: "#B61ECA",
+                              color: accent,
                               fontSize: 29,
                             }}
                           />
@@ -1068,7 +1308,8 @@ const ProductDetails = () => {
                         emptyIcon={
                           <StarBorderIcon
                             sx={{
-                              color: "#D8C5DB",
+                              color:
+                                emptyStarColor,
                               fontSize: 29,
                             }}
                           />
@@ -1084,7 +1325,9 @@ const ProductDetails = () => {
                         placeholder="Write about your experience with this product..."
                         value={reviewComment}
                         onChange={(event) => {
-                          setReviewComment(event.target.value);
+                          setReviewComment(
+                            event.target.value
+                          );
                           setReviewError("");
                         }}
                         inputProps={{
@@ -1093,25 +1336,77 @@ const ProductDetails = () => {
                         helperText={`${reviewComment.length}/500`}
                         sx={{
                           mb: 2,
-                          "& .MuiOutlinedInput-root": {
-                            borderRadius: 2,
-                          },
+
+                          "& .MuiInputLabel-root":
+                            {
+                              color:
+                                secondaryText,
+                            },
+
+                          "& .MuiInputLabel-root.Mui-focused":
+                            {
+                              color: accent,
+                            },
+
+                          "& .MuiOutlinedInput-root":
+                            {
+                              borderRadius: 2,
+                              color: primaryText,
+
+                              "& fieldset": {
+                                borderColor:
+                                  softBorder,
+                              },
+
+                              "&:hover fieldset":
+                                {
+                                  borderColor:
+                                    accent,
+                                },
+
+                              "&.Mui-focused fieldset":
+                                {
+                                  borderColor:
+                                    accent,
+                                },
+                            },
+
+                          "& .MuiFormHelperText-root":
+                            {
+                              color:
+                                secondaryText,
+                            },
                         }}
                       />
 
                       <Button
                         variant="contained"
-                        onClick={handleSubmitReview}
-                        disabled={reviewSubmitting}
+                        onClick={
+                          handleSubmitReview
+                        }
+                        disabled={
+                          reviewSubmitting
+                        }
                         sx={{
-                          backgroundColor: "#B61ECA",
-                          textTransform: "none",
+                          backgroundColor:
+                            accent,
+                          color:
+                            isLuxuryMode
+                              ? "#171717"
+                              : "#FFFFFF",
+                          textTransform:
+                            "none",
                           fontWeight: 700,
                           borderRadius: "6px",
                           px: 3,
                           py: 1.1,
                           "&:hover": {
-                            backgroundColor: "#9615A8",
+                            backgroundColor:
+                              accentHover,
+                            color:
+                              isLuxuryMode
+                                ? "#171717"
+                                : "#FFFFFF",
                           },
                         }}
                       >
@@ -1119,14 +1414,18 @@ const ProductDetails = () => {
                           <Box
                             sx={{
                               display: "flex",
-                              alignItems: "center",
+                              alignItems:
+                                "center",
                               gap: 1,
                             }}
                           >
                             <CircularProgress
                               size={18}
                               sx={{
-                                color: "#FFFFFF",
+                                color:
+                                  isLuxuryMode
+                                    ? "#171717"
+                                    : "#FFFFFF",
                               }}
                             />
 
@@ -1140,8 +1439,10 @@ const ProductDetails = () => {
                   ) : alreadyReviewed ? (
                     <Box
                       sx={{
-                        backgroundColor: "#F3FAF6",
-                        border: "1px solid #CBE9DA",
+                        backgroundColor:
+                          "#F3FAF6",
+                        border:
+                          "1px solid #CBE9DA",
                         borderRadius: 2,
                         p: 2,
                       }}
@@ -1154,7 +1455,8 @@ const ProductDetails = () => {
                           mb: 0.4,
                         }}
                       >
-                        ✓ Thank you for your review!
+                        ✓ Thank you for your
+                        review!
                       </Typography>
 
                       <Typography
@@ -1163,39 +1465,42 @@ const ProductDetails = () => {
                           fontSize: 12,
                         }}
                       >
-                        You have already reviewed this
-                        product.
+                        You have already reviewed
+                        this product.
                       </Typography>
                     </Box>
                   ) : (
                     <Box
                       sx={{
-                        backgroundColor: "#FAF6FB",
-                        border: "1px solid #E8DCEB",
+                        backgroundColor:
+                          softBackground,
+                        border: `1px solid ${border}`,
                         borderRadius: 2,
                         p: 2,
                       }}
                     >
                       <Typography
                         sx={{
-                          color: "#171717",
+                          color: primaryText,
                           fontSize: 14,
                           fontWeight: 800,
                           mb: 0.5,
                         }}
                       >
-                        Purchase this product to review
+                        Purchase this product to
+                        review
                       </Typography>
 
                       <Typography
                         sx={{
-                          color: "#6B6B6B",
+                          color: secondaryText,
                           fontSize: 12,
                           lineHeight: 1.6,
                         }}
                       >
-                        Only customers who have received
-                        this product can submit a review.
+                        Only customers who have
+                        received this product can
+                        submit a review.
                       </Typography>
                     </Box>
                   )}
@@ -1206,7 +1511,7 @@ const ProductDetails = () => {
             <Divider
               sx={{
                 my: 4,
-                borderColor: "#E8DCEB",
+                borderColor: border,
               }}
             />
 
@@ -1218,7 +1523,7 @@ const ProductDetails = () => {
               sx={{
                 fontSize: 17,
                 fontWeight: 800,
-                color: "#171717",
+                color: primaryText,
                 mb: 2,
               }}
             >
@@ -1238,13 +1543,13 @@ const ProductDetails = () => {
                 <CircularProgress
                   size={30}
                   sx={{
-                    color: "#B61ECA",
+                    color: accent,
                   }}
                 />
 
                 <Typography
                   sx={{
-                    color: "#6B6B6B",
+                    color: secondaryText,
                     fontSize: 13,
                   }}
                 >
@@ -1257,8 +1562,9 @@ const ProductDetails = () => {
                   py: 5,
                   px: 2,
                   textAlign: "center",
-                  backgroundColor: "#FAF6FB",
-                  border: "1px solid #E8DCEB",
+                  backgroundColor:
+                    softBackground,
+                  border: `1px solid ${border}`,
                   borderRadius: 2,
                 }}
               >
@@ -1267,21 +1573,27 @@ const ProductDetails = () => {
                     width: 60,
                     height: 60,
                     borderRadius: "50%",
-                    backgroundColor: "#F3E3F6",
-                    color: "#B61ECA",
+                    backgroundColor:
+                      isLuxuryMode
+                        ? "#2A2418"
+                        : "#F3E3F6",
+                    color: accent,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center",
+                    justifyContent:
+                      "center",
                     mx: "auto",
                     mb: 1.5,
                   }}
                 >
-                  <StarBorderIcon sx={{ fontSize: 31 }} />
+                  <StarBorderIcon
+                    sx={{ fontSize: 31 }}
+                  />
                 </Box>
 
                 <Typography
                   sx={{
-                    color: "#171717",
+                    color: primaryText,
                     fontSize: 15,
                     fontWeight: 800,
                     mb: 0.5,
@@ -1292,12 +1604,12 @@ const ProductDetails = () => {
 
                 <Typography
                   sx={{
-                    color: "#6B6B6B",
+                    color: secondaryText,
                     fontSize: 12,
                   }}
                 >
-                  Be the first customer to review this
-                  product.
+                  Be the first customer to review
+                  this product.
                 </Typography>
               </Box>
             ) : (
@@ -1306,11 +1618,15 @@ const ProductDetails = () => {
                   <Box
                     key={review._id}
                     sx={{
-                      p: { xs: 2, md: 2.5 },
+                      p: {
+                        xs: 2,
+                        md: 2.5,
+                      },
                       mb: 2,
-                      border: "1px solid #E8DCEB",
+                      border: `1px solid ${border}`,
                       borderRadius: 2,
-                      backgroundColor: "#FFFFFF",
+                      backgroundColor:
+                        cardBackground,
                       "&:last-child": {
                         mb: 0,
                       },
@@ -1321,7 +1637,8 @@ const ProductDetails = () => {
                     <Box
                       sx={{
                         display: "flex",
-                        justifyContent: "space-between",
+                        justifyContent:
+                          "space-between",
                         alignItems: {
                           xs: "flex-start",
                           sm: "center",
@@ -1334,7 +1651,8 @@ const ProductDetails = () => {
                       <Box
                         sx={{
                           display: "flex",
-                          alignItems: "center",
+                          alignItems:
+                            "center",
                           gap: 1.2,
                         }}
                       >
@@ -1342,36 +1660,48 @@ const ProductDetails = () => {
                           sx={{
                             width: 38,
                             height: 38,
-                            borderRadius: "50%",
-                            backgroundColor: "#F3E3F6",
-                            color: "#B61ECA",
+                            borderRadius:
+                              "50%",
+                            backgroundColor:
+                              isLuxuryMode
+                                ? "#2A2418"
+                                : "#F3E3F6",
+                            color: accent,
                             display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
+                            alignItems:
+                              "center",
+                            justifyContent:
+                              "center",
                             fontWeight: 800,
                             fontSize: 15,
                           }}
                         >
                           {review.user?.name
                             ?.charAt(0)
-                            ?.toUpperCase() || "U"}
+                            ?.toUpperCase() ||
+                            "U"}
                         </Box>
 
                         <Box>
                           <Typography
                             sx={{
-                              color: "#171717",
+                              color:
+                                primaryText,
                               fontSize: 14,
                               fontWeight: 800,
                             }}
                           >
-                            {review.user?.name ||
+                            {review.user
+                              ?.name ||
                               "Customer"}
                           </Typography>
 
                           <Typography
                             sx={{
-                              color: "#999",
+                              color:
+                                isLuxuryMode
+                                  ? "#888888"
+                                  : "#999999",
                               fontSize: 10,
                               mt: 0.2,
                             }}
@@ -1384,13 +1714,15 @@ const ProductDetails = () => {
                       </Box>
 
                       <Rating
-                        value={review.rating}
+                        value={
+                          review.rating
+                        }
                         readOnly
                         size="small"
                         icon={
                           <StarIcon
                             sx={{
-                              color: "#B61ECA",
+                              color: accent,
                               fontSize: 18,
                             }}
                           />
@@ -1398,7 +1730,8 @@ const ProductDetails = () => {
                         emptyIcon={
                           <StarBorderIcon
                             sx={{
-                              color: "#D8C5DB",
+                              color:
+                                emptyStarColor,
                               fontSize: 18,
                             }}
                           />
@@ -1410,10 +1743,15 @@ const ProductDetails = () => {
 
                     <Typography
                       sx={{
-                        color: "#5F5F5F",
+                        color: isLuxuryMode
+                          ? "#CCCCCC"
+                          : "#5F5F5F",
                         fontSize: 13,
                         lineHeight: 1.7,
-                        pl: { xs: 0, sm: 6.2 },
+                        pl: {
+                          xs: 0,
+                          sm: 6.2,
+                        },
                       }}
                     >
                       {review.comment}

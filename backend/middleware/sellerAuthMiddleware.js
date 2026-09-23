@@ -7,7 +7,7 @@ const sellerProtect = async (req, res, next) => {
 
     if (
       req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
+      req.headers.authorization.startsWith("Bearer ")
     ) {
       token = req.headers.authorization.split(" ")[1];
     }
@@ -19,14 +19,19 @@ const sellerProtect = async (req, res, next) => {
       });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-console.log("DECODED SELLER ID:", decoded.id);
-    const seller = await Seller.findById(decoded.id).select("-password");
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
+
+    const seller = await Seller.findById(
+      decoded.id
+    ).select("-password");
 
     if (!seller) {
       return res.status(401).json({
         success: false,
-        message: "Seller not found",
+        message: "Seller account no longer exists.",
       });
     }
 
@@ -41,7 +46,10 @@ console.log("DECODED SELLER ID:", decoded.id);
 
     next();
   } catch (error) {
-    console.error("Seller auth error:", error);
+    console.error(
+      "Seller auth error:",
+      error.message
+    );
 
     return res.status(401).json({
       success: false,

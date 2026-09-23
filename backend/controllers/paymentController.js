@@ -35,9 +35,8 @@ const createRazorpayOrder = async (req, res) => {
     console.error("Razorpay order creation failed:", error);
 
     res.status(500).json({
-      success: false,
-      message: "Failed to create Razorpay order",
-      error: error.message,
+    success: false,
+    message: "Failed to create Razorpay order",
     });
   }
 };
@@ -103,7 +102,6 @@ const verifyRazorpayPayment = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Payment verification failed",
-      error: error.message,
     });
   }
 };

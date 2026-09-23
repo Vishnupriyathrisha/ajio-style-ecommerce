@@ -89,7 +89,7 @@ const Home = () => {
 <Box
   sx={{
     position: "relative",
-    minHeight: { xs: 500, md: 620 },
+    minHeight: { xs: 460, sm: 520, md: 620 },
     overflow: "hidden",
     display: "flex",
     alignItems: "center",
@@ -130,7 +130,7 @@ const Home = () => {
       maxWidth: "1400px",
       mx: "auto",
       px: { xs: 3, sm: 5, md: 8 },
-      py: 8,
+      py: { xs: 4, sm: 6, md: 8 },
     }}
   >
     <Typography
@@ -148,15 +148,15 @@ const Home = () => {
     <Typography
       sx={{
         fontSize: {
-          xs: "48px",
-          sm: "62px",
-          md: "82px",
-        },
+         xs: "42px",
+         sm: "58px",
+         md: "82px",
+         },
         lineHeight: 0.95,
         fontWeight: 800,
         letterSpacing: "-2px",
         color: "#111",
-        mb: 3,
+        mb: { xs: 2, md: 3 },
       }}
     >
       Style
@@ -166,11 +166,11 @@ const Home = () => {
 
     <Typography
       sx={{
-        fontSize: { xs: "16px", md: "19px" },
-        lineHeight: 1.6,
+        fontSize: { xs: "15px", sm: "17px", md: "19px" },
+        lineHeight: { xs: 1.5, md: 1.6 },
         color: "#555",
-        maxWidth: 470,
-        mb: 4,
+        maxWidth: { xs: 360, md: 470 },
+        mb: { xs: 3, md: 4 },
       }}
     >
       Discover fashion, beauty and everyday essentials
@@ -185,9 +185,10 @@ const Home = () => {
       sx={{
         backgroundColor: "#111",
         color: "#fff",
-        px: 4,
-        py: 1.6,
-        borderRadius: "2px",
+        width: { xs: "100%", sm: "auto" },
+        px: { xs: 2, sm: 4 },
+        py: { xs: 1.4, sm: 1.6 },
+        borderRadius: "4px",
         fontSize: "15px",
         fontWeight: 700,
         textTransform: "none",
@@ -227,7 +228,7 @@ const Home = () => {
       <Box
         sx={{
           px: { xs: 2, md: 6 },
-          py: 7,
+          py: { xs: 4, sm: 5, md: 7 },
         }}
       >
         <Typography
@@ -262,8 +263,8 @@ const Home = () => {
   elevation={0}
   onClick={() => handleCategoryClick(category.value)}
   sx={{
-    minHeight: 320,
-    p: 3,
+    minHeight: { xs: 280, sm: 320 },
+    p: { xs: 2, sm: 3 },
     display: "flex",
     flexDirection: "column",
     justifyContent: "flex-end",
@@ -425,7 +426,7 @@ const Home = () => {
         sx={{
           textAlign: "center",
           px: 2,
-          py: 8,
+          py: { xs: 5, md: 8 },
         }}
       >
         <Typography

@@ -1,24 +1,21 @@
 import { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import axios from "axios";
-import { useCart } from "../context/CartContext";
 
 import {
   Box,
   Typography,
-  Grid,
-  Card,
-  CardMedia,
-  CardContent,
-  Button,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
+  Button,
 } from "@mui/material";
 
-import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
-import FavoriteIcon from "@mui/icons-material/Favorite";
+import { useCart } from "../context/CartContext";
+import { useThemeMode } from "../context/ThemeContext";
+import ProductCard from "../components/common/ProductCard";
 
 const mockProducts = [
   {
@@ -168,155 +165,441 @@ const mockProducts = [
 ];
 
 const Products = () => {
-  const navigate = useNavigate();
-
-  const [products, setProducts] = useState(mockProducts);
-  const [loading, setLoading] = useState(true);
-  const [sort, setSort] = useState("");
-  const [wishlistItems, setWishlistItems] = useState([]);
-
   const [searchParams] = useSearchParams();
 
-  const selectedCategory = searchParams.get("category");
-
   const { addToCart } = useCart();
+  const { isLuxuryMode } = useThemeMode();
 
-  // Fetch products from backend
+  const selectedCategory =
+    searchParams.get("category") || "";
+
+  const searchQuery =
+    searchParams.get("search") || "";
+
+  // ================= THEME COLORS =================
+
+  const pageBackground = isLuxuryMode
+    ? "#0F0F0F"
+    : "#F9F2FA";
+
+  const sectionBackground = isLuxuryMode
+    ? "#151515"
+    : "#FFFFFF";
+
+  const cardSectionBackground = isLuxuryMode
+    ? "#111111"
+    : "#F9F2FA";
+
+  const primaryText = isLuxuryMode
+    ? "#FFFFFF"
+    : "#171717";
+
+  const secondaryText = isLuxuryMode
+    ? "#BDBDBD"
+    : "#6B6B6B";
+
+  const accent = isLuxuryMode
+    ? "#C8A96B"
+    : "#B61ECA";
+
+  const accentHover = isLuxuryMode
+    ? "#E0C080"
+    : "#9615A8";
+
+  const border = isLuxuryMode
+    ? "#333333"
+    : "#E8DCEB";
+
+  // ================= PRODUCTS =================
+
+  const [products, setProducts] = useState([]);
+
+  const [loading, setLoading] = useState(true);
+
+  // ================= SORT =================
+
+  const [sort, setSort] = useState("");
+
+  // ================= WISHLIST =================
+
+  const [wishlistItems, setWishlistItems] = useState([]);
+
+  // ================= PAGINATION =================
+
+  const [page, setPage] = useState(1);
+
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    limit: 12,
+    totalProducts: 0,
+    totalPages: 0,
+    hasNextPage: false,
+    hasPreviousPage: false,
+  });
+
+  // ================= RESET PAGE =================
+
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCategory, searchQuery, sort]);
+
+  // ================= FETCH PRODUCTS =================
+
   useEffect(() => {
     const fetchProducts = async () => {
       try {
+        setLoading(true);
+
         const response = await axios.get(
-          "http://localhost:5000/api/products"
+          "http://localhost:5000/api/products",
+          {
+            params: {
+              page,
+              limit: 12,
+              category:
+                selectedCategory || undefined,
+              search:
+                searchQuery.trim() || undefined,
+              sort: sort || undefined,
+            },
+          }
         );
 
-        const backendProducts = response.data.products || [];
+        const backendProducts =
+          response.data.products || [];
 
-        if (backendProducts.length > 0) {
-          setProducts(backendProducts);
-        } else {
-          setProducts(mockProducts);
-        }
+        setProducts(backendProducts);
+
+        setPagination(
+          response.data.pagination || {
+            currentPage: page,
+            limit: 12,
+            totalProducts:
+              backendProducts.length,
+            totalPages: 1,
+            hasNextPage: false,
+            hasPreviousPage: page > 1,
+          }
+        );
       } catch (error) {
         console.error(
           "Failed to fetch products:",
-          error.response?.data || error.message
+          error.response?.data ||
+            error.message
         );
 
-        setProducts(mockProducts);
+        /*
+         * Fallback for development
+         */
+
+        let fallbackProducts = [
+          ...mockProducts,
+        ];
+
+        // Category filter
+
+        if (selectedCategory) {
+          fallbackProducts =
+            fallbackProducts.filter(
+              (product) =>
+                product.category ===
+                selectedCategory
+            );
+        }
+
+        // Search filter
+
+        if (searchQuery.trim()) {
+          const searchText =
+            searchQuery
+              .trim()
+              .toLowerCase();
+
+          fallbackProducts =
+            fallbackProducts.filter(
+              (product) =>
+                product.name
+                  .toLowerCase()
+                  .includes(searchText) ||
+                product.brand
+                  .toLowerCase()
+                  .includes(searchText) ||
+                product.category
+                  .toLowerCase()
+                  .includes(searchText)
+            );
+        }
+
+        // Sort
+
+        if (sort === "low") {
+          fallbackProducts.sort(
+            (a, b) => a.price - b.price
+          );
+        }
+
+        if (sort === "high") {
+          fallbackProducts.sort(
+            (a, b) => b.price - a.price
+          );
+        }
+
+        if (sort === "name") {
+          fallbackProducts.sort((a, b) =>
+            a.name.localeCompare(b.name)
+          );
+        }
+
+        const totalProducts =
+          fallbackProducts.length;
+
+        const limit = 12;
+
+        const totalPages =
+          Math.ceil(
+            totalProducts / limit
+          ) || 1;
+
+        const startIndex =
+          (page - 1) * limit;
+
+        const paginatedProducts =
+          fallbackProducts.slice(
+            startIndex,
+            startIndex + limit
+          );
+
+        setProducts(
+          paginatedProducts
+        );
+
+        setPagination({
+          currentPage: page,
+          limit,
+          totalProducts,
+          totalPages,
+          hasNextPage:
+            page < totalPages,
+          hasPreviousPage:
+            page > 1,
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, []);
+  }, [
+    page,
+    selectedCategory,
+    searchQuery,
+    sort,
+  ]);
 
-  // Filter products by category
-  const filteredProducts = selectedCategory
-    ? products.filter(
-        (product) => product.category === selectedCategory
-      )
-    : products;
+  // ================= SORT =================
 
-  // Sort products
   const handleSortChange = (event) => {
     setSort(event.target.value);
   };
 
-  const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sort === "low") {
-      return a.price - b.price;
-    }
+  // ================= WISHLIST =================
 
-    if (sort === "high") {
-      return b.price - a.price;
-    }
-
-    if (sort === "name") {
-      return a.name.localeCompare(b.name);
-    }
-
-    return 0;
-  });
-
-  // Wishlist toggle
-  const handleWishlistToggle = (event, product) => {
+  const handleWishlistToggle = (
+    event,
+    product
+  ) => {
     event.stopPropagation();
 
-    const productId = product._id || product.id;
+    const productId =
+      product._id || product.id;
 
     setWishlistItems((prev) =>
       prev.includes(productId)
-        ? prev.filter((id) => id !== productId)
+        ? prev.filter(
+            (id) => id !== productId
+          )
         : [...prev, productId]
     );
+  };
+
+  // ================= ADD TO CART =================
+
+  const handleAddToCart = (product) => {
+    addToCart(product, 1);
+  };
+
+  // ================= NEXT PAGE =================
+
+  const handleNextPage = () => {
+    if (!pagination.hasNextPage) {
+      return;
+    }
+
+    setPage((prev) => prev + 1);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  };
+
+  // ================= PREVIOUS PAGE =================
+
+  const handlePreviousPage = () => {
+    if (!pagination.hasPreviousPage) {
+      return;
+    }
+
+    setPage((prev) => prev - 1);
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
   };
 
   return (
     <Box
       sx={{
-        backgroundColor: "#F9F2FA",
         minHeight: "100vh",
+
+        backgroundColor: pageBackground,
+
+        transition:
+          "background-color 0.3s ease",
       }}
     >
-      {/* Page Header + Style Spotlight */}
+      {/* ================= PAGE HEADER ================= */}
+
       <Box
         sx={{
-          background:
-            "linear-gradient(135deg, #F9F2FA 0%, #F3E3F6 100%)",
-          px: { xs: 3, md: 7 },
-          py: { xs: 4, md: 5 },
-          borderBottom: "1px solid #E8DCEB",
+          background: isLuxuryMode
+            ? "linear-gradient(135deg, #111111 0%, #1D1D1D 100%)"
+            : "linear-gradient(135deg, #F9F2FA 0%, #F3E3F6 100%)",
+
+          px: {
+            xs: 2,
+            sm: 3,
+            md: 6,
+          },
+
+          py: {
+            xs: 3,
+            sm: 4,
+            md: 5,
+          },
+
+          borderBottom:
+            `1px solid ${border}`,
+
+          transition:
+            "background 0.3s ease, border-color 0.3s ease",
         }}
       >
         <Box
           sx={{
             maxWidth: 1400,
+
             mx: "auto",
+
             display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 4,
-            flexWrap: "wrap",
+
+            alignItems: {
+              xs: "flex-start",
+              md: "center",
+            },
+
+            justifyContent:
+              "space-between",
+
+            gap: {
+              xs: 2,
+              md: 4,
+            },
+
+            flexDirection: {
+              xs: "column",
+              md: "row",
+            },
           }}
         >
-          {/* Left Section */}
+          {/* ================= LEFT ================= */}
+
           <Box>
             <Typography
-              variant="h3"
               sx={{
                 fontWeight: 800,
-                color: "#171717",
+
+                color: primaryText,
+
+                fontSize: {
+                  xs: 30,
+                  sm: 36,
+                  md: 42,
+                },
+
+                lineHeight: 1.15,
+
                 mb: 1,
+
+                transition:
+                  "color 0.3s ease",
               }}
             >
-              {selectedCategory || "Fashion"}
+              {selectedCategory ||
+                (searchQuery
+                  ? `Search: ${searchQuery}`
+                  : "Fashion")}
             </Typography>
 
             <Typography
               sx={{
-                color: "#6B6B6B",
-                fontSize: 16,
+                color: secondaryText,
+
+                fontSize: {
+                  xs: 14,
+                  sm: 15,
+                  md: 16,
+                },
+
+                transition:
+                  "color 0.3s ease",
               }}
             >
-              Discover the latest styles and trends
+              Discover the latest styles
+              and trends
             </Typography>
           </Box>
 
-          {/* Right Section */}
+          {/* ================= RIGHT ================= */}
+
           <Box
             sx={{
-              minWidth: { xs: "100%", md: 420 },
-              textAlign: { xs: "left", md: "right" },
+              width: {
+                xs: "100%",
+                md: "auto",
+              },
+
+              textAlign: {
+                xs: "left",
+                md: "right",
+              },
             }}
           >
             <Typography
               sx={{
-                color: "#B61ECA",
-                fontSize: 12,
+                color: accent,
+
+                fontSize: 11,
+
                 fontWeight: 800,
+
                 letterSpacing: "2px",
+
                 mb: 0.5,
+
+                transition:
+                  "color 0.3s ease",
               }}
             >
               STYLE SPOTLIGHT
@@ -324,10 +607,20 @@ const Products = () => {
 
             <Typography
               sx={{
-                fontSize: { xs: 22, md: 28 },
+                fontSize: {
+                  xs: 20,
+                  sm: 24,
+                  md: 28,
+                },
+
                 fontWeight: 700,
-                color: "#171717",
+
+                color: primaryText,
+
                 mb: 0.5,
+
+                transition:
+                  "color 0.3s ease",
               }}
             >
               Curated looks for every mood
@@ -335,48 +628,149 @@ const Products = () => {
 
             <Typography
               sx={{
-                color: "#6B6B6B",
-                fontSize: 14,
+                color: secondaryText,
+
+                fontSize: {
+                  xs: 13,
+                  md: 14,
+                },
+
+                transition:
+                  "color 0.3s ease",
               }}
             >
-              Explore styles made for your everyday moments.
+              Explore styles made for
+              your everyday moments.
             </Typography>
           </Box>
         </Box>
       </Box>
 
-      {/* Filter / Sort Bar */}
+      {/* ================= FILTER / SORT ================= */}
+
       <Box
         sx={{
-          px: { xs: 2, md: 6 },
-          py: 2,
+          px: {
+            xs: 2,
+            sm: 3,
+            md: 6,
+          },
+
+          py: {
+            xs: 1.5,
+            md: 2,
+          },
+
           display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          borderBottom: "1px solid #E8DCEB",
-          gap: 2,
-          flexWrap: "wrap",
-          backgroundColor: "#FFFFFF",
+
+          justifyContent:
+            "space-between",
+
+          alignItems: {
+            xs: "stretch",
+            sm: "center",
+          },
+
+          flexDirection: {
+            xs: "column",
+            sm: "row",
+          },
+
+          gap: {
+            xs: 1.5,
+            sm: 2,
+          },
+
+          borderBottom:
+            `1px solid ${border}`,
+
+          backgroundColor:
+            sectionBackground,
+
+          transition:
+            "background-color 0.3s ease, border-color 0.3s ease",
         }}
       >
+        {/* Product Count */}
+
         <Typography
-          variant="body2"
-          color="text.secondary"
+          sx={{
+            color: secondaryText,
+
+            fontSize: {
+              xs: 13,
+              sm: 14,
+            },
+
+            transition:
+              "color 0.3s ease",
+          }}
         >
           {loading
             ? "Loading..."
-            : `${sortedProducts.length} Products`}
+            : `${pagination.totalProducts} Products`}
         </Typography>
 
-        <FormControl size="small" sx={{ minWidth: 180 }}>
-          <InputLabel>Sort By</InputLabel>
+        {/* Sort */}
+
+        <FormControl
+          size="small"
+          sx={{
+            width: {
+              xs: "100%",
+              sm: 180,
+            },
+          }}
+        >
+          <InputLabel
+            sx={{
+              color: secondaryText,
+
+              "&.Mui-focused": {
+                color: accent,
+              },
+            }}
+          >
+            Sort By
+          </InputLabel>
 
           <Select
             value={sort}
             label="Sort By"
             onChange={handleSortChange}
+            sx={{
+              backgroundColor:
+                isLuxuryMode
+                  ? "#222222"
+                  : "#FFFFFF",
+
+              color: primaryText,
+
+              minHeight: 44,
+
+              "& .MuiOutlinedInput-notchedOutline":
+                {
+                  borderColor: border,
+                },
+
+              "&:hover .MuiOutlinedInput-notchedOutline":
+                {
+                  borderColor: accent,
+                },
+
+              "&.Mui-focused .MuiOutlinedInput-notchedOutline":
+                {
+                  borderColor: accent,
+                },
+
+              "& .MuiSvgIcon-root": {
+                color: accent,
+              },
+            }}
           >
-            <MenuItem value="">Recommended</MenuItem>
+            <MenuItem value="">
+              Recommended
+            </MenuItem>
 
             <MenuItem value="low">
               Price: Low to High
@@ -393,203 +787,335 @@ const Products = () => {
         </FormControl>
       </Box>
 
-      {/* Products */}
+      {/* ================= PRODUCTS SECTION ================= */}
+
       <Box
         sx={{
-          px: { xs: 2, md: 6 },
-          py: 4,
+          maxWidth: 1500,
+
+          mx: "auto",
+
+          px: {
+            xs: 1.5,
+            sm: 3,
+            md: 5,
+            lg: 6,
+          },
+
+          py: {
+            xs: 2.5,
+            sm: 3.5,
+            md: 4.5,
+          },
+
+          backgroundColor:
+            cardSectionBackground,
+
+          transition:
+            "background-color 0.3s ease",
         }}
       >
-        <Grid container spacing={3}>
-          {sortedProducts.map((product) => {
-            const productId = product._id || product.id;
+        {/* ================= LOADING ================= */}
 
-            const isWishlisted =
-              wishlistItems.includes(productId);
+        {loading ? (
+          <Box
+            sx={{
+              minHeight: 400,
 
-            return (
-              <Grid
-                key={productId}
-                size={{
-                  xs: 12,
-                  sm: 6,
-                  md: 4,
-                  lg: 3,
+              display: "flex",
+
+              alignItems: "center",
+
+              justifyContent:
+                "center",
+            }}
+          >
+            <CircularProgress
+              sx={{
+                color: accent,
+              }}
+            />
+          </Box>
+        ) : products.length === 0 ? (
+          /* ================= EMPTY ================= */
+
+          <Box
+            sx={{
+              minHeight: 350,
+
+              display: "flex",
+
+              flexDirection:
+                "column",
+
+              alignItems: "center",
+
+              justifyContent:
+                "center",
+
+              textAlign: "center",
+
+              px: 2,
+            }}
+          >
+            <Typography
+              sx={{
+                fontSize: {
+                  xs: 20,
+                  md: 24,
+                },
+
+                fontWeight: 700,
+
+                color: primaryText,
+
+                mb: 1,
+              }}
+            >
+              No products found
+            </Typography>
+
+            <Typography
+              sx={{
+                color: secondaryText,
+
+                fontSize: 14,
+              }}
+            >
+              Try another category
+              or search term.
+            </Typography>
+          </Box>
+        ) : (
+          <>
+            {/* ================= PRODUCT GRID ================= */}
+
+            <Box
+              sx={{
+                display: "grid",
+
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, minmax(0, 1fr))",
+                  md: "repeat(3, minmax(0, 1fr))",
+                  lg: "repeat(4, minmax(0, 1fr))",
+                },
+
+                gap: {
+                  xs: 2.5,
+                  sm: 3,
+                  md: 3.5,
+                  lg: 4,
+                },
+
+                alignItems:
+                  "stretch",
+              }}
+            >
+              {products.map(
+                (product) => {
+                  const productId =
+                    product._id ||
+                    product.id;
+
+                  const isWishlisted =
+                    wishlistItems.includes(
+                      productId
+                    );
+
+                  return (
+                    <ProductCard
+                      key={productId}
+                      product={product}
+                      isWishlisted={
+                        isWishlisted
+                      }
+                      onWishlistToggle={
+                        handleWishlistToggle
+                      }
+                      onAddToCart={
+                        handleAddToCart
+                      }
+                    />
+                  );
+                }
+              )}
+            </Box>
+
+            {/* ================= PAGINATION ================= */}
+
+            {pagination.totalPages >
+              1 && (
+              <Box
+                sx={{
+                  display: "flex",
+
+                  alignItems:
+                    "center",
+
+                  justifyContent:
+                    "center",
+
+                  gap: {
+                    xs: 1.5,
+                    sm: 2,
+                  },
+
+                  mt: {
+                    xs: 3,
+                    sm: 4,
+                  },
+
+                  pb: {
+                    xs: 1,
+                    sm: 2,
+                  },
                 }}
               >
-                <Card
-                  elevation={0}
-                  onClick={() =>
-                    navigate("/product-details", {
-                      state: { product },
-                    })
+                {/* Previous */}
+
+                <Button
+                  variant="outlined"
+                  disabled={
+                    !pagination.hasPreviousPage
+                  }
+                  onClick={
+                    handlePreviousPage
                   }
                   sx={{
-                    height: "100%",
-                    border: "1px solid #E8DCEB",
-                    borderRadius: 2,
-                    overflow: "hidden",
-                    cursor: "pointer",
-                    backgroundColor: "#FFFFFF",
-                    transition: "0.3s ease",
-                    position: "relative",
+                    minWidth: {
+                      xs: 100,
+                      sm: 110,
+                    },
+
+                    minHeight: 44,
+
+                    borderColor: accent,
+
+                    color: accent,
+
+                    textTransform:
+                      "none",
+
+                    fontWeight: 700,
+
+                    borderRadius: "7px",
 
                     "&:hover": {
-                      transform: "translateY(-6px)",
-                      boxShadow:
-                        "0 12px 30px rgba(182,30,202,0.15)",
+                      borderColor:
+                        accentHover,
+
+                      backgroundColor:
+                        isLuxuryMode
+                          ? "#222222"
+                          : "#F9F2FA",
+                    },
+
+                    "&.Mui-disabled": {
+                      borderColor:
+                        isLuxuryMode
+                          ? "#444444"
+                          : "#E8DCEB",
+
+                      color:
+                        isLuxuryMode
+                          ? "#666666"
+                          : "#BDBDBD",
                     },
                   }}
                 >
-                  {/* Product Image */}
-                  <Box
-                    sx={{
-                      position: "relative",
-                      overflow: "hidden",
-                    }}
-                  >
-                    <CardMedia
-                      component="img"
-                      height="320"
-                      image={product.image}
-                      alt={product.name}
-                      sx={{
-                        objectFit: "cover",
-                        transition: "0.4s ease",
+                  Previous
+                </Button>
 
-                        "&:hover": {
-                          transform: "scale(1.04)",
-                        },
-                      }}
-                    />
+                {/* Page Number */}
 
-                    {/* Trending Badge */}
-                    <Box
-                      sx={{
-                        position: "absolute",
-                        top: 12,
-                        left: 12,
-                        backgroundColor: "#B61ECA",
-                        color: "#FFFFFF",
-                        px: 1.5,
-                        py: 0.5,
-                        borderRadius: "20px",
-                        fontSize: 11,
-                        fontWeight: 700,
-                        letterSpacing: "0.8px",
-                      }}
-                    >
-                      TRENDING
-                    </Box>
+                <Typography
+                  sx={{
+                    minWidth: {
+                      xs: 55,
+                      sm: 70,
+                    },
 
-                    {/* Wishlist Button */}
-                    <Box
-                      onClick={(event) =>
-                        handleWishlistToggle(event, product)
-                      }
-                      sx={{
-                        position: "absolute",
-                        top: 10,
-                        right: 10,
-                        width: 40,
-                        height: 40,
-                        borderRadius: "50%",
-                        backgroundColor:
-                          "rgba(255,255,255,0.95)",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        cursor: "pointer",
-                        transition: "0.2s",
+                    textAlign:
+                      "center",
 
-                        "&:hover": {
-                          backgroundColor: "#B61ECA",
-                          color: "#FFFFFF",
-                        },
-                      }}
-                    >
-                      {isWishlisted ? (
-                        <FavoriteIcon
-                          sx={{
-                            color: "#B61ECA",
-                            fontSize: 22,
-                          }}
-                        />
-                      ) : (
-                        <FavoriteBorderIcon
-                          sx={{
-                            fontSize: 22,
-                          }}
-                        />
-                      )}
-                    </Box>
-                  </Box>
+                    fontWeight: 700,
 
-                  {/* Product Details */}
-                  <CardContent sx={{ p: 2.5 }}>
-                    <Typography
-                      variant="body2"
-                      sx={{
-                        fontWeight: 700,
-                        color: "#B61ECA",
-                        mb: 0.5,
-                        fontSize: 12,
-                        letterSpacing: "0.5px",
-                      }}
-                    >
-                      {product.brand}
-                    </Typography>
+                    color: primaryText,
 
-                    <Typography
-                      variant="body1"
-                      sx={{
-                        fontWeight: 600,
-                        mb: 1.5,
-                        color: "#171717",
-                      }}
-                    >
-                      {product.name}
-                    </Typography>
+                    fontSize: {
+                      xs: 14,
+                      sm: 15,
+                    },
+                  }}
+                >
+                  {pagination.currentPage}{" "}
+                  /{" "}
+                  {pagination.totalPages}
+                </Typography>
 
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        fontWeight: 800,
-                        mb: 2,
-                        color: "#171717",
-                      }}
-                    >
-                      ₹{product.price.toLocaleString("en-IN")}
-                    </Typography>
+                {/* Next */}
 
-                    <Button
-                      fullWidth
-                      variant="contained"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        addToCart(product, 1);
-                      }}
-                      sx={{
-                        backgroundColor: "#B61ECA",
-                        color: "#FFFFFF",
-                        textTransform: "none",
-                        fontWeight: 600,
-                        py: 1.1,
-                        borderRadius: "6px",
+                <Button
+                  variant="contained"
+                  disabled={
+                    !pagination.hasNextPage
+                  }
+                  onClick={
+                    handleNextPage
+                  }
+                  sx={{
+                    minWidth: {
+                      xs: 100,
+                      sm: 110,
+                    },
 
-                        "&:hover": {
-                          backgroundColor: "#9615A8",
-                        },
-                      }}
-                    >
-                      Add to Bag
-                    </Button>
-                  </CardContent>
-                </Card>
-              </Grid>
-            );
-          })}
-        </Grid>
+                    minHeight: 44,
+
+                    backgroundColor:
+                      accent,
+
+                    color: isLuxuryMode
+                      ? "#171717"
+                      : "#FFFFFF",
+
+                    textTransform:
+                      "none",
+
+                    fontWeight: 700,
+
+                    borderRadius: "7px",
+
+                    boxShadow:
+                      "none",
+
+                    "&:hover": {
+                      backgroundColor:
+                        accentHover,
+
+                      boxShadow:
+                        "none",
+                    },
+
+                    "&.Mui-disabled": {
+                      backgroundColor:
+                        isLuxuryMode
+                          ? "#333333"
+                          : "#E8DCEB",
+
+                      color:
+                        isLuxuryMode
+                          ? "#666666"
+                          : "#AAAAAA",
+                    },
+                  }}
+                >
+                  Next
+                </Button>
+              </Box>
+            )}
+          </>
+        )}
       </Box>
     </Box>
   );

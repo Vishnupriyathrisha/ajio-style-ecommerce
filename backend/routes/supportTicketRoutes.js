@@ -6,11 +6,24 @@ const {
   getTicketById,
 } = require("../controllers/supportTicketController");
 
-const protect = require("../middleware/authMiddleware");
+const {
+  protect,
+} = require("../middleware/authMiddleware");
+
+const {
+  supportTicketValidation,
+  validateRequest,
+} = require("../middleware/validationMiddleware");
 
 const router = express.Router();
 
-router.post("/", protect, createTicket);
+router.post(
+  "/",
+  protect,
+  supportTicketValidation,
+  validateRequest,
+  createTicket
+);
 
 router.get("/my-tickets", protect, getMyTickets);
 

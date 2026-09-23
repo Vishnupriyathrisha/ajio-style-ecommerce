@@ -8,9 +8,48 @@ import Alert from "@mui/material/Alert";
 import CustomInput from "../components/common/CustomInput";
 import CustomButton from "../components/common/CustomButton";
 import api from "../services/api";
+import { useThemeMode } from "../context/ThemeContext";
 
 const SellerRegister = () => {
   const navigate = useNavigate();
+
+  const { isLuxuryMode } = useThemeMode();
+
+  // =========================
+  // THEME COLORS
+  // =========================
+
+  const pageBackground = isLuxuryMode
+    ? "#0F0F0F"
+    : "#F9F2FA";
+
+  const cardBackground = isLuxuryMode
+    ? "#1A1A1A"
+    : "#FFFFFF";
+
+  const primaryText = isLuxuryMode
+    ? "#FFFFFF"
+    : "#171717";
+
+  const secondaryText = isLuxuryMode
+    ? "#BDBDBD"
+    : "#6B6B6B";
+
+  const accent = isLuxuryMode
+    ? "#C8A96B"
+    : "#B61ECA";
+
+  const accentHover = isLuxuryMode
+    ? "#E0C080"
+    : "#9615A8";
+
+  const border = isLuxuryMode
+    ? "#333333"
+    : "#E8DCEB";
+
+  const cardShadow = isLuxuryMode
+    ? "0 12px 35px rgba(0,0,0,0.35)"
+    : "0 12px 35px rgba(182,30,202,0.10)";
 
   const [formData, setFormData] = useState({
     businessName: "",
@@ -25,10 +64,15 @@ const SellerRegister = () => {
   });
 
   const [loading, setLoading] = useState(false);
+
   const [alert, setAlert] = useState({
     type: "",
     message: "",
   });
+
+  // =========================
+  // HANDLE CHANGE
+  // =========================
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -38,6 +82,10 @@ const SellerRegister = () => {
       [name]: value,
     }));
   };
+
+  // =========================
+  // HANDLE SUBMIT
+  // =========================
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -50,7 +98,10 @@ const SellerRegister = () => {
     try {
       setLoading(true);
 
-      const response = await api.post("/seller/register", formData);
+      const response = await api.post(
+        "/seller/register",
+        formData
+      );
 
       if (response.data.success) {
         setAlert({
@@ -78,32 +129,49 @@ const SellerRegister = () => {
     <Box
       sx={{
         minHeight: "calc(100vh - 76px)",
-        background: "#F9F2FA",
+        backgroundColor: pageBackground,
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         py: 5,
         px: 2,
+        transition: "background-color 0.3s ease",
       }}
     >
       <Box
         sx={{
           width: "100%",
           maxWidth: 700,
-          background: "#fff",
-          border: "1px solid #E8DCEB",
+          backgroundColor: cardBackground,
+          border: `1px solid ${border}`,
           borderRadius: "12px",
-          boxShadow: "0 12px 35px rgba(182, 30, 202, 0.10)",
-          p: { xs: 3, sm: 5 },
+          boxShadow: cardShadow,
+          p: {
+            xs: 3,
+            sm: 5,
+          },
+          transition:
+            "background-color 0.3s ease, border-color 0.3s ease",
         }}
       >
-        {/* Heading */}
-        <Box sx={{ textAlign: "center", mb: 4 }}>
+        {/* =========================
+            HEADING
+        ========================= */}
+
+        <Box
+          sx={{
+            textAlign: "center",
+            mb: 4,
+          }}
+        >
           <Typography
             sx={{
-              fontSize: { xs: 26, sm: 32 },
+              fontSize: {
+                xs: 26,
+                sm: 32,
+              },
               fontWeight: 800,
-              color: "#171717",
+              color: primaryText,
               mb: 1,
             }}
           >
@@ -112,7 +180,7 @@ const SellerRegister = () => {
 
           <Typography
             sx={{
-              color: "#6B6B6B",
+              color: secondaryText,
               fontSize: 14,
             }}
           >
@@ -120,12 +188,25 @@ const SellerRegister = () => {
           </Typography>
         </Box>
 
-        {/* Alert */}
+        {/* =========================
+            ALERT
+        ========================= */}
+
         {alert.message && (
-          <Alert severity={alert.type} sx={{ mb: 3 }}>
+          <Alert
+            severity={alert.type}
+            sx={{
+              mb: 3,
+              borderRadius: 2,
+            }}
+          >
             {alert.message}
           </Alert>
         )}
+
+        {/* =========================
+            FORM
+        ========================= */}
 
         <Box
           component="form"
@@ -136,12 +217,15 @@ const SellerRegister = () => {
             gap: 2,
           }}
         >
-          {/* Business Details */}
+          {/* =========================
+              BUSINESS DETAILS
+          ========================= */}
+
           <Typography
             sx={{
               fontSize: 18,
               fontWeight: 700,
-              color: "#B61ECA",
+              color: accent,
               mt: 1,
             }}
           >
@@ -166,12 +250,15 @@ const SellerRegister = () => {
             required
           />
 
-          {/* Account Details */}
+          {/* =========================
+              ACCOUNT DETAILS
+          ========================= */}
+
           <Typography
             sx={{
               fontSize: 18,
               fontWeight: 700,
-              color: "#B61ECA",
+              color: accent,
               mt: 2,
             }}
           >
@@ -208,12 +295,15 @@ const SellerRegister = () => {
             required
           />
 
-          {/* Address */}
+          {/* =========================
+              BUSINESS ADDRESS
+          ========================= */}
+
           <Typography
             sx={{
               fontSize: 18,
               fontWeight: 700,
-              color: "#B61ECA",
+              color: accent,
               mt: 2,
             }}
           >
@@ -268,31 +358,60 @@ const SellerRegister = () => {
             required
           />
 
-          {/* Register */}
+          {/* =========================
+              REGISTER BUTTON
+          ========================= */}
+
           <Box sx={{ mt: 2 }}>
             <CustomButton
               type="submit"
               disabled={loading}
+              sx={{
+                backgroundColor: accent,
+                color: isLuxuryMode
+                  ? "#171717"
+                  : "#FFFFFF",
+
+                "&:hover": {
+                  backgroundColor: accentHover,
+                },
+
+                "&:disabled": {
+                  backgroundColor: isLuxuryMode
+                    ? "#5C513B"
+                    : "#D9A4DF",
+                  color: isLuxuryMode
+                    ? "#BDBDBD"
+                    : "#FFFFFF",
+                },
+              }}
             >
-              {loading ? "Creating Account..." : "Register as Seller"}
+              {loading
+                ? "Creating Account..."
+                : "Register as Seller"}
             </CustomButton>
           </Box>
 
-          {/* Login Link */}
+          {/* =========================
+              LOGIN LINK
+          ========================= */}
+
           <Typography
             sx={{
               textAlign: "center",
-              color: "#6B6B6B",
+              color: secondaryText,
               fontSize: 14,
               mt: 1,
             }}
           >
             Already have a seller account?{" "}
+
             <Link
               to="/seller/login"
               style={{
-                color: "#B61ECA",
+                color: accent,
                 fontWeight: 700,
+                textDecoration: "none",
               }}
             >
               Login

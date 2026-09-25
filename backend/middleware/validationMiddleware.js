@@ -125,6 +125,12 @@ const productIdValidation = [
     .withMessage("Invalid product ID."),
 ];
 
+const reviewProductIdValidation = [
+  param("productId")
+    .isMongoId()
+    .withMessage("Invalid product ID."),
+];
+
 const orderValidation = [
   body("items")
     .isArray({ min: 1 })
@@ -231,6 +237,12 @@ const supportTicketValidation = [
     .bail()
     .isLength({ min: 5 })
     .withMessage("Message must be at least 5 characters."),
+];
+
+const supportTicketIdValidation = [
+  param("id")
+    .isMongoId()
+    .withMessage("Invalid support ticket ID."),
 ];
 
 const sellerRegisterValidation = [
@@ -456,12 +468,14 @@ module.exports = {
   profileValidation,
   productValidation,
   productIdValidation,
+  reviewProductIdValidation,
   orderValidation,
   orderIdValidation,
   paymentCreateOrderValidation,
   paymentVerifyValidation,
   reviewValidation,
   supportTicketValidation,
+  supportTicketIdValidation,
   sellerRegisterValidation,
   sellerLoginValidation,
   sellerProfileValidation,

@@ -213,11 +213,7 @@ const Sidebar = ({ role = "user" }) => {
       icon: <ShoppingBagOutlinedIcon />,
       path: "/admin/orders",
     },
-    {
-      label: "Translations",
-      icon: <TranslateOutlinedIcon />,
-      path: "/admin/translations",
-    },
+    
     {
       label: "Support Tickets",
       icon: <SupportAgentOutlinedIcon />,

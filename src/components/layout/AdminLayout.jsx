@@ -3,6 +3,7 @@ import { Outlet } from "react-router-dom";
 import Box from "@mui/material/Box";
 
 import Sidebar from "../common/Sidebar";
+import AdminHeader from "../common/AdminHeader";
 
 const AdminLayout = () => {
   return (
@@ -13,15 +14,24 @@ const AdminLayout = () => {
         flexDirection: "column",
       }}
     >
-      <Sidebar role="admin" />
+      <AdminHeader />
 
       <Box
-        component="main"
         sx={{
+          display: "flex",
           flex: 1,
         }}
       >
-        <Outlet />
+        <Sidebar role="admin" />
+
+        <Box
+          component="main"
+          sx={{
+            flex: 1,
+          }}
+        >
+          <Outlet />
+        </Box>
       </Box>
     </Box>
   );

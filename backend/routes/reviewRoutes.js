@@ -12,7 +12,7 @@ const {
 
 const {
   reviewValidation,
-  productIdValidation,
+  reviewProductIdValidation,
   validateRequest,
 } = require("../middleware/validationMiddleware");
 
@@ -20,7 +20,7 @@ const router = express.Router();
 
 router.get(
   "/product/:productId",
-  productIdValidation,
+  reviewProductIdValidation,
   validateRequest,
   getProductReviews
 );
@@ -28,7 +28,7 @@ router.get(
 router.get(
   "/eligibility/:productId",
   protect,
-  productIdValidation,
+  reviewProductIdValidation,
   validateRequest,
   checkReviewEligibility
 );

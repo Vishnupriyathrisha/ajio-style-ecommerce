@@ -1,7 +1,16 @@
 const Product = require("../models/Product");
 const {
   getProductsService,
+  getProductByIdService,
+  createProductService,
 } = require("../services/productService");
+
+const { clearProductCache } = require("../utils/cache");
+
+const {
+  sendSuccess,
+  sendError,
+} = require("../utils/response");
 
 // Get active products with pagination, search, filter and sort
 const getProducts = async (req, res) => {
@@ -31,54 +40,62 @@ const getProducts = async (req, res) => {
       totalProducts / limit
     );
 
-    res.status(200).json({
-      success: true,
-      count: products.length,
+    return sendSuccess(
+      res,
+      200,
+      "Products fetched successfully",
+      {
+        count: products.length,
 
-      pagination: {
-        currentPage: page,
-        limit,
-        totalProducts,
-        totalPages,
-        hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1,
-      },
+        pagination: {
+          currentPage: page,
+          limit,
+          totalProducts,
+          totalPages,
+          hasNextPage: page < totalPages,
+          hasPreviousPage: page > 1,
+        },
 
-      products,
-    });
+        products,
+      }
+    );
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch products",
-      error: error.message,
-    });
+    return sendError(
+      res,
+      500,
+      "Failed to fetch products",
+      error.message
+    );
   }
 };
 // Get single product
 const getProductById = async (req, res) => {
   try {
-    const product = await Product.findOne({
-      _id: req.params.id,
-      isActive: true,
-    });
+    const product = await getProductByIdService(req.params.id);
 
     if (!product) {
-      return res.status(404).json({
-        success: false,
-        message: "Product not found",
-      });
+      return sendError(
+        res,
+        404,
+        "Product not found"
+      );
     }
 
-    res.status(200).json({
-      success: true,
-      product,
-    });
+    return sendSuccess(
+      res,
+      200,
+      "Product fetched successfully",
+      {
+        product,
+      }
+    );
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to fetch product",
-      error: error.message,
-    });
+    return sendError(
+      res,
+      500,
+      "Failed to fetch product",
+      error.message
+    );
   }
 };
 
@@ -111,18 +128,19 @@ const createProduct = async (req, res) => {
       });
     }
 
-    const product = await Product.create({
-      brand,
-      name,
-      description,
-      price,
-      category,
-      image,
-      stock,
-      sizes,
-      color,
-    });
+    const product = await createProductService({
+  brand,
+  name,
+  description,
+  price,
+  category,
+  image,
+  stock,
+  sizes,
+  color,
+});
 
+    clearProductCache();
     res.status(201).json({
       success: true,
       message: "Product created successfully",

@@ -12,6 +12,7 @@ const {
 
 const {
   supportTicketValidation,
+  supportTicketIdValidation,
   validateRequest,
 } = require("../middleware/validationMiddleware");
 
@@ -27,6 +28,12 @@ router.post(
 
 router.get("/my-tickets", protect, getMyTickets);
 
-router.get("/:id", protect, getTicketById);
+router.get(
+  "/:id",
+  protect,
+  supportTicketIdValidation,
+  validateRequest,
+  getTicketById
+);
 
 module.exports = router;

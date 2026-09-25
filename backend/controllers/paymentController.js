@@ -3,6 +3,8 @@ require("dotenv").config();
 const Razorpay = require("razorpay");
 const crypto = require("crypto");
 const Order = require("../models/Order");
+const { retryAsync } = require("../utils/retry");
+
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -25,7 +27,12 @@ const createRazorpayOrder = async (req, res) => {
       receipt: `receipt_${Date.now()}`,
     };
 
-    const order = await razorpay.orders.create(options);
+   const order = await retryAsync(
+  () => razorpay.orders.create(options),
+  3,
+  500,
+  10000
+);
 
     res.status(200).json({
       success: true,

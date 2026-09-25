@@ -4,7 +4,9 @@ import { Routes, Route } from "react-router-dom";
 import UserLayout from "./components/layout/UserLayout";
 import SellerLayout from "./components/layout/SellerLayout";
 import AdminLayout from "./components/layout/AdminLayout";
-
+import AdminRoute from "./components/common/AdminRoute";
+import AdminLogin from "./pages/AdminLogin";
+import AdminDashboard from "./pages/AdminDashboard";
 // User Pages
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -136,12 +138,26 @@ const App = () => {
       </Route>
 
 
-      {/* ================= ADMIN ROUTES ================= */}
+      {/* ================= ADMIN AUTH ================= */}
 
-      <Route element={<AdminLayout />}>
+<Route
+  path="/admin/login"
+  element={<AdminLogin />}
+/>
 
-        {/* Admin pages will be added later */}
 
+{/* ================= ADMIN ROUTES ================= */}
+
+<Route element={<AdminRoute />}>
+
+  <Route element={<AdminRoute />}>
+  <Route element={<AdminLayout />}>
+    <Route
+      path="/admin/dashboard"
+      element={<AdminDashboard />}
+    />
+  </Route>
+</Route>
       </Route>
 
     </Routes>

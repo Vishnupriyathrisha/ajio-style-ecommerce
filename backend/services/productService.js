@@ -1,4 +1,5 @@
 const Product = require("../models/Product");
+const { cache } = require("../utils/cache");
 
 const getProductsService = async ({
   page,
@@ -7,6 +8,17 @@ const getProductsService = async ({
   search,
   sort,
 }) => {
+  const cacheKey = `products:${page}:${limit}:${category || ""}:${search || ""}:${sort || ""}`;
+
+  const cachedData = cache.get(cacheKey);
+
+  if (cachedData) {
+    console.log("✅ Products fetched from cache");
+    return cachedData;
+  }
+
+  console.log("🗄️ Products fetched from database");
+
   const skip = (page - 1) * limit;
 
   const filter = {
@@ -53,12 +65,35 @@ const getProductsService = async ({
     Product.countDocuments(filter),
   ]);
 
-  return {
+  const result = {
     products,
     totalProducts,
   };
+
+  cache.set(cacheKey, result);
+
+  return result;
+};
+
+// Get single active product
+const getProductByIdService = async (productId) => {
+  const product = await Product.findOne({
+    _id: productId,
+    isActive: true,
+  });
+
+  return product;
+};
+
+// Create product
+const createProductService = async (productData) => {
+  const product = await Product.create(productData);
+
+  return product;
 };
 
 module.exports = {
   getProductsService,
+  getProductByIdService,
+  createProductService,
 };

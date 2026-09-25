@@ -3,6 +3,7 @@ const express = require("express");
 const {
   register,
   login,
+  createAdmin,
 } = require("../controllers/authController");
 
 const {
@@ -25,6 +26,12 @@ router.post(
   loginValidation,
   validateRequest,
   login
+);
+
+// Create admin account
+router.post(
+  "/create-admin",
+  createAdmin
 );
 
 module.exports = router;

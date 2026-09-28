@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-  "dev": "nodemon server.js",
-  "start": "node server.js",
-  "test": "jest --runInBand"
-},
+    "dev": "nodemon server.js",
+    "start": "node server.js",
+    "test": "jest --runInBand"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -24,6 +24,7 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.9.5",
     "node-cache": "^5.1.2",
+    "nodemailer": "^10.0.12",
     "razorpay": "^2.9.8"
   },
   "devDependencies": {

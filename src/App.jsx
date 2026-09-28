@@ -5,8 +5,13 @@ import UserLayout from "./components/layout/UserLayout";
 import SellerLayout from "./components/layout/SellerLayout";
 import AdminLayout from "./components/layout/AdminLayout";
 import AdminRoute from "./components/common/AdminRoute";
+
+//admin page
 import AdminLogin from "./pages/AdminLogin";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminUsers from "./pages/AdminUsers";
+import AdminSellers from "./pages/AdminSellers";
+
 // User Pages
 import Register from "./pages/Register";
 import Login from "./pages/Login";
@@ -156,6 +161,14 @@ const App = () => {
       path="/admin/dashboard"
       element={<AdminDashboard />}
     />
+    <Route
+       path="/admin/users"
+       element={<AdminUsers />}
+      />
+      <Route
+  path="/admin/sellers"
+  element={<AdminSellers />}
+/>
   </Route>
 </Route>
       </Route>
